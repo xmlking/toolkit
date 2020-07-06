@@ -120,6 +120,7 @@ func (s *service) Start() (err error) {
 			return errors.Wrap(err, "Failed to create listener")
 		}
 	}
+    // log.Info().Msgf("Server (%s) starting at: %s, secure: %t", s.opts.Name, listener.Addr(), s.cfg.Features.Tls.Enabled)
 	log.Info().Msgf("Server (%s) starting at: %s", s.opts.Name, listener.Addr())
 	go func() {
 		reflection.Register(s.grpcServer)
@@ -131,6 +132,7 @@ func (s *service) Start() (err error) {
 		s.opts.BrokerOptions = append(s.opts.BrokerOptions, broker.Context(ctx))
 		s.broker = broker.NewBroker(s.opts.BrokerOptions...)
 
+        // log.Info().Msgf("Broker (%s) starting at: %s, secure: %t", s.broker.Options().Name, s.broker.Options().Endpoint, s.cfg.Features.Tls.Enabled)
 		log.Info().Msgf("Broker (%s) starting at: %s", s.broker.Options().Name, s.broker.Options().Endpoint)
 		for _, receiver := range s.subscribers {
 			// eg.Go()
