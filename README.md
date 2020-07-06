@@ -1,47 +1,50 @@
 # toolkit
 
-## TODO
- 
-WithConfig( interface{})
+## Usage
 
 ```go
-package main
-
-import (
-	"context"
-	"log"
-	"net/http"
-
-	cloudevents "github.com/cloudevents/sdk-go/v2"
-	moron "github.com/spencer-p/moroncloudevents"
-)
-
-func index(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello from HTTP!"))
-}
-
-func receive(ctx context.Context, event cloudevents.Event, r *cloudevents.EventResponse) error {
-	databytes, _ := event.DataBytes()
-	log.Printf("Received CloudEvent with data: %q\n", databytes)
-	return nil
-}
-
 func main() {
-    ctx := signals.NewContext()
+	serviceName := constants.GREETER_SERVICE
+	cfg := config.GetConfig()
 
-	svr, err := moron.NewServer(&moron.ServerConfig{
-		Port:                  "8080",
-		CloudEventReceivePath: "/apis/receive",
-	})
-	if err != nil {
-		log.Fatal("Could not create server: ", err)
+	grpcOps := []grpc.ServerOption{
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_validator.UnaryServerInterceptor(),
+			// keep it last in the interceptor chain
+			rpclog.UnaryServerInterceptor(),
+		)),
 	}
 
-	svr.HandleCloudEvents(receive)
+	if cfg.Features.Tls.Enabled {
+		tlsConf, err := tls.NewTLSConfig(cfg.Features.Tls.CertFile, cfg.Features.Tls.KeyFile, cfg.Features.Tls.CaFile, cfg.Features.Tls.ServerName)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create cert")
+		}
+		serverCert := credentials.NewTLS(tlsConf)
+		grpcOps = append(grpcOps, grpc.Creds(serverCert))
+	}
 
-	svr.HandleFunc("/", index)
+	srv := service.NewService(
+		service.Name(serviceName),
+		service.Version(cfg.Services.Greeter.Version),
+		service.WithGrpcEndpoint(cfg.Services.Greeter.Endpoint),
+		service.WithGrpcOptions(grpcOps...),
+		// service.WithBrokerOptions(...),
+	)
+	// create a gRPC server object
+	grpcServer := srv.Server()
 
-	log.Fatal(svr.ListenAndServe())
+	// create a server instance
+	greeterHandler := handler.NewGreeterHandler()
+
+	// attach the Greeter service to the server
+	greeterv1.RegisterGreeterServiceServer(grpcServer, greeterHandler)
+
+	// start the server
+	log.Info().Msg(config.GetBuildInfo())
+	if err := srv.Start(); err != nil {
+		log.Fatal().Err(err).Send()
+	}
 }
 ```
 
