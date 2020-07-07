@@ -71,6 +71,8 @@ func (s *service) Server() *grpc.Server {
 func (s *service) Client(remote Remote) (clientConn *grpc.ClientConn, err error) {
 	var dialOptions []grpc.DialOption
 
+	// TODO add TLS
+
 	if remote.ServiceConfig != "" {
 		dialOptions = append(s.opts.DialOptions, grpc.WithDefaultServiceConfig(remote.ServiceConfig))
 	}
