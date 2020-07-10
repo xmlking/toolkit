@@ -5,7 +5,8 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-    "github.com/rs/zerolog/log"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/xmlking/toolkit/util/ioutil"
 )
@@ -23,10 +24,10 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 	if err != nil {
 		return
 	}
-    
-    // unwrap keyPEMBlock, if protected with password
+
+	// unwrap keyPEMBlock, if protected with password
 	keyDERBlock, _ := pem.Decode(keyPEMBlock)
-    log.Debug().Msgf("Is Encrypted Private Key: %v", x509.IsEncryptedPEMBlock(keyDERBlock))
+	log.Debug().Msgf("Is Encrypted Private Key: %v", x509.IsEncryptedPEMBlock(keyDERBlock))
 	if x509.IsEncryptedPEMBlock(keyDERBlock) {
 		var decryptedKeyBytes []byte
 		decryptedKeyBytes, err = x509.DecryptPEMBlock(keyDERBlock, []byte(password))
@@ -39,7 +40,7 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 		}
 		keyPEMBlock = pem.EncodeToMemory(keyDERBlock)
 	}
-    
+
 	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 	if err != nil {
 		return nil, err
@@ -54,19 +55,10 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 		ServerName:   serverName,
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      roots,
-		NextProtos:   []string{"h2"},
+		// ClientCAs:    roots,
+		NextProtos: []string{"h2"},
+		MinVersion: tls.VersionTLS12,
 	}, nil
-}
-
-// NewTLSClientConfig returns a TLS config for a client connection
-// If caPath is empty, system CAs will be used
-func NewTLSClientConfig(caPath string) (*tls.Config, error) {
-	roots, err := loadRoots(caPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tls.Config{RootCAs: roots}, nil
 }
 
 func loadRoots(caPath string) (*x509.CertPool, error) {
