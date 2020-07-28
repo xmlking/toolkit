@@ -3,7 +3,7 @@ module github.com/xmlking/toolkit
 go 1.14
 
 require (
-	github.com/cloudevents/sdk-go/v2 v2.1.0
+	github.com/cloudevents/sdk-go/v2 v2.2.0
 	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/markbates/pkger v0.17.0
