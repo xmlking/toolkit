@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/xmlking/toolkit/broker"
+	"github.com/xmlking/toolkit/broker/cloudevents"
 	"github.com/xmlking/toolkit/util/endpoint"
 	"github.com/xmlking/toolkit/util/signals"
 )
