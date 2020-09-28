@@ -1,20 +1,20 @@
 package cache_test
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 	"os"
-    "runtime"
-    "testing"
+	"runtime"
+	"testing"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/require"
-    "golang.org/x/sync/errgroup"
+	"github.com/stretchr/testify/require"
+	"golang.org/x/sync/errgroup"
 
-    "github.com/xmlking/toolkit/cache"
+	"github.com/xmlking/toolkit/cache"
 )
 
 /********************
@@ -115,24 +115,24 @@ func TestCatalogService_Cache(t *testing.T) {
 }
 
 func TestCatalogService_CacheConcurrent(t *testing.T) {
-    catSrv := NewCatalogService(ServiceCache{Enabled: true, Size: 5})
+	catSrv := NewCatalogService(ServiceCache{Enabled: true, Size: 5})
 
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    g, ctx := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	g, ctx := errgroup.WithContext(ctx)
 
-    productID := "abc"
+	productID := "abc"
 
-    for i := 2; i <100; i++ {
-        g.Go(func() error {
-            product, err := catSrv.GetProductByID(productID)
-            assert.NoError(t, err)
-            assert.Equal(t, productID, product.id)
-            return nil
-        })
-    }
+	for i := 2; i < 100; i++ {
+		g.Go(func() error {
+			product, err := catSrv.GetProductByID(productID)
+			assert.NoError(t, err)
+			assert.Equal(t, productID, product.id)
+			return nil
+		})
+	}
 
-    assert.NoError(t, g.Wait())
+	assert.NoError(t, g.Wait())
 }
 
 /********************
@@ -152,26 +152,26 @@ func BenchmarkCatalogService_GetProductByIDConcurrent(b *testing.B) {
 }
 
 func benchmarkCatalogServiceGetProductByIDConcurrent(b *testing.B, s CatalogService) {
-    ctx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    g, ctx := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	g, ctx := errgroup.WithContext(ctx)
 
-    workers := runtime.NumCPU()
-    each := b.N / workers
+	workers := runtime.NumCPU()
+	each := b.N / workers
 
-    b.ReportAllocs()
+	b.ReportAllocs()
 	b.ResetTimer()
-    for i := 0; i < workers; i++ {
-        g.Go(func() error {
-            for j := 0; j < each; j++ {
-                if product, err := s.GetProductByID("abc"); err != nil {
-                    return err
-                } else {
-                    require.Equal(b, "abc", product.id)
-                }
-            }
-            return nil
-        })
-    }
-    require.NoError(b, g.Wait(), "Failed to GetProductByID")
+	for i := 0; i < workers; i++ {
+		g.Go(func() error {
+			for j := 0; j < each; j++ {
+				if product, err := s.GetProductByID("abc"); err != nil {
+					return err
+				} else {
+					require.Equal(b, "abc", product.id)
+				}
+			}
+			return nil
+		})
+	}
+	require.NoError(b, g.Wait(), "Failed to GetProductByID")
 }

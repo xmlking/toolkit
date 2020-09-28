@@ -5,14 +5,14 @@ import (
 	"net"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/xmlking/toolkit/broker/cloudevents"
+	"github.com/xmlking/toolkit/broker/pubsub"
 	"github.com/xmlking/toolkit/util/endpoint"
 	"github.com/xmlking/toolkit/util/signals"
 )
@@ -26,10 +26,9 @@ const (
 )
 
 type service struct {
-	subscribers []interface{}
-	opts        Options
-	grpcServer  *grpc.Server
-	broker      broker.Broker
+	opts       Options
+	grpcServer *grpc.Server
+	broker     broker.Broker
 }
 
 func newService(opts ...Option) Service {
@@ -45,6 +44,10 @@ func newService(opts ...Option) Service {
 	s.ApplyOptions(opts...)
 
 	s.grpcServer = grpc.NewServer(s.opts.GrpcOptions...)
+	if len(s.opts.BrokerOptions) > 0 {
+		s.broker = broker.NewBroker(s.opts.Context, s.opts.BrokerOptions...) // Using same Context
+		broker.DefaultBroker = s.broker                                      // also set it as DefaultBroker
+	}
 
 	return &s
 }
@@ -54,10 +57,6 @@ func (s *service) ApplyOptions(opts ...Option) {
 	for _, o := range opts {
 		o(&s.opts)
 	}
-}
-
-func (s *service) AddSubscriber(fn interface{}) {
-	s.subscribers = append(s.subscribers, fn)
 }
 
 func (s *service) Options() Options {
@@ -71,7 +70,7 @@ func (s *service) Server() *grpc.Server {
 func (s *service) Client(remote Remote) (clientConn *grpc.ClientConn, err error) {
 	var dialOptions []grpc.DialOption
 
-	// TODO add TLS
+	// TODO: set TLS also
 
 	if remote.ServiceConfig != "" {
 		dialOptions = append(s.opts.DialOptions, grpc.WithDefaultServiceConfig(remote.ServiceConfig))
@@ -85,6 +84,10 @@ func (s *service) Client(remote Remote) (clientConn *grpc.ClientConn, err error)
 		log.Error().Err(err).Msgf("Failed connect to: %s", remote.Endpoint)
 	}
 	return
+}
+
+func (s *service) Broker() broker.Broker {
+	return s.broker
 }
 
 func (s *service) Shutdown() error {
@@ -129,26 +132,15 @@ func (s *service) Start() (err error) {
 		errCh <- s.grpcServer.Serve(listener)
 	}()
 
-	// Start Broker
-	if len(s.subscribers) > 0 {
-		s.opts.BrokerOptions = append(s.opts.BrokerOptions, broker.Context(ctx))
-		s.broker = broker.NewBroker(s.opts.BrokerOptions...)
-
-		// log.Info().Msgf("Broker (%s) starting at: %s, secure: %t", s.broker.Options().Name, s.broker.Options().Endpoint, s.cfg.Features.Tls.Enabled)
-		log.Info().Msgf("Broker (%s) starting at: %s", s.broker.Options().Name, s.broker.Options().Endpoint)
-		for _, receiver := range s.subscribers {
-			// eg.Go()
-			go func(ctx context.Context) {
-				errCh <- s.broker.CeClient().StartReceiver(ctx, receiver)
-			}(ctx)
-		}
+	// Start Broker will start all subscribers
+	if s.broker != nil {
+		_ = s.broker.Start()
 	}
 
 	// This will block until either a signal arrives or one of the grouped functions
 	// returns an error.
 	// <-egCtx.Done()
 
-	// sig is a ^C, handle it
 	// Stop either if the receiver stops (sending to errCh) or if stopCh is closed.
 	select {
 	case err := <-errCh:
@@ -159,12 +151,17 @@ func (s *service) Start() (err error) {
 
 	// do any more resources closing here
 	s.grpcServer.GracefulStop()
+	if s.broker != nil {
+		if err := s.broker.Shutdown(); err != nil {
+			log.Error().Err(err).Msg("Unable to stop broker")
+		}
+	}
 	cancel()
 
 	select {
 	case <-errCh:
 		s.grpcServer.Stop()
-		log.Debug().Msg("Gracefully shutdown")
+		log.Info().Msg("Gracefully shutdown")
 	case <-time.After(DefaultShutdownTimeout):
 		log.Error().Msg("Failed to shutdown within grace period")
 		return errors.New("Failed to shutdown within grace period")

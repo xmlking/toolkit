@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"github.com/xmlking/toolkit/broker/cloudevents"
+	"github.com/xmlking/toolkit/broker/pubsub"
 )
 
 type Option func(*Options)
