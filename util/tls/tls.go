@@ -61,6 +61,17 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 	}, nil
 }
 
+// NewTLSClientConfig returns a TLS config for a client connection
+// If caPath is empty, system CAs will be used
+func NewTLSClientConfig(caPath string) (*tls.Config, error) {
+	roots, err := loadRoots(caPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tls.Config{RootCAs: roots}, nil
+}
+
 func loadRoots(caPath string) (*x509.CertPool, error) {
 	if caPath == "" {
 		return nil, nil

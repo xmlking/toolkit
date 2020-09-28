@@ -1,0 +1,7 @@
+version: "3.3"
+services:
+  pub-sub-emulator:
+    image: google/cloud-sdk:306.0.0
+    command: ["gcloud", "beta", "emulators", "pubsub", "start", "--host-port=0.0.0.0:8085", "--project=my-project-id"]
+    ports:
+      - "8085:8085"
