@@ -148,6 +148,7 @@ func (s *service) Start() (err error) {
 	// returns an error.
 	// <-egCtx.Done()
 
+	// sig is a ^C, handle it
 	// Stop either if the receiver stops (sending to errCh) or if stopCh is closed.
 	select {
 	case err := <-errCh:

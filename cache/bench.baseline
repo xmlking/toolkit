@@ -1,0 +1,11 @@
+# go test -bench 'BenchmarkCatalogService_GetProductByIDConcurrent' ./cache -benchtime=100x
+# 9/27/2020
+BenchmarkCatalogService_GetProductByIDConcurrent/without_cache-16                    100          12070017 ns/op             592 B/op          8 allocs/op
+BenchmarkCatalogService_GetProductByIDConcurrent/with_cache-16                       100           2010854 ns/op             534 B/op          7 allocs/op
+
+# 9/28/2020
+# go test -bench 'BenchmarkCatalogService_GetProductByIDConcurrent' ./cache
+BenchmarkCatalogService_GetProductByIDConcurrent/without_cache-16                    100          12101598 ns/op             602 B/op          8 allocs/op
+BenchmarkCatalogService_GetProductByIDConcurrent/with_cache-16                    881434              1313 ns/op             496 B/op          7 allocs/op
+
+
