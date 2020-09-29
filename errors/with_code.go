@@ -35,9 +35,9 @@ func (w *withCode) Code() codes.Code {
 
 // Category returns the error Category. Read-only
 func (w *withCode) Category() categories.Category {
-	switch code := w.Code(); {
+	switch code := w.Code().Int(); {
 	case code < 50:
-		return grpcCategory(code)
+		return grpcCategory(w.Code())
 	case code >= 50 && code < 100:
 		return categories.Temporary
 	case code >= 100 && code < 150:
@@ -49,7 +49,7 @@ func (w *withCode) Category() categories.Category {
 	}
 }
 func grpcCategory(code codes.Code) categories.Category {
-	switch gcodes.Code(code) {
+	switch gcodes.Code(code.Int()) {
 	case gcodes.Canceled, gcodes.DeadlineExceeded, gcodes.ResourceExhausted, gcodes.Aborted, gcodes.Unavailable, gcodes.DataLoss:
 		return categories.Temporary
 	case gcodes.Unknown, gcodes.PermissionDenied, gcodes.FailedPrecondition, gcodes.Internal, gcodes.Unauthenticated:
@@ -86,8 +86,8 @@ func (w *withCode) SafeFormatError(p errbase.Printer) error {
 // it's an encodable error.
 func encodeWithCode(_ context.Context, err error) (string, []string, proto.Message) {
 	w := err.(*withCode)
-	details := []string{fmt.Sprintf("gRPC %d", w.code)}
-	payload := &extgrpc.EncodedGrpcCode{Code: uint32(w.code)}
+	details := []string{fmt.Sprintf("gRPC %d", w.code.Int())}
+	payload := &extgrpc.EncodedGrpcCode{Code: w.code.Int()}
 	return "", details, payload
 }
 
@@ -96,7 +96,7 @@ func decodeWithCode(
 	_ context.Context, cause error, _ string, _ []string, payload proto.Message,
 ) error {
 	wp := payload.(*extgrpc.EncodedGrpcCode)
-	return &withCode{cause: cause, code: codes.Code(wp.Code)}
+	return &withCode{cause: cause, code: codes.TCode(wp.Code)}
 }
 
 func init() {
