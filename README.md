@@ -50,7 +50,7 @@ func main() {
 	log.Info().Interface("ReceiveSettings", cfg.Pubsub.ReceiveSettings).Send()
 	if err := bkr.Subscribe(
 		cfg.Sources.Acro.InputTopic,
-		keyingSubscriber.Handle,
+		accountSubscriber.Handle,
 		broker.WithSubscriptionID(cfg.Sources.Acro.InputSubscription),
 		broker.WithReceiveSettings(pubsub.ReceiveSettings(cfg.Pubsub.ReceiveSettings)),
 	); err != nil {
