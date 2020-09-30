@@ -12,11 +12,10 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/markbates/pkger v0.17.1
-	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	google.golang.org/api v0.32.0
-	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
+	google.golang.org/genproto v0.0.0-20200930140634-01fc692af84b
 	google.golang.org/grpc v1.31.1
 )
