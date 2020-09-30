@@ -4,7 +4,7 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/rs/zerolog/log"
 
-	"github.com/xmlking/toolkit/eventing"
+	eventing "github.com/xmlking/toolkit/broker/cloudevents/internal"
 )
 
 const (

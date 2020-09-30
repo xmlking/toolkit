@@ -2,10 +2,11 @@ package signals
 
 import (
 	"context"
-	"errors"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/cockroachdb/errors"
 )
 
 // Copied from https://github.com/knative/pkg/tree/master/signals

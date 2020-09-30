@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/xmlking/toolkit/broker/pubsub"
 	"google.golang.org/grpc"
 )
 
@@ -11,16 +12,13 @@ type Remote struct {
 }
 
 type Service interface {
+	Options() Options
 	Server() *grpc.Server
 	Client(remote Remote) (*grpc.ClientConn, error)
-	Options() Options
+	Broker() broker.Broker
 	ApplyOptions(opts ...Option) // TODO: no use, make private ?
-	AddSubscriber(fn interface{})
-	// Run the service
-	Shutdown() error
-	// Run the service
 	Start() error
-	//Config Interface
+	Shutdown() error
 }
 
 // NewService creates and returns a new Service based on the packages within.

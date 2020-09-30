@@ -16,7 +16,7 @@ func main() {
 	}
 
 	if cfg.Features.Tls.Enabled {
-		tlsConf, err := tls.NewTLSConfig(cfg.Features.Tls.CertFile, cfg.Features.Tls.KeyFile, cfg.Features.Tls.CaFile, cfg.Features.Tls.ServerName)
+		tlsConf, err := tls.NewTLSConfig(cfg.Features.Tls.CertFile, cfg.Features.Tls.KeyFile, cfg.Features.Tls.CaFile, cfg.Features.Tls.ServerName, cfg.Features.Tls.Password)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create cert")
 		}
@@ -28,8 +28,12 @@ func main() {
 		service.Name(serviceName),
 		service.Version(cfg.Services.Greeter.Version),
 		service.WithGrpcEndpoint(cfg.Services.Greeter.Endpoint),
-		service.WithGrpcOptions(grpcOps...),
-		// service.WithBrokerOptions(...),
+		service.WithGrpcOptions(grpcOps...), // optional
+        // optionally add broker
+		service.WithBrokerOptions(
+			broker.ProjectID(cfg.Pubsub.ProjectID),
+			// broker.ClientOption(option.WithCredentialsFile("GOOGLE_APPLICATION_CREDENTIALS_FILE_PATH")),
+		),
 	)
 	// create a gRPC server object
 	grpcServer := srv.Server()
@@ -40,12 +44,75 @@ func main() {
 	// attach the Greeter service to the server
 	greeterv1.RegisterGreeterServiceServer(grpcServer, greeterHandler)
 
+    testSubscriber := subscriber.testSubscriber()
+    
+    // optionally add subscribe for broker
+	log.Info().Interface("ReceiveSettings", cfg.Pubsub.ReceiveSettings).Send()
+	if err := bkr.Subscribe(
+		cfg.Sources.Acro.InputTopic,
+		accountSubscriber.Handle,
+		broker.WithSubscriptionID(cfg.Sources.Acro.InputSubscription),
+		broker.WithReceiveSettings(pubsub.ReceiveSettings(cfg.Pubsub.ReceiveSettings)),
+	); err != nil {
+		log.Error().Err(err).Msgf("Failed subscribing to Topic: %s", cfg.Sources.Acro.InputTopic)
+	}
+
 	// start the server
 	log.Info().Msg(config.GetBuildInfo())
 	if err := srv.Start(); err != nil {
 		log.Fatal().Err(err).Send()
 	}
 }
+```
+
+## Run 
+
+### PubSub
+
+Source the script needed for next steps
+
+```bash
+. ./scripts/pubsub_functions.sh
+```
+
+#### Start PubSub
+
+Start emulator via gcloud cli
+
+```bash
+gcps
+```
+
+As alternative, you can also start emulator via docker
+
+```bash
+docker-compose up pub-sub-emulator
+```
+
+#### Setup PubSub
+
+```bash
+gcpg
+# or 
+gcpg tooklit
+# or 
+gcpg tooklit dev
+```
+
+#### Tail logs
+
+```bash
+# when using gcloud cli to start emulator
+gcpl
+```
+
+#### Stop PubSub
+
+```bash
+# when using gcloud cli to start emulator
+gcpk
+# or if you are using docker-compose
+docker-compose up down
 ```
 
 ## 🔗 Credits

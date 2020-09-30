@@ -1,0 +1,3 @@
+// import "github.com/xmlking/toolkit/logger" to `main.go` and all test files.
+// set log level and format in via Env: CONFIGOR_LOG_LEVEL, CONFIGOR_LOG_FORMAT, CONFIGOR_LOG_GRPC
+package logger

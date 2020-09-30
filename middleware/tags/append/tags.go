@@ -45,12 +45,11 @@ func UnaryClientInterceptor(opts ...Option) grpc.UnaryClientInterceptor {
 
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		md := options.getMetadata()
-		println(len(md))
+
 		var pairs []string
 		for k, vv := range md {
 			pairs = append(pairs, k, vv[0])
 		}
-		println(len(pairs))
 
 		if options.traceIdEnabled {
 			pairs = append(pairs, constants.TraceIDKey, uuid.New().String())

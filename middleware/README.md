@@ -1,9 +1,15 @@
 # Middleware
 
 1. rpclog
-2. duration
-3. [validator](github.com/grpc-ecosystem/go-grpc-middleware/validator)
-4. [grpc-opentracing](https://github.com/grpc-ecosystem/grpc-opentracing)
+1. duration
+1. tags
+1. [validator](github.com/grpc-ecosystem/go-grpc-middleware/validator)
+1. [errors](https://github.com/cockroachdb/errors/blob/master/grpc/main_test.go)
+1. [opentelemetry](https://github.com/open-telemetry/opentelemetry-go-contrib/tree/master/instrumentation/google.golang.org/grpc)
+1. [opentracing](https://github.com/grpc-ecosystem/grpc-opentracing)
+1. [go-concurrency-limits](https://github.com/platinummonkey/go-concurrency-limits)
+
+
 
 ## Get
 
@@ -41,5 +47,29 @@ server := grpc.NewServer(
         // keep it last in the interceptor chain
         rpclog.StreamServerInterceptor()
     )),
+)
+```
+
+#### concurrency-limits
+
+```go
+import (
+    gclGrpc "github.com/platnummonkey/go-concurrency-limits/grpc"
+)
+
+// setup grpc server with this option
+serverOption := grpc.UnaryInterceptor(
+    gclGrpc.UnaryServerInterceptor(
+        gclGrpc.WithLimiter(...),
+        gclGrpc.WithServerResponseTypeClassifier(..),
+    ),
+)
+
+// setup grpc client with this option
+dialOption := grpc.WithUnaryInterceptor(
+    gclGrpc.UnaryClientInterceptor(
+        gclGrpc.WithLimiter(...),
+        gclGrpc.WithClientResponseTypeClassifier(...),
+    ),
 )
 ```
