@@ -105,7 +105,7 @@ func (b *pubsubBroker) Shutdown() (err error) {
 	log.Info().Msgf("Closing pubsub client...")
 	err = b.client.Close()
 	// Hint: when using pubsub emulator, you receive this error, which you can safely ignore.
-	// Live pubsub server will throw this error.
+	// Live pubsub server will NOT throw this error.
 	if err != nil && strings.Contains(err.Error(), "the client connection is closing") {
 		err = nil
 	}
