@@ -3,6 +3,7 @@ package broker
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -102,7 +103,13 @@ func (b *pubsubBroker) Shutdown() (err error) {
 	}
 	// then disconnection client.
 	log.Info().Msgf("Closing pubsub client...")
-	return b.client.Close()
+	err = b.client.Close()
+	// Hint: when using pubsub emulator, you receive this error, which you can safely ignore.
+	// Live pubsub server will throw this error.
+	if err != nil && strings.Contains(err.Error(), "the client connection is closing") {
+		err = nil
+	}
+	return
 }
 
 func (b *pubsubBroker) Options() Options {
