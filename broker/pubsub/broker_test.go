@@ -2,7 +2,10 @@ package broker_test
 
 import (
 	"context"
+	"reflect"
 	"testing"
+	"time"
+	"unsafe"
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/pstest"
@@ -13,6 +16,65 @@ import (
 
 	broker "github.com/xmlking/toolkit/broker/pubsub"
 )
+
+func makeMockMessage(newDoneFunc func(string, bool, time.Time)) pubsub.Message {
+	message := pubsub.Message{
+		ID:              "1",
+		Data:            []byte("ABC"),
+		Attributes:      map[string]string{"att1": "val1"},
+		PublishTime:     time.Now(),
+		DeliveryAttempt: nil,
+		OrderingKey:     "1",
+	}
+
+	//Get a reflectable value of message
+	messageValue := reflect.ValueOf(message)
+
+	// The value above is unaddressable. So construct a new and addressable message and set it with the value of the unaddressable
+	addressableValue := reflect.New(messageValue.Type()).Elem()
+	addressableValue.Set(messageValue)
+
+	//Get message's doneFunc field
+	doneFuncField := addressableValue.FieldByName("doneFunc")
+
+	//Get the address of the field
+	doneFuncFieldAddress := doneFuncField.UnsafeAddr()
+
+	//Create a pointer based on the address
+	doneFuncFieldPointer := unsafe.Pointer(doneFuncFieldAddress)
+
+	//Create a new, exported field element that points to the original
+	accessibleDoneFuncField := reflect.NewAt(doneFuncField.Type(), doneFuncFieldPointer).Elem()
+
+	//Set the field with the alternative doneFunc
+	accessibleDoneFuncField.Set(reflect.ValueOf(newDoneFunc))
+
+	return addressableValue.Interface().(pubsub.Message)
+}
+
+func TestPubsubMessage_Ack(t *testing.T) {
+	//Create an alternative done function
+	newDoneFunc := func(ackID string, ack bool, receiveTime time.Time) {
+		t.Logf("Hi! %s, %t, %v", ackID, ack, receiveTime)
+	}
+	message := makeMockMessage(newDoneFunc)
+
+	t.Log(message)
+	message.Ack()
+	t.Log(message)
+}
+
+func TestPubsubMessage_Nack(t *testing.T) {
+	//Create an alternative done function
+	newDoneFunc := func(ackID string, ack bool, receiveTime time.Time) {
+		t.Logf("Hi! %s, %t, %v", ackID, ack, receiveTime)
+	}
+	message := makeMockMessage(newDoneFunc)
+
+	t.Log(message)
+	message.Nack()
+	t.Log(message)
+}
 
 func TestNewBroker(t *testing.T) {
 	ctX, cancel := context.WithCancel(context.Background())
