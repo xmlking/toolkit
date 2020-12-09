@@ -14,7 +14,7 @@ require (
 	github.com/markbates/pkger v0.17.1
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/sync v0.0.0-20200930132711-30421366ff76
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	google.golang.org/api v0.32.0
 	google.golang.org/genproto v0.0.0-20200930140634-01fc692af84b
 	google.golang.org/grpc v1.32.0
