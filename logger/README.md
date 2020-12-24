@@ -4,7 +4,7 @@ This logger basically configure **zerolog** so that you can log via `github.com/
 
 ## Usage
 
-Import `shared/logger` package. It will be *self-initialized*. 
+Import `shared/logger` package. It will be *self-initialized*.
 
 ```golang
 import  "github.com/xmlking/toolkit/logger"
@@ -14,7 +14,7 @@ Once logger is initialized, then you can use standard `github.com/rs/zerolog/log
 
 
 
-### Environment Variables 
+### Environment Variables
 
 Your can set **Logger** config via Environment Variables
 
@@ -28,6 +28,7 @@ Your can set **Logger** config via Environment Variables
 CONFIGOR_LOG_LEVEL=<trace,debug,info,warn,error,fatal,panic>
 CONFIGOR_LOG_FORMAT=<pretty/json/gcp>
 CONFIGOR_LOG_GRPC=true
+CONFIGOR_LOG_FILE=false
 ```
 
 ## Test

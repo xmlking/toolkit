@@ -93,7 +93,7 @@ func TestNewBroker(t *testing.T) {
 	}
 
 	// add subscriber
-	if err := broker.Subscribe("sumo", myHandler, broker.WithSubscriptionID("sumo")); err != nil {
+	if err := broker.Subscribe("sumo", myHandler); err != nil {
 		t.Fatal(err)
 	}
 

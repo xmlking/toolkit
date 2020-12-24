@@ -49,9 +49,8 @@ func main() {
     // optionally add subscribe for broker
 	log.Info().Interface("ReceiveSettings", cfg.Pubsub.ReceiveSettings).Send()
 	if err := bkr.Subscribe(
-		cfg.Sources.Acro.InputTopic,
+		cfg.Pubsub.InputSubscription,
 		accountSubscriber.Handle,
-		broker.WithSubscriptionID(cfg.Sources.Acro.InputSubscription),
 		broker.WithReceiveSettings(pubsub.ReceiveSettings(cfg.Pubsub.ReceiveSettings)),
 	); err != nil {
 		log.Error().Err(err).Msgf("Failed subscribing to Topic: %s", cfg.Sources.Acro.InputTopic)

@@ -9,10 +9,6 @@ import (
 type SubscribeOptions struct {
 	// pubsub ReceiveSettings
 	ReceiveSettings pubsub.ReceiveSettings
-	// Subscribers with the same Subscription ID
-	// will create a shared subscription where each
-	// receives a subset of messages.
-	SubscriptionID string
 
 	// Other options for implementations of the interface
 	// can be stored in a context
@@ -20,13 +16,6 @@ type SubscribeOptions struct {
 }
 
 type SubscribeOption func(*SubscribeOptions)
-
-// WithSubscriptionID sets the SubscriptionID of the topic to share messages on
-func WithSubscriptionID(id string) SubscribeOption {
-	return func(o *SubscribeOptions) {
-		o.SubscriptionID = id
-	}
-}
 
 // SubscribeContext set context
 func SubscribeContext(ctx context.Context) SubscribeOption {

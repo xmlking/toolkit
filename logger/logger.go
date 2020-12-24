@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"strconv"
 	"time"
@@ -43,6 +44,20 @@ func init() {
 
 	if enableGrpcLog, _ := strconv.ParseBool(os.Getenv("CONFIGOR_LOG_GRPC")); enableGrpcLog {
 		opts = append(opts, EnableGrpcLog(enableGrpcLog))
+	}
+
+	if enableFileLog, _ := strconv.ParseBool(os.Getenv("CONFIGOR_LOG_FILE")); enableFileLog {
+		_, fileName := filepath.Split(os.Args[0])
+		if fileName != "" {
+			// TODO defer file.Close()
+			if file, err := os.OpenFile(fmt.Sprintf("%s.log", fileName), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666); err != nil {
+				log.Fatal().Err(err).Send()
+			} else {
+				// Merging log writers: Stderr output and file output
+				multi := zerolog.MultiLevelWriter(os.Stderr, file)
+				opts = append(opts, WithOutput(multi))
+			}
+		}
 	}
 
 	DefaultLogger = NewLogger(opts...)

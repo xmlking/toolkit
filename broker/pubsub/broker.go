@@ -10,7 +10,7 @@ import (
 type Broker interface {
 	Options() Options
 	NewPublisher(topic string, opts ...PublishOption) (pub Publisher, err error)
-	Subscribe(topic string, h Handler, opts ...SubscribeOption) error
+	Subscribe(subscription string, h Handler, opts ...SubscribeOption) error
 	Start() error
 	Shutdown() error
 }
@@ -50,6 +50,6 @@ func NewPublisher(topic string, opts ...PublishOption) (Publisher, error) {
 	return DefaultBroker.NewPublisher(topic, opts...)
 }
 
-func Subscribe(topic string, handler Handler, opts ...SubscribeOption) error {
-	return DefaultBroker.Subscribe(topic, handler, opts...)
+func Subscribe(subscription string, handler Handler, opts ...SubscribeOption) error {
+	return DefaultBroker.Subscribe(subscription, handler, opts...)
 }
