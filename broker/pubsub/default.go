@@ -166,7 +166,7 @@ func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (pub Pu
 }
 
 // Subscribe registers a subscription to the given topic against the google pubsub api
-func (b *pubsubBroker) Subscribe(subscription string, h Handler, opts ...SubscribeOption) (err error) {
+func (b *pubsubBroker) Subscribe(subscription string, hdlr Handler, opts ...SubscribeOption) (err error) {
 	options := SubscribeOptions{
 		Context: b.options.Context,
 	}
@@ -203,11 +203,24 @@ func (b *pubsubBroker) Subscribe(subscription string, h Handler, opts ...Subscri
 		sub.ReceiveSettings.Synchronous = options.ReceiveSettings.Synchronous
 	}
 
+	middleware := hdlr
+	if rHdlr := options.RecoveryHandler; rHdlr != nil {
+		middleware = func(ctx context.Context, msg *pubsub.Message) {
+			defer func() {
+				if r := recover(); r != nil {
+					rHdlr(ctx, msg, r)
+				}
+			}()
+
+			hdlr(ctx, msg)
+		}
+	}
+
 	subscriber := &pubsubSubscriber{
 		options: options,
 		done:    make(chan struct{}),
 		sub:     sub,
-		hdlr:    h,
+		hdlr:    middleware,
 	}
 
 	// keep track of subs

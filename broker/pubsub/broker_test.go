@@ -9,15 +9,33 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/pstest"
-
 	"google.golang.org/api/option"
 	pb "google.golang.org/genproto/googleapis/pubsub/v1"
 	"google.golang.org/grpc"
-
 	broker "github.com/xmlking/toolkit/broker/pubsub"
 )
 
-func makeMockMessage(newDoneFunc func(string, bool, time.Time)) pubsub.Message {
+// AckHandler implements ack/nack handling.
+type AckHandler interface {
+	// OnAck processes a message ack.
+	OnAck()
+
+	// OnNack processes a message nack.
+	OnNack()
+}
+
+type makeAckHandler struct {
+	t *testing.T
+}
+
+func (ah *makeAckHandler) OnAck() {
+	ah.t.Logf("OnAck")
+}
+func (ah *makeAckHandler) OnNack() {
+	ah.t.Logf("OnNack")
+}
+
+func makeMockMessage(ackHandler AckHandler) pubsub.Message {
 	message := pubsub.Message{
 		ID:              "1",
 		Data:            []byte("ABC"),
@@ -35,7 +53,8 @@ func makeMockMessage(newDoneFunc func(string, bool, time.Time)) pubsub.Message {
 	addressableValue.Set(messageValue)
 
 	//Get message's doneFunc field
-	doneFuncField := addressableValue.FieldByName("doneFunc")
+	//doneFuncField := addressableValue.FieldByName("doneFunc")
+	doneFuncField := addressableValue.FieldByName("ackh")
 
 	//Get the address of the field
 	doneFuncFieldAddress := doneFuncField.UnsafeAddr()
@@ -47,17 +66,15 @@ func makeMockMessage(newDoneFunc func(string, bool, time.Time)) pubsub.Message {
 	accessibleDoneFuncField := reflect.NewAt(doneFuncField.Type(), doneFuncFieldPointer).Elem()
 
 	//Set the field with the alternative doneFunc
-	accessibleDoneFuncField.Set(reflect.ValueOf(newDoneFunc))
+	accessibleDoneFuncField.Set(reflect.ValueOf(ackHandler))
 
 	return addressableValue.Interface().(pubsub.Message)
 }
 
 func TestPubsubMessage_Ack(t *testing.T) {
-	//Create an alternative done function
-	newDoneFunc := func(ackID string, ack bool, receiveTime time.Time) {
-		t.Logf("Hi! %s, %t, %v", ackID, ack, receiveTime)
-	}
-	message := makeMockMessage(newDoneFunc)
+	//Create an alternative AckHandler
+	ackHandler := &makeAckHandler{t}
+	message := makeMockMessage(ackHandler)
 
 	t.Log(message)
 	message.Ack()
@@ -66,10 +83,8 @@ func TestPubsubMessage_Ack(t *testing.T) {
 
 func TestPubsubMessage_Nack(t *testing.T) {
 	//Create an alternative done function
-	newDoneFunc := func(ackID string, ack bool, receiveTime time.Time) {
-		t.Logf("Hi! %s, %t, %v", ackID, ack, receiveTime)
-	}
-	message := makeMockMessage(newDoneFunc)
+	ackHandler := &makeAckHandler{t}
+	message := makeMockMessage(ackHandler)
 
 	t.Log(message)
 	message.Nack()
@@ -94,6 +109,59 @@ func TestNewBroker(t *testing.T) {
 
 	// add subscriber
 	if err := broker.Subscribe("sumo", myHandler); err != nil {
+		t.Fatal(err)
+	}
+
+	// start broker
+	if err := broker.Start(); err != nil {
+		t.Fatal(err)
+	}
+
+	// create publisher
+	publisher, err := broker.NewPublisher("sumo", broker.PublishAsync(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// publish message
+	err = publisher.Publish(context.Background(), &pubsub.Message{Data: []byte("hello")})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//srv.Wait()
+	ms := srv.Messages()
+	t.Logf("msg1: %s", ms[0].Data)
+	tps, err := srv.GServer.ListTopics(context.TODO(), &pb.ListTopicsRequest{Project: "projects/pro1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(tps)
+}
+
+func TestSubscribeWithRecoveryHandler(t *testing.T) {
+	ctX, cancel := context.WithCancel(context.Background())
+	srv := setupFakePubsubAndBroker(ctX, t)
+	defer srv.Close()
+	defer broker.Shutdown()
+
+	myHandler := func(ctx context.Context, msg *pubsub.Message) {
+		t.Logf("received msg: %s", msg.Data)
+		msg.Ack()
+		cancel()
+		if got, want := string(msg.Data), "hello"; got != want {
+			t.Fatalf(`got "%s" message, want "%s"`, got, want)
+			msg.Nack()
+		}
+		panic("sumo")
+	}
+
+	recoveryHandler := func(ctx context.Context, msg *pubsub.Message, r interface{}) {
+		t.Logf("Recovered from panic: %v,  msg.ID: %s", r, msg.ID)
+	}
+
+	// add subscriber
+	if err := broker.Subscribe("sumo", myHandler, broker.WithRecoveryHandler(recoveryHandler)); err != nil {
 		t.Fatal(err)
 	}
 
