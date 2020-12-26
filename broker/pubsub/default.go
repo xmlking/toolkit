@@ -166,7 +166,7 @@ func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (pub Pu
 }
 
 // Subscribe registers a subscription to the given topic against the google pubsub api
-func (b *pubsubBroker) Subscribe(subscription string, hdlr Handler, opts ...SubscribeOption) (err error) {
+func (b *pubsubBroker) NewSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (Subscriber, error) {
 	options := SubscribeOptions{
 		Context: b.options.Context,
 	}
@@ -178,10 +178,10 @@ func (b *pubsubBroker) Subscribe(subscription string, hdlr Handler, opts ...Subs
 	sub := b.client.Subscription(subscription)
 	exists, err := sub.Exists(context.TODO()) // TODO should we use context.Background()  ?
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !exists {
-		return errors.Errorf("Subscription %s doesn't exists", sub)
+		return nil, errors.Errorf("Subscription %s doesn't exists", sub)
 	}
 
 	if options.ReceiveSettings.MaxOutstandingBytes != 0 {
@@ -226,7 +226,7 @@ func (b *pubsubBroker) Subscribe(subscription string, hdlr Handler, opts ...Subs
 	// keep track of subs
 	b.subs = append(b.subs, subscriber)
 
-	return nil
+	return subscriber, nil
 }
 
 // Start should be called once

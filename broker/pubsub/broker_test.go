@@ -9,10 +9,10 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/pstest"
+	broker "github.com/xmlking/toolkit/broker/pubsub"
 	"google.golang.org/api/option"
 	pb "google.golang.org/genproto/googleapis/pubsub/v1"
 	"google.golang.org/grpc"
-	broker "github.com/xmlking/toolkit/broker/pubsub"
 )
 
 // AckHandler implements ack/nack handling.
@@ -108,7 +108,7 @@ func TestNewBroker(t *testing.T) {
 	}
 
 	// add subscriber
-	if err := broker.Subscribe("sumo", myHandler); err != nil {
+	if _, err := broker.NewSubscriber("sumo", myHandler); err != nil {
 		t.Fatal(err)
 	}
 
@@ -161,7 +161,7 @@ func TestSubscribeWithRecoveryHandler(t *testing.T) {
 	}
 
 	// add subscriber
-	if err := broker.Subscribe("sumo", myHandler, broker.WithRecoveryHandler(recoveryHandler)); err != nil {
+	if _, err := broker.NewSubscriber("sumo", myHandler, broker.WithRecoveryHandler(recoveryHandler)); err != nil {
 		t.Fatal(err)
 	}
 
