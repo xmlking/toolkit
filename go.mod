@@ -8,7 +8,7 @@ require (
 	github.com/cockroachdb/errors v1.8.2
 	github.com/cockroachdb/redact v1.0.9
 	github.com/gogo/protobuf v1.3.1
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.1.4
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/markbates/pkger v0.17.1
