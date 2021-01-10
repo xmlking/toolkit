@@ -701,7 +701,7 @@ func TestValidationMore(t *testing.T) {
 func TestUsePkger(t *testing.T) {
 	config := generateDefaultConfig()
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile(".", "temp_configurator"); err == nil {
+		if file, err := ioutil.TempFile("..", "temp_configurator"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
