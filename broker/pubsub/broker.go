@@ -10,7 +10,7 @@ import (
 type Broker interface {
 	Options() Options
 	NewPublisher(topic string, opts ...PublishOption) (pub Publisher, err error)
-	NewSubscriber(subscription string, h Handler, opts ...SubscribeOption) (sub Subscriber, err error)
+	NewSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (sub Subscriber, err error)
 	Start() error
 	Shutdown() error
 }
@@ -33,7 +33,7 @@ type Subscriber interface {
 
 var DefaultBroker Broker
 
-// NewService creates and returns a new Service based on the packages within.
+// NewBroker creates and returns a new Broker based on the packages within.
 func NewBroker(ctx context.Context, opts ...Option) Broker {
 	return newBroker(ctx, opts...)
 }

@@ -26,7 +26,7 @@ func main() {
 		msg.Ack() // or msg.Nack()
 	}
 
-	if err := broker.Subscribe("toolkit-in-dev", myHandler); err != nil {
+	if _, err := broker.NewSubscriber("toolkit-in-dev", myHandler); err != nil {
 		log.Error().Err(err).Msg("Failed subscribing to Topic: ingestion-in-dev")
 	}
 
