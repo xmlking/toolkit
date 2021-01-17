@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
 	"github.com/xmlking/toolkit/configurator"
@@ -91,22 +91,30 @@ func TestLoadNormaltestConfig(t *testing.T) {
 	config := generateDefaultConfig()
 	if bytes, err := json.Marshal(config); err == nil {
 		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
-			defer file.Close()
-			defer os.Remove(file.Name())
+			t.Cleanup(func() {
+				t.Log("cleanup...")
+				if err := file.Close(); err != nil {
+					t.Error(err)
+				}
+				if err := os.Remove(file.Name()); err != nil {
+					t.Error(err)
+				}
+			})
+
 			file.Write(bytes)
 
 			var result testConfig
 			configurator.Load(&result, file.Name())
-			if !reflect.DeepEqual(result, config) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, config, "result should equal to original configuration")
 		}
+
 	} else {
 		t.Errorf("failed to marshal config")
 	}
+
 }
 
-// CONFIG_DEBUG_MODE=true CONFIG_VERBOSE_MODE=true go test -v   -run TestDefaultValue -count=1
+// CONFIG_DEBUG_MODE=true CONFIG_VERBOSE_MODE=true go test -v -run TestDefaultValue -count=1 ./configurator/...
 func TestDefaultValue(t *testing.T) {
 	config := generateDefaultConfig()
 	config.APPName = ""
@@ -124,10 +132,7 @@ func TestDefaultValue(t *testing.T) {
 			if err := configurator.Load(&result, file.Name()); err != nil {
 				t.Error(err)
 			}
-
-			if !reflect.DeepEqual(result, generateDefaultConfig()) {
-				t.Errorf("\nExpected: %+v, \nGot: %+v", generateDefaultConfig(), result)
-			}
+			assert.Exactly(t, result, generateDefaultConfig(), "result should equal to original configuration")
 		}
 	} else {
 		t.Errorf("failed to marshal config")
@@ -239,9 +244,7 @@ func TestYamlDefaultValue(t *testing.T) {
 			var result testConfig
 			configurator.Load(&result, file.Name())
 
-			if !reflect.DeepEqual(result, generateDefaultConfig()) {
-				t.Errorf("result should be set default value correctly")
-			}
+			assert.Exactly(t, result, generateDefaultConfig(), "result should equal to original configuration")
 		}
 	} else {
 		t.Errorf("failed to marshal config")
@@ -274,11 +277,9 @@ func TestLoadConfigurationByEnvironment(t *testing.T) {
 			t.Errorf("No error should happen when load configurations, but got %v", err)
 		}
 
-		var defaultConfig = generateDefaultConfig()
+		defaultConfig := generateDefaultConfig()
 		defaultConfig.APPName = "config2"
-		if !reflect.DeepEqual(result, defaultConfig) {
-			t.Errorf("result should load configurations by environment correctly")
-		}
+		assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 	}
 
 	t.Cleanup(func() {
@@ -305,16 +306,14 @@ func TestLoadtestConfigurationByEnvironmentSetBytestConfig(t *testing.T) {
 		defer os.Remove(file.Name() + ".production.yaml")
 
 		var result testConfig
-		configurator := configurator.NewConfigurator(configurator.WithEnvironment("production"))
-		if configurator.Load(&result, file.Name()+".yaml"); err != nil {
+		cfr := configurator.NewConfigurator(configurator.WithEnvironment("production"))
+		if err := cfr.Load(&result, file.Name()+".yaml"); err != nil {
 			t.Errorf("No error should happen when load configurations, but got %v", err)
 		}
 
-		var defaultConfig = generateDefaultConfig()
+		defaultConfig := generateDefaultConfig()
 		defaultConfig.APPName = "production_config2"
-		if !reflect.DeepEqual(result, defaultConfig) {
-			t.Errorf("result should be load configurations by environment correctly")
-		}
+		assert.Exactly(t, result, defaultConfig, "result should be load configurations by environment correctly")
 
 		if configurator.GetEnvironment() != "production" {
 			t.Errorf("configurator's environment should be production")
@@ -327,26 +326,53 @@ func TestOverwritetestConfigurationWithEnvironmentWithDefaultPrefix(t *testing.T
 
 	if bytes, err := json.Marshal(config); err == nil {
 		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
-			defer file.Close()
-			defer os.Remove(file.Name())
 			file.Write(bytes)
 			var result testConfig
 			os.Setenv("CONFIG_APP_NAME", "config2")
-			os.Setenv("CONFIG_HOSTS", "- http://example.org\n- http://jinzhu.me")
+			os.Setenv("CONFIG_HOSTS", "- http://example2.org\n- http://jinzhu2.me")
+			os.Setenv("CONFIG_APP_NAME", "config2")
 			os.Setenv("CONFIG_DB_NAME", "db_name")
-			defer os.Setenv("CONFIG_APP_NAME", "")
-			defer os.Setenv("CONFIG_HOSTS", "")
-			defer os.Setenv("CONFIG_DB_NAME", "")
-			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			t.Cleanup(func() {
+				t.Log("cleanup...")
+				if err := file.Close(); err != nil {
+					t.Error(err)
+				}
+				if err := os.Remove(file.Name()); err != nil {
+					t.Error(err)
+				}
+				os.Setenv("CONFIG_APP_NAME", "")
+				os.Setenv("CONFIG_HOSTS", "")
+				os.Setenv("CONFIG_APP_NAME", "")
+				os.Setenv("CONFIG_DB_NAME", "")
+			})
+
+			configurator.Load(&result, file.Name())
+			t.Log(result.Contacts[0])
+			t.Log(result.Contacts[1])
+
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.APPName = "config2"
-			defaultConfig.Hosts = []string{"http://example.org", "http://jinzhu.me"}
+			defaultConfig.Hosts = []string{"http://example2.org", "http://jinzhu2.me"}
 			defaultConfig.DB.Name = "db_name"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
+	}
+}
+
+// go test -v -run TestENV -count=1 ./configurator/...
+func TestENV(t *testing.T) {
+	if configurator.GetEnvironment() != "test" {
+		t.Skipf("skipping test. Env should be test when running `go test`, instead env is %v", configurator.GetEnvironment())
+	}
+
+	os.Setenv("CONFIG_ENV", "production")
+	defer os.Setenv("CONFIG_ENV", "")
+	configurator.DefaultConfigurator = configurator.NewConfigurator()
+	if configurator.GetEnvironment() != "production" {
+		t.Errorf("Env should be production when set it with CONFIG_ENV")
 	}
 }
 
@@ -368,13 +394,13 @@ func TestOverwritetestConfigurationWithEnvironment(t *testing.T) {
 			configurator.DefaultConfigurator = configurator.NewConfigurator()
 			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -392,18 +418,18 @@ func TestOverwritetestConfigurationWithEnvironmentThatSetBytestConfig(t *testing
 			defer os.Setenv("APP1_DB_NAME", "")
 
 			var result testConfig
-			configurator := configurator.NewConfigurator(configurator.WithEnvironmentVariablePrefix("APP1"))
-			if err := configurator.Load(&result, file.Name()); err != nil {
+			cfr := configurator.NewConfigurator(configurator.WithEnvironmentVariablePrefix("APP1"))
+			if err := cfr.Load(&result, file.Name()); err != nil {
 				t.Error(err)
 			}
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -426,13 +452,13 @@ func TestResetPrefixToBlank(t *testing.T) {
 
 			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -455,13 +481,13 @@ func TestResetPrefixToBlank2(t *testing.T) {
 			configurator.DefaultConfigurator = configurator.NewConfigurator()
 			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -480,12 +506,12 @@ func TestReadFromEnvironmentWithSpecifiedEnvName(t *testing.T) {
 			configurator.DefaultConfigurator = configurator.NewConfigurator()
 			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.DB.Password = "db_password"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -504,25 +530,12 @@ func TestAnonymousStruct(t *testing.T) {
 			configurator.DefaultConfigurator = configurator.NewConfigurator()
 			configurator.Load(&result, file.Name())
 
-			var defaultConfig = generateDefaultConfig()
+			defaultConfig := generateDefaultConfig()
 			defaultConfig.Anonymous.Description = "environment description"
-			if !reflect.DeepEqual(result, defaultConfig) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
-	}
-}
-
-func TestENV(t *testing.T) {
-	if configurator.GetEnvironment() != "test" {
-		t.Errorf("Env should be test when running `go test`, instead env is %v", configurator.GetEnvironment())
-	}
-
-	os.Setenv("CONFIG_ENV", "production")
-	defer os.Setenv("CONFIG_ENV", "")
-	configurator.DefaultConfigurator = configurator.NewConfigurator()
-	if configurator.GetEnvironment() != "production" {
-		t.Errorf("Env should be production when set it with CONFIG_ENV")
+	} else {
+		t.Errorf("failed to marshal config")
 	}
 }
 
@@ -564,9 +577,7 @@ func TestSliceFromEnv(t *testing.T) {
 		t.Fatalf("load from env err:%v", err)
 	}
 
-	if !reflect.DeepEqual(result, tc) {
-		t.Fatalf("unexpected result:%+v", result)
-	}
+	assert.Exactly(t, result, tc, "result should equal to original configuration")
 }
 
 func TestConfigFromEnv(t *testing.T) {
@@ -664,9 +675,9 @@ func TestValidationMore(t *testing.T) {
 	}
 
 	addMap := map[string]Address{
-		"home": Address{"", "ABC456D89"},
-		"work": Address{"", "12345"},
-		"wor2": Address{"", "12345"},
+		"home": {"", "ABC456D89"},
+		"work": {"", "12345"},
+		"wor2": {"", "12345"},
 	}
 	var tests = []struct {
 		param    interface{}
@@ -702,15 +713,21 @@ func TestUsePkger(t *testing.T) {
 	config := generateDefaultConfig()
 	if bytes, err := json.Marshal(config); err == nil {
 		if file, err := ioutil.TempFile("..", "temp_configurator"); err == nil {
-			defer file.Close()
-			defer os.Remove(file.Name())
+			t.Cleanup(func() {
+				t.Log("cleanup...")
+				if err := file.Close(); err != nil {
+					t.Error(err)
+				}
+				if err := os.Remove(file.Name()); err != nil {
+					t.Error(err)
+				}
+			})
+
 			file.Write(bytes)
 
 			var result testConfig
 			configurator.NewConfigurator(configurator.WithPkger()).Load(&result, "/"+file.Name())
-			if !reflect.DeepEqual(result, config) {
-				t.Errorf("result should equal to original configuration")
-			}
+			assert.Exactly(t, result, config, "result should equal to original configuration")
 		}
 	} else {
 		t.Errorf("failed to marshal config")

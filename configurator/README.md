@@ -1,6 +1,8 @@
 # Configurator
 
-Golang Configuration module that support YAML, JSON, Shell Environment Variables 
+Opinionated configuration loading library for Containerized and 12-Factor compliant applications.
+
+Read configurations from Configuration Files and/or Environment Variables.
 
 This is based on [jinzhu/configor's](https://github.com/jinzhu/configor) and [sherifabdlnaby/configuro's](https://github.com/sherifabdlnaby/configuro) work, with some bug fixes and enhancements. 
 
@@ -152,11 +154,11 @@ $ CONFIG_ENV=production go run config.go
 // Will load `config.json`, `config.production.json` if it exists
 // `config.production.json` will overwrite `config.json`'s configuration
 
-$ go test
+$ go test ./configurator/...
 // Will load `config.json`, `config.test.json` if it exists
 // `config.test.json` will overwrite `config.json`'s configuration
 
-$ CONFIG_ENV=production go test
+$ CONFIG_ENV=production go test ./configurator/...
 // Will load `config.json`, `config.production.json` if it exists
 // `config.production.json` will overwrite `config.json`'s configuration
 ```
@@ -188,6 +190,12 @@ $ CONFIG_USE_PKGER=true  go run config.go
 ```
 
 * Load From Shell Environment
+
+Environment variable names are structured like this:
+
+```
+[PREFIX][SEP][MY][SEP][FIELD][SEP][NAME]
+```
 
 Struct field names will be converted to **UpperSnakeCase**
 ```go
@@ -244,3 +252,4 @@ func main() {
 ## TODO
 - use [mergo](https://github.com/imdario/mergo) to merge to fix Overlaying `Map` type fields
 - Adopt Environment Variables Expanding from [sherifabdlnaby/configuro](https://github.com/sherifabdlnaby/configuro)
+- Fully support complex structures involving maps, arrays and slices  [EnvConfig](https://github.com/jlevesy/envconfig)

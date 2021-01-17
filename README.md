@@ -114,6 +114,22 @@ gcpk
 docker-compose up down
 ```
 
+## Development
+
+### Build
+
+```bask
+make upgrade_deps
+make lint
+make format
+```
+
+### Test
+
+```bask
+make test-unit
+```
+
 ## 🔗 Credits
 https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
 https://github.com/spencer-p/moroncloudevents/tree/master

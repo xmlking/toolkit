@@ -24,8 +24,6 @@ func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
 	if err != nil {
 		t.Fatal("Could not create temp file")
 	}
-	defer os.Remove(file.Name())
-	defer file.Close()
 
 	filename := file.Name()
 
@@ -54,7 +52,6 @@ func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
 		t.Errorf("Could not add suffix to file")
 	}
 	filename = file.Name() + ".json"
-	defer os.Remove(filename)
 
 	var result configStruct
 
@@ -68,5 +65,15 @@ func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
 
 		t.Errorf("Should get unknown field error when loading configuration with extra keys. Instead got error: %v", err)
 	}
+
+	t.Cleanup(func() {
+		t.Log("cleanup...")
+		if err := file.Close(); err != nil {
+			t.Error(err)
+		}
+		if err := os.Remove(filename); err != nil {
+			t.Error(err)
+		}
+	})
 
 }
