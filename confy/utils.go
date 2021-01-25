@@ -1,25 +1,25 @@
-package configurator
+package confy
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"os"
-	"path"
-	"reflect"
-	"strings"
+    "encoding/json"
+    "fmt"
+    "io"
+    "io/fs"
+    "os"
+    "path"
+    "reflect"
+    "strings"
 
-	"github.com/creasty/defaults"
-	"github.com/markbates/pkger"
-	"github.com/markbates/pkger/pkging"
-	// "github.com/kelseyhightower/envconfig"
-	"github.com/stoewer/go-strcase"
-	"gopkg.in/yaml.v2"
+    "github.com/cockroachdb/errors"
+    "github.com/creasty/defaults"
+    "github.com/rs/zerolog/log"
+
+    // "github.com/kelseyhightower/envconfig"
+    "github.com/stoewer/go-strcase"
+    "gopkg.in/yaml.v2"
 )
 
-func getConfigFileWithEnv(file, env string, usePkger bool) (envFile string, err error) {
+func getConfigFileWithEnv(file, env string, fsys fs.FS) (envFile string, err error) {
 	var extname = path.Ext(file)
 
 	if extname == "" {
@@ -28,13 +28,18 @@ func getConfigFileWithEnv(file, env string, usePkger bool) (envFile string, err 
 		envFile = fmt.Sprintf("%v.%v%v", strings.TrimSuffix(file, extname), env, extname)
 	}
 
-	if fileInfo, er := stat(envFile, usePkger); er == nil && fileInfo.Mode().IsRegular() {
+	var fileInfo fs.FileInfo
+	if fileInfo, err = fs.Stat(fsys, envFile); err != nil {
+		err = errors.Wrap(err, "error loading file with env")
+		return
+	} else if fileInfo.Mode().IsRegular() {
+		err = errors.Newf("error loading file with env. file is not regular: (%s)", envFile)
 		return
 	}
-	return "", fmt.Errorf("failed to find file %v", file)
+	return
 }
 
-func (c *configurator) getConfigFiles(files ...string) (filesFound []string) {
+func (c *confy) getConfigFiles(files ...string) (filesFound []string) {
 
 	if c.config.debug || c.config.verbose {
 		fmt.Printf("Current environment: '%v'\n", c.config.environment)
@@ -44,20 +49,28 @@ func (c *configurator) getConfigFiles(files ...string) (filesFound []string) {
 		found := false
 
 		// check for config file
-		if fileInfo, err := stat(file, c.config.usePkger); err == nil && fileInfo.Mode().IsRegular() {
+		if fileInfo, err := fs.Stat(c.config.fs, file); err == nil && fileInfo.Mode().IsRegular() {
 			found = true
 			filesFound = append(filesFound, file)
+		} else {
+			if c.config.debug {
+				log.Info().Err(err).Msgf("file (%s) not found in FileSystem", file)
+			}
 		}
 
 		// check for config file with env
-		if file, err := getConfigFileWithEnv(file, c.config.environment, c.config.usePkger); err == nil {
+		if file, err := getConfigFileWithEnv(file, c.config.environment, c.config.fs); err == nil {
 			found = true
 			filesFound = append(filesFound, file)
+		} else {
+			if c.config.debug {
+				log.Info().Err(err).Msgf("failed to load file with env")
+			}
 		}
 
 		// still not found? check for example config file
 		if !found {
-			if example, err := getConfigFileWithEnv(file, "example", c.config.usePkger); err == nil {
+			if example, err := getConfigFileWithEnv(file, "example", c.config.fs); err == nil {
 				if !c.config.silent {
 					fmt.Printf("Failed to find config: %v, using example file: %v\n", file, example)
 				}
@@ -70,21 +83,10 @@ func (c *configurator) getConfigFiles(files ...string) (filesFound []string) {
 	return
 }
 
-func (c *configurator) processFile(config interface{}, file string) (err error) {
+func (c *confy) processFile(config interface{}, file string) (err error) {
 	var data []byte
-	if c.config.usePkger {
-		var fh pkging.File
-		if fh, err = pkger.Open(file); err != nil {
-			return err
-		}
-		defer fh.Close()
-		if data, err = ioutil.ReadAll(fh); err != nil {
-			return err
-		}
-	} else {
-		if data, err = ioutil.ReadFile(file); err != nil {
-			return err
-		}
+	if data, err = fs.ReadFile(c.config.fs, file); err != nil {
+		return err
 	}
 
 	switch {
@@ -145,7 +147,7 @@ func getPrefixForStruct(prefixes []string, fieldStruct *reflect.StructField) []s
 	return append(prefixes, fieldStruct.Name)
 }
 
-func (c *configurator) processTags(config interface{}, prefixes ...string) error {
+func (c *confy) processTags(config interface{}, prefixes ...string) error {
 	configValue := reflect.Indirect(reflect.ValueOf(config))
 	if configValue.Kind() != reflect.Struct {
 		return errors.New("invalid config, should be struct")
@@ -165,9 +167,9 @@ func (c *configurator) processTags(config interface{}, prefixes ...string) error
 		}
 
 		if envName == "" {
-			envNames = append(envNames, strcase.UpperSnakeCase(strings.Join(append(prefixes, fieldStruct.Name), "_"))) // CONFIG_DB_NAME
-			// envNames = append(envNames, strings.Join(append(prefixes, fieldStruct.Name), "_"))                  // Config_DB_Name
-			// envNames = append(envNames, strings.ToUpper(strings.Join(append(prefixes, fieldStruct.Name), "_"))) // CONFIG_DB_NAME
+			envNames = append(envNames, strcase.UpperSnakeCase(strings.Join(append(prefixes, fieldStruct.Name), "_"))) // CONFY_DB_NAME
+			// envNames = append(envNames, strings.Join(append(prefixes, fieldStruct.Name), "_"))                  // Confy_DB_Name
+			// envNames = append(envNames, strings.ToUpper(strings.Join(append(prefixes, fieldStruct.Name), "_"))) // CONFY_DB_NAME
 		} else {
 			envNames = []string{envName}
 		}
@@ -249,7 +251,7 @@ func (c *configurator) processTags(config interface{}, prefixes ...string) error
 	return nil
 }
 
-func (c *configurator) load(config interface{}, files ...string) (err error) {
+func (c *confy) load(config interface{}, files ...string) (err error) {
 	defer func() {
 		if c.config.debug || c.config.verbose {
 			if err != nil {
@@ -298,10 +300,3 @@ func (c *configurator) load(config interface{}, files ...string) (err error) {
 	return err
 }
 
-func stat(name string, usePkger bool) (os.FileInfo, error) {
-	if usePkger {
-		return pkger.Stat(name)
-	} else {
-		return os.Stat(name)
-	}
-}

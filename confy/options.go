@@ -1,7 +1,8 @@
-package configurator
+package confy
 
 import (
 	"context"
+	"io/fs"
 )
 
 type Option func(*config)
@@ -9,7 +10,7 @@ type Option func(*config)
 type config struct {
 	// Runtime Environment, e.g., test, development, production
 	environment string
-	// Environment variables prefix. default: "CONFIG_"
+	// Environment variables prefix. default: "CONFY_"
 	environmentVariablePrefix string
 	// enable Debug logs. default: false
 	debug bool
@@ -17,9 +18,8 @@ type config struct {
 	verbose bool
 	// disable error logs. default: false
 	silent bool
-	// enable `Pkger` to load embedded config files. default: false
-	usePkger bool
-
+	// FileSystem to load config files from. default: os.DirFS(".")
+	fs fs.FS
 	// errorOnUnmatchedKeys indicating if an error should be thrown
 	// if there are keys in the config file that do not correspond to the config struct
 	// In case of json files, this field will be used only when compiled with
@@ -76,11 +76,11 @@ func WithSilentMode() Option {
 	}
 }
 
-// WithPkger enables `Pkger` to load embedded config files.
-// default: false
-func WithPkger() Option {
+// WithFS enables use custom FileSystem to load config files. e.g., embed.FS
+// default: os.DirFS(".")
+func WithFS(fs fs.FS) Option {
 	return func(args *config) {
-		args.usePkger = true
+		args.fs = fs
 	}
 }
 

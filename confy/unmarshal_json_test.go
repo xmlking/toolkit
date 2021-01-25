@@ -1,13 +1,15 @@
-package configurator_test
+package confy_test
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/xmlking/toolkit/configurator"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/xmlking/toolkit/confy"
 )
 
 func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
@@ -20,25 +22,24 @@ func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
 	}
 	config := configFile{Name: "test", Test: "ATest"}
 
-	file, err := ioutil.TempFile("/tmp", "configurator")
+	file, err := os.CreateTemp("/tmp", "confy")
 	if err != nil {
 		t.Fatal("Could not create temp file")
 	}
-
-	filename := file.Name()
 
 	if err := json.NewEncoder(file).Encode(config); err == nil {
 
 		var result configStruct
 
+		dir, filename := filepath.Split(file.Name())
 		// Do not return error when there are unmatched keys but ErrorOnUnmatchedKeys is false
-		if err := configurator.NewConfigurator().Load(&result, filename); err != nil {
-			t.Errorf("Should NOT get error when loading configuration with extra keys. Error: %v", err)
-		}
+		confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+		err = confy.Load(&result, filename)
+		assert.NoError(t, err)
 
 		// Return an error when there are unmatched keys and ErrorOnUnmatchedKeys is true
-		if err := configurator.NewConfigurator(configurator.WithErrorOnUnmatchedKeys()).Load(&result, filename); err == nil || !strings.Contains(err.Error(), "json: unknown field") {
-
+		confy.DefaultConfy = confy.NewConfy(confy.WithErrorOnUnmatchedKeys(), confy.WithFS(os.DirFS(dir)))
+		if err := confy.Load(&result, filename); err == nil || !strings.Contains(err.Error(), "json: unknown field") {
 			t.Errorf("Should get unknown field error when loading configuration with extra keys. Instead got error: %v", err)
 		}
 
@@ -51,18 +52,19 @@ func TestUnmatchedKeyInJsonConfigFile(t *testing.T) {
 	if err != nil {
 		t.Errorf("Could not add suffix to file")
 	}
-	filename = file.Name() + ".json"
+	filename := file.Name() + ".json"
 
 	var result configStruct
 
+	dir, fName := filepath.Split(filename)
 	// Do not return error when there are unmatched keys but ErrorOnUnmatchedKeys is false
-	if err := configurator.NewConfigurator().Load(&result, filename); err != nil {
-		t.Errorf("Should NOT get error when loading configuration with extra keys. Error: %v", err)
-	}
+	confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+	err = confy.Load(&result, fName)
+	assert.NoError(t, err)
 
 	// Return an error when there are unmatched keys and ErrorOnUnmatchedKeys is true
-	if err := configurator.NewConfigurator(configurator.WithErrorOnUnmatchedKeys()).Load(&result, filename); err == nil || !strings.Contains(err.Error(), "json: unknown field") {
-
+	confy.DefaultConfy = confy.NewConfy(confy.WithErrorOnUnmatchedKeys(), confy.WithFS(os.DirFS(dir)))
+	if err := confy.Load(&result, fName); err == nil || !strings.Contains(err.Error(), "json: unknown field") {
 		t.Errorf("Should get unknown field error when loading configuration with extra keys. Instead got error: %v", err)
 	}
 

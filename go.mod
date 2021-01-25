@@ -1,6 +1,6 @@
 module github.com/xmlking/toolkit
 
-go 1.15
+go 1.16
 
 require (
 	cloud.google.com/go/pubsub v1.9.1
@@ -13,7 +13,6 @@ require (
 	github.com/google/uuid v1.1.5
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/markbates/pkger v0.17.1
 	github.com/rs/zerolog v1.20.0
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.7.0

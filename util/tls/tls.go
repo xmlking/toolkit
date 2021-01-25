@@ -5,22 +5,21 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"io/fs"
 
 	"github.com/rs/zerolog/log"
-
-	"github.com/xmlking/toolkit/util/ioutil"
 )
 
 // NewTLSConfig returns a TLS config that includes a certificate
 // Use for Server TLS config or when using a client certificate
 // If caPath is empty, system CAs will be used
-func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string) (tlsConfig *tls.Config, err error) {
+func NewTLSConfig(xfs fs.FS, certPath, keyPath, caPath, serverName, password string) (tlsConfig *tls.Config, err error) {
 	var certPEMBlock, keyPEMBlock []byte
-	certPEMBlock, err = ioutil.ReadFile(certPath)
+	certPEMBlock, err = fs.ReadFile(xfs, certPath)
 	if err != nil {
 		return
 	}
-	keyPEMBlock, err = ioutil.ReadFile(keyPath)
+	keyPEMBlock, err = fs.ReadFile(xfs, keyPath)
 	if err != nil {
 		return
 	}
@@ -46,7 +45,7 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 		return nil, err
 	}
 
-	roots, err := loadRoots(caPath)
+	roots, err := loadRoots(xfs, caPath)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +62,8 @@ func NewTLSConfig(certPath, keyPath, caPath, serverName string, password string)
 
 // NewTLSClientConfig returns a TLS config for a client connection
 // If caPath is empty, system CAs will be used
-func NewTLSClientConfig(caPath string) (*tls.Config, error) {
-	roots, err := loadRoots(caPath)
+func NewTLSClientConfig(xfs fs.FS, caPath string) (*tls.Config, error) {
+	roots, err := loadRoots(xfs, caPath)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +71,13 @@ func NewTLSClientConfig(caPath string) (*tls.Config, error) {
 	return &tls.Config{RootCAs: roots}, nil
 }
 
-func loadRoots(caPath string) (*x509.CertPool, error) {
+func loadRoots(xfs fs.FS, caPath string) (*x509.CertPool, error) {
 	if caPath == "" {
 		return nil, nil
 	}
 
 	roots := x509.NewCertPool()
-	pem, err := ioutil.ReadFile(caPath)
+	pem, err := fs.ReadFile(xfs, caPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading %s: %s", caPath, err)
 	}

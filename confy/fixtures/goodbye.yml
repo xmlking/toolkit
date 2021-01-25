@@ -1,0 +1,15 @@
+hosts:
+- http://example.org
+- http://jinzhu.me
+db:
+  name: confy
+  user: confy
+  password: confy
+contacts:
+- name: sumo
+  email: sumo@gmail.com
+- name: sumo2
+  email: sumo2@gmail.com
+anonymous:
+  description: This is an anonymous embedded struct whose environment variables should
+    NOT include 'ANONYMOUS'

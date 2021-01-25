@@ -196,6 +196,7 @@ func TestSubscribeWithRecoveryHandler(t *testing.T) {
 // it also created broker and set as default.
 // Note: be sure to close server and broker!
 func setupFakePubsubAndBroker(ctx context.Context, t *testing.T) *pstest.Server {
+	t.Helper()
 
 	srv := pstest.NewServer()
 	// Connect to the server without using TLS.

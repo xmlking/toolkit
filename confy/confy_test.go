@@ -1,19 +1,40 @@
-package configurator_test
+package confy_test
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
+	"testing/fstest"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 
-	"github.com/xmlking/toolkit/configurator"
+	"github.com/xmlking/toolkit/confy"
 )
+
+//go:embed fixtures/goodbye.yml
+var goodbye []byte
+
+var sysValue int
+var testFS = fstest.MapFS{
+	"hello.json": {
+		Data:    []byte(`{"APPName":"confy","Hosts":["http://example.org","http://jinzhu.me"],"DB":{"Name":"confy","User":"confy","Password":"confy","Port":3306,"SSL":true},"Contacts":[{"Name":"sumo","Email":"sumo@gmail.com"},{"Name":"sumo2","Email":"sumo2@gmail.com"}],"Description":"This is an anonymous embedded struct whose environment variables should NOT include 'ANONYMOUS'"}`),
+		Mode:    0456,
+		ModTime: time.Now(),
+		Sys:     &sysValue,
+	},
+	"sub/goodbye.yaml": {
+		Data:    goodbye,
+		Mode:    0456,
+		ModTime: time.Now(),
+		Sys:     &sysValue,
+	},
+}
 
 type Anonymous struct {
 	Description string
@@ -33,7 +54,7 @@ type Contact struct {
 }
 
 type testConfig struct {
-	APPName   string   `default:"configurator" yaml:",omitempty" json:",omitempty"`
+	APPName   string   `default:"confy" yaml:",omitempty" json:",omitempty"`
 	Hosts     []string `validate:"omitempty,dive,url" default:"[\"https://abc.org\"]"`
 	DB        *Database
 	Contacts  []Contact
@@ -41,14 +62,15 @@ type testConfig struct {
 	private   string
 }
 
-func generateDefaultConfig() testConfig {
+func generateDefaultConfig(t *testing.T) testConfig {
+	t.Helper()
 	return testConfig{
-		APPName: "configurator",
+		APPName: "confy",
 		Hosts:   []string{"http://example.org", "http://jinzhu.me"},
 		DB: &Database{
-			Name:     "configurator",
-			User:     "configurator",
-			Password: "configurator",
+			Name:     "confy",
+			User:     "confy",
+			Password: "confy",
 			Port:     3306,
 			SSL:      true,
 		},
@@ -69,13 +91,13 @@ func generateDefaultConfig() testConfig {
 }
 
 func setup() {
-	configurator.DefaultConfigurator = configurator.NewConfigurator()
+	confy.DefaultConfy = confy.NewConfy()
 	fmt.Println("Setup completed")
 }
 
 func teardown() {
 	// Do something here.
-	configurator.DefaultConfigurator = nil
+	confy.DefaultConfy = nil
 	fmt.Println("Teardown completed")
 }
 
@@ -88,9 +110,9 @@ func TestMain(m *testing.M) {
 
 func TestLoadNormaltestConfig(t *testing.T) {
 
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			t.Cleanup(func() {
 				t.Log("cleanup...")
 				if err := file.Close(); err != nil {
@@ -104,7 +126,10 @@ func TestLoadNormaltestConfig(t *testing.T) {
 			file.Write(bytes)
 
 			var result testConfig
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 			assert.Exactly(t, result, config, "result should equal to original configuration")
 		}
 
@@ -114,25 +139,26 @@ func TestLoadNormaltestConfig(t *testing.T) {
 
 }
 
-// CONFIG_DEBUG_MODE=true CONFIG_VERBOSE_MODE=true go test -v -run TestDefaultValue -count=1 ./configurator/...
+// CONFY_DEBUG_MODE=true CONFY_VERBOSE_MODE=true go test -v -run TestDefaultValue -count=1 ./confy/...
 func TestDefaultValue(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	config.APPName = ""
 	config.DB.Port = 0
 	config.DB.SSL = false
 	config.Contacts[0].Name = ""
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 
 			var result testConfig
-			if err := configurator.Load(&result, file.Name()); err != nil {
-				t.Error(err)
-			}
-			assert.Exactly(t, result, generateDefaultConfig(), "result should equal to original configuration")
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
+			assert.Exactly(t, result, generateDefaultConfig(t), "result should equal to original configuration")
 		}
 	} else {
 		t.Errorf("failed to marshal config")
@@ -140,17 +166,17 @@ func TestDefaultValue(t *testing.T) {
 }
 
 func TestMissingRequiredValue(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	config.DB.Password = ""
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 
 			var result testConfig
-			if err := configurator.Load(&result, file.Name()); err == nil {
+			if err := confy.Load(&result, file.Name()); err == nil {
 				t.Errorf("Should got error when load configuration missing db password")
 			}
 		}
@@ -169,7 +195,7 @@ func TestUnmatchedKeyInYamltestConfigFile(t *testing.T) {
 	}
 	config := configFile{Name: "test", Test: "ATest"}
 
-	file, err := ioutil.TempFile("/tmp", "configurator")
+	file, err := os.CreateTemp("/tmp", "confy")
 	if err != nil {
 		t.Fatal("Could not create temp file")
 	}
@@ -184,13 +210,17 @@ func TestUnmatchedKeyInYamltestConfigFile(t *testing.T) {
 
 		var result configStruct
 
+		dir, fName := filepath.Split(file.Name())
 		// Do not return error when there are unmatched keys but ErrorOnUnmatchedKeys is false
-		if err := configurator.NewConfigurator().Load(&result, filename); err != nil {
+		confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+
+		if err := confy.Load(&result, fName); err != nil {
 			t.Errorf("Should NOT get error when loading configuration with extra keys. Error: %v", err)
 		}
 
 		// Return an error when there are unmatched keys and ErrorOnUnmatchedKeys is true
-		if err := configurator.NewConfigurator(configurator.WithErrorOnUnmatchedKeys()).Load(&result, filename); err == nil {
+		confy.DefaultConfy = confy.NewConfy(confy.WithErrorOnUnmatchedKeys(), confy.WithFS(os.DirFS(dir)))
+		if err := confy.Load(&result, fName); err == nil {
 			t.Errorf("Should get error when loading configuration with extra keys")
 
 			// The error should be of type *yaml.TypeError
@@ -213,13 +243,17 @@ func TestUnmatchedKeyInYamltestConfigFile(t *testing.T) {
 
 	var result configStruct
 
+	dir, fName := filepath.Split(filename)
+	confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+
 	// Do not return error when there are unmatched keys but ErrorOnUnmatchedKeys is false
-	if err := configurator.NewConfigurator().Load(&result, filename); err != nil {
+	if err := confy.NewConfy().Load(&result, fName); err != nil {
 		t.Errorf("Should NOT get error when loading configuration with extra keys. Error: %v", err)
 	}
 
 	// Return an error when there are unmatched keys and ErrorOnUnmatchedKeys is true
-	if err := configurator.NewConfigurator(configurator.WithErrorOnUnmatchedKeys()).Load(&result, filename); err == nil {
+	confy.DefaultConfy = confy.NewConfy(confy.WithErrorOnUnmatchedKeys(), confy.WithFS(os.DirFS(dir)))
+	if err := confy.Load(&result, fName); err == nil {
 		t.Errorf("Should get error when loading configuration with extra keys")
 
 		// The error should be of type *yaml.TypeError
@@ -230,21 +264,24 @@ func TestUnmatchedKeyInYamltestConfigFile(t *testing.T) {
 }
 
 func TestYamlDefaultValue(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	config.APPName = ""
 	config.DB.Port = 0
 	config.DB.SSL = false
 
 	if bytes, err := yaml.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator.*.yaml"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy.*.yaml"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 
 			var result testConfig
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			assert.Exactly(t, result, generateDefaultConfig(), "result should equal to original configuration")
+			assert.Exactly(t, result, generateDefaultConfig(t), "result should equal to original configuration")
 		}
 	} else {
 		t.Errorf("failed to marshal config")
@@ -252,32 +289,36 @@ func TestYamlDefaultValue(t *testing.T) {
 }
 
 func TestLoadConfigurationByEnvironment(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	config2 := struct {
 		APPName string
 	}{
 		APPName: "config2",
 	}
 
-	if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+	if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 		defer file.Close()
 		defer os.Remove(file.Name())
 		configBytes, _ := yaml.Marshal(config)
 		config2Bytes, _ := yaml.Marshal(config2)
-		ioutil.WriteFile(file.Name()+".yaml", configBytes, 0644)
+		os.WriteFile(file.Name()+".yaml", configBytes, 0644)
 		defer os.Remove(file.Name() + ".yaml")
-		ioutil.WriteFile(file.Name()+".production.yaml", config2Bytes, 0644)
+		os.WriteFile(file.Name()+".production.yaml", config2Bytes, 0644)
 		defer os.Remove(file.Name() + ".production.yaml")
 
 		var result testConfig
-		os.Setenv("CONFIG_ENV", "production")
-		defer os.Setenv("CONFIG_ENV", "")
-		configurator.DefaultConfigurator = configurator.NewConfigurator()
-		if err := configurator.Load(&result, file.Name()+".yaml"); err != nil {
+		os.Setenv("CONFY_ENV", "production")
+		defer os.Setenv("CONFY_ENV", "")
+
+		dir, filename := filepath.Split(file.Name())
+		confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+		err = confy.Load(&result, filename)
+
+		if err := confy.Load(&result, filename+".yaml"); err != nil {
 			t.Errorf("No error should happen when load configurations, but got %v", err)
 		}
 
-		defaultConfig := generateDefaultConfig()
+		defaultConfig := generateDefaultConfig(t)
 		defaultConfig.APPName = "config2"
 		assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 	}
@@ -288,50 +329,51 @@ func TestLoadConfigurationByEnvironment(t *testing.T) {
 }
 
 func TestLoadtestConfigurationByEnvironmentSetBytestConfig(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	config2 := struct {
 		APPName string
 	}{
 		APPName: "production_config2",
 	}
 
-	if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+	if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 		defer file.Close()
 		defer os.Remove(file.Name())
 		configBytes, _ := yaml.Marshal(config)
 		config2Bytes, _ := yaml.Marshal(config2)
-		ioutil.WriteFile(file.Name()+".yaml", configBytes, 0644)
+		os.WriteFile(file.Name()+".yaml", configBytes, 0644)
 		defer os.Remove(file.Name() + ".yaml")
-		ioutil.WriteFile(file.Name()+".production.yaml", config2Bytes, 0644)
+		os.WriteFile(file.Name()+".production.yaml", config2Bytes, 0644)
 		defer os.Remove(file.Name() + ".production.yaml")
 
 		var result testConfig
-		cfr := configurator.NewConfigurator(configurator.WithEnvironment("production"))
-		if err := cfr.Load(&result, file.Name()+".yaml"); err != nil {
-			t.Errorf("No error should happen when load configurations, but got %v", err)
-		}
 
-		defaultConfig := generateDefaultConfig()
+		dir, filename := filepath.Split(file.Name())
+		confy.DefaultConfy = confy.NewConfy(confy.WithEnvironment("production"), confy.WithFS(os.DirFS(dir)))
+		err = confy.Load(&result, filename+".yaml")
+		assert.NoError(t, err)
+
+		defaultConfig := generateDefaultConfig(t)
 		defaultConfig.APPName = "production_config2"
 		assert.Exactly(t, result, defaultConfig, "result should be load configurations by environment correctly")
 
-		if configurator.GetEnvironment() != "production" {
-			t.Errorf("configurator's environment should be production")
+		if confy.GetEnvironment() != "production" {
+			t.Errorf("confy's environment should be production")
 		}
 	}
 }
 
 func TestOverwritetestConfigurationWithEnvironmentWithDefaultPrefix(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			file.Write(bytes)
 			var result testConfig
-			os.Setenv("CONFIG_APP_NAME", "config2")
-			os.Setenv("CONFIG_HOSTS", "- http://example2.org\n- http://jinzhu2.me")
-			os.Setenv("CONFIG_APP_NAME", "config2")
-			os.Setenv("CONFIG_DB_NAME", "db_name")
+			os.Setenv("CONFY_APP_NAME", "config2")
+			os.Setenv("CONFY_HOSTS", "- http://example2.org\n- http://jinzhu2.me")
+			os.Setenv("CONFY_APP_NAME", "config2")
+			os.Setenv("CONFY_DB_NAME", "db_name")
 
 			t.Cleanup(func() {
 				t.Log("cleanup...")
@@ -341,17 +383,21 @@ func TestOverwritetestConfigurationWithEnvironmentWithDefaultPrefix(t *testing.T
 				if err := os.Remove(file.Name()); err != nil {
 					t.Error(err)
 				}
-				os.Setenv("CONFIG_APP_NAME", "")
-				os.Setenv("CONFIG_HOSTS", "")
-				os.Setenv("CONFIG_APP_NAME", "")
-				os.Setenv("CONFIG_DB_NAME", "")
+				os.Setenv("CONFY_APP_NAME", "")
+				os.Setenv("CONFY_HOSTS", "")
+				os.Setenv("CONFY_APP_NAME", "")
+				os.Setenv("CONFY_DB_NAME", "")
 			})
 
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
+
 			t.Log(result.Contacts[0])
 			t.Log(result.Contacts[1])
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.APPName = "config2"
 			defaultConfig.Hosts = []string{"http://example2.org", "http://jinzhu2.me"}
 			defaultConfig.DB.Name = "db_name"
@@ -362,39 +408,42 @@ func TestOverwritetestConfigurationWithEnvironmentWithDefaultPrefix(t *testing.T
 	}
 }
 
-// go test -v -run TestENV -count=1 ./configurator/...
+// go test -v -run TestENV -count=1 ./confy/...
 func TestENV(t *testing.T) {
-	if configurator.GetEnvironment() != "test" {
-		t.Skipf("skipping test. Env should be test when running `go test`, instead env is %v", configurator.GetEnvironment())
+	if confy.GetEnvironment() != "test" {
+		t.Skipf("skipping test. Env should be test when running `go test`, instead env is %v", confy.GetEnvironment())
 	}
 
-	os.Setenv("CONFIG_ENV", "production")
-	defer os.Setenv("CONFIG_ENV", "")
-	configurator.DefaultConfigurator = configurator.NewConfigurator()
-	if configurator.GetEnvironment() != "production" {
-		t.Errorf("Env should be production when set it with CONFIG_ENV")
+	os.Setenv("CONFY_ENV", "production")
+	defer os.Setenv("CONFY_ENV", "")
+	confy.DefaultConfy = confy.NewConfy()
+	if confy.GetEnvironment() != "production" {
+		t.Errorf("Env should be production when set it with CONFY_ENV")
 	}
 }
 
 func TestOverwritetestConfigurationWithEnvironment(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 			var result testConfig
-			os.Setenv("CONFIG_ENV_PREFIX", "app")
+			os.Setenv("CONFY_ENV_PREFIX", "app")
 			os.Setenv("APP_APP_NAME", "config2")
 			os.Setenv("APP_DB_NAME", "db_name")
-			defer os.Setenv("CONFIG_ENV_PREFIX", "")
+			defer os.Setenv("CONFY_ENV_PREFIX", "")
 			defer os.Setenv("APP_APP_NAME", "")
 			defer os.Setenv("APP_DB_NAME", "")
-			configurator.DefaultConfigurator = configurator.NewConfigurator()
-			configurator.Load(&result, file.Name())
 
-			defaultConfig := generateDefaultConfig()
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
+
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
@@ -405,10 +454,10 @@ func TestOverwritetestConfigurationWithEnvironment(t *testing.T) {
 }
 
 func TestOverwritetestConfigurationWithEnvironmentThatSetBytestConfig(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
@@ -418,12 +467,12 @@ func TestOverwritetestConfigurationWithEnvironmentThatSetBytestConfig(t *testing
 			defer os.Setenv("APP1_DB_NAME", "")
 
 			var result testConfig
-			cfr := configurator.NewConfigurator(configurator.WithEnvironmentVariablePrefix("APP1"))
-			if err := cfr.Load(&result, file.Name()); err != nil {
-				t.Error(err)
-			}
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithEnvironmentVariablePrefix("APP1"), confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
@@ -434,25 +483,27 @@ func TestOverwritetestConfigurationWithEnvironmentThatSetBytestConfig(t *testing
 }
 
 func TestResetPrefixToBlank(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 			var result testConfig
-			os.Setenv("CONFIG_ENV_PREFIX", "-")
+			os.Setenv("CONFY_ENV_PREFIX", "-")
 			os.Setenv("APP_NAME", "config2")
 			os.Setenv("DB_NAME", "db_name")
-			defer os.Setenv("CONFIG_ENV_PREFIX", "")
+			defer os.Setenv("CONFY_ENV_PREFIX", "")
 			defer os.Setenv("APP_NAME", "")
 			defer os.Setenv("DB_NAME", "")
-			configurator.DefaultConfigurator = configurator.NewConfigurator()
 
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
@@ -463,25 +514,27 @@ func TestResetPrefixToBlank(t *testing.T) {
 }
 
 func TestResetPrefixToBlank2(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 			var result testConfig
-			os.Setenv("CONFIG_ENV_PREFIX", "-")
+			os.Setenv("CONFY_ENV_PREFIX", "-")
 			os.Setenv("APP_NAME", "config2")
 			os.Setenv("DB_NAME", "db_name")
-			defer os.Setenv("CONFIG_ENV_PREFIX", "")
+			defer os.Setenv("CONFY_ENV_PREFIX", "")
 			defer os.Setenv("APPName", "")
 			defer os.Setenv("DB_NAME", "")
 
-			configurator.DefaultConfigurator = configurator.NewConfigurator()
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.APPName = "config2"
 			defaultConfig.DB.Name = "db_name"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
@@ -492,10 +545,10 @@ func TestResetPrefixToBlank2(t *testing.T) {
 }
 
 func TestReadFromEnvironmentWithSpecifiedEnvName(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
@@ -503,10 +556,12 @@ func TestReadFromEnvironmentWithSpecifiedEnvName(t *testing.T) {
 			os.Setenv("DBPassword", "db_password")
 			defer os.Setenv("DBPassword", "")
 
-			configurator.DefaultConfigurator = configurator.NewConfigurator()
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.DB.Password = "db_password"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
@@ -516,21 +571,23 @@ func TestReadFromEnvironmentWithSpecifiedEnvName(t *testing.T) {
 }
 
 func TestAnonymousStruct(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("/tmp", "configurator"); err == nil {
+		if file, err := os.CreateTemp("/tmp", "confy"); err == nil {
 			defer file.Close()
 			defer os.Remove(file.Name())
 			file.Write(bytes)
 			var result testConfig
-			os.Setenv("CONFIG_DESCRIPTION", "environment description")
-			defer os.Setenv("CONFIG_DESCRIPTION", "")
+			os.Setenv("CONFY_DESCRIPTION", "environment description")
+			defer os.Setenv("CONFY_DESCRIPTION", "")
 
-			configurator.DefaultConfigurator = configurator.NewConfigurator()
-			configurator.Load(&result, file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 
-			defaultConfig := generateDefaultConfig()
+			defaultConfig := generateDefaultConfig(t)
 			defaultConfig.Anonymous.Description = "environment description"
 			assert.Exactly(t, result, defaultConfig, "result should equal to original configuration")
 		}
@@ -566,13 +623,13 @@ func TestSliceFromEnv(t *testing.T) {
 	}
 
 	var result slicetestConfig
-	os.Setenv("CONFIG_TEST1", "1")
-	os.Setenv("CONFIG_TEST2_0_TEST2ELE1", "1")
-	os.Setenv("CONFIG_TEST2_0_TEST2ELE2", "2")
+	os.Setenv("CONFY_TEST1", "1")
+	os.Setenv("CONFY_TEST2_0_TEST2ELE1", "1")
+	os.Setenv("CONFY_TEST2_0_TEST2ELE2", "2")
 
-	os.Setenv("CONFIG_TEST2_1_TEST2ELE1", "3")
-	os.Setenv("CONFIG_TEST2_1_TEST2ELE2", "4")
-	err := configurator.Load(&result)
+	os.Setenv("CONFY_TEST2_1_TEST2ELE1", "3")
+	os.Setenv("CONFY_TEST2_1_TEST2ELE2", "4")
+	err := confy.Load(&result)
 	if err != nil {
 		t.Fatalf("load from env err:%v", err)
 	}
@@ -593,16 +650,16 @@ func TestConfigFromEnv(t *testing.T) {
 
 	cfg := &config{}
 
-	os.Setenv("CONFIG_ENV_PREFIX", "CONFIG")
-	os.Setenv("CONFIG_LINE_BREAK_STRING", "Line one\nLine two\nLine three\nAnd more lines")
-	os.Setenv("CONFIG_SLIENT", "1")
-	os.Setenv("CONFIG_COUNT", "10")
-	os.Setenv("CONFIG_HOME_ADDRESS_STREET_NAME", "abc")
-	configurator.Load(cfg)
+	os.Setenv("CONFY_ENV_PREFIX", "CONFY")
+	os.Setenv("CONFY_LINE_BREAK_STRING", "Line one\nLine two\nLine three\nAnd more lines")
+	os.Setenv("CONFY_SLIENT", "1")
+	os.Setenv("CONFY_COUNT", "10")
+	os.Setenv("CONFY_HOME_ADDRESS_STREET_NAME", "abc")
+	confy.Load(cfg)
 
 	t.Log(cfg)
 
-	if os.Getenv("CONFIG_LINE_BREAK_STRING") != cfg.LineBreakString {
+	if os.Getenv("CONFY_LINE_BREAK_STRING") != cfg.LineBreakString {
 		t.Error("Failed to load value has line break from env")
 	}
 
@@ -614,7 +671,7 @@ func TestConfigFromEnv(t *testing.T) {
 		t.Error("Failed to load number from env")
 	}
 
-	if os.Getenv("CONFIG_HOME_ADDRESS_STREET_NAME") != cfg.HomeAddress.StreetName {
+	if os.Getenv("CONFY_HOME_ADDRESS_STREET_NAME") != cfg.HomeAddress.StreetName {
 		t.Error("Failed to load StreetName from env")
 	}
 }
@@ -632,7 +689,7 @@ func TestValidation(t *testing.T) {
 	}
 
 	cfg := &config{Email: "a@b.com", Email2: "", AuthorIP: "1.1"}
-	err := configurator.Load(cfg)
+	err := confy.Load(cfg)
 	fmt.Printf("%+v\n", cfg)
 	if err != nil {
 		errs := err.(validator.ValidationErrors)
@@ -689,7 +746,7 @@ func TestValidationMore(t *testing.T) {
 		{&User{"", "john@yahoo.com", "123G#678", 20, "#000", &Address{"Street", "95504"}, []Address{{"Street", "123456"}, {"Street", "A123456"}}, nil, time.Minute}, false},
 	}
 	for _, test := range tests {
-		err := configurator.Load(test.param)
+		err := confy.Load(test.param)
 		if err != nil {
 			t.Logf("Error for: %#v", test.param)
 			// this check is only needed when your code could produce
@@ -710,9 +767,9 @@ func TestValidationMore(t *testing.T) {
 }
 
 func TestUsePkger(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig(t)
 	if bytes, err := json.Marshal(config); err == nil {
-		if file, err := ioutil.TempFile("..", "temp_configurator"); err == nil {
+		if file, err := os.CreateTemp("..", "temp_confy"); err == nil {
 			t.Cleanup(func() {
 				t.Log("cleanup...")
 				if err := file.Close(); err != nil {
@@ -723,10 +780,13 @@ func TestUsePkger(t *testing.T) {
 				}
 			})
 
-			file.Write(bytes)
+			_, _ = file.Write(bytes)
 
 			var result testConfig
-			configurator.NewConfigurator(configurator.WithPkger()).Load(&result, "/"+file.Name())
+			dir, filename := filepath.Split(file.Name())
+			confy.DefaultConfy = confy.NewConfy(confy.WithFS(os.DirFS(dir)))
+			err = confy.Load(&result, filename)
+			assert.NoError(t, err)
 			assert.Exactly(t, result, config, "result should equal to original configuration")
 		}
 	} else {

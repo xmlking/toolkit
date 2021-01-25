@@ -24,7 +24,6 @@ GIT_TAG					:= $(shell git describe --tags --abbrev=0 --always --match "v*")
 GIT_DIRTY 			:= $(shell git status --porcelain 2> /dev/null)
 GIT_BRANCH  		:= $(shell git rev-parse --abbrev-ref HEAD)
 HAS_GOVVV				:= $(shell command -v govvv 2> /dev/null)
-HAS_PKGER				:= $(shell command -v pkger 2> /dev/null)
 HAS_KO					:= $(shell command -v ko 2> /dev/null)
 HTTPS_GIT 				:= https://github.com/$(GITHUB_REPO_OWNER)/$(GITHUB_REPO_NAME).git
 
@@ -55,7 +54,6 @@ all: build
 tools:
 	@echo "==> Installing dev tools"
 	# go install github.com/ahmetb/govvv
-	# go install github.com/markbates/pkger/cmd/pkger
 	# GO111MODULE=off go get github.com/golangci/golangci-lint/cmd/golangci-lint
 	# GO111MODULE=on go get github.com/bufbuild/buf/cmd/buf
 	# GO111MODULE=on go get github.com/rvflash/goup
