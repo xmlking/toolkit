@@ -181,14 +181,6 @@ $ go run config.go
 
 * Load files Via Go 1.16 [FileSystem](https://go.googlesource.com/proposal/+/master/design/draft-iofs.md)
 
-> Enable Pkger or set via env `CONFY_VERBOSE_MODE` to true to use Pkger for loading files
-
-```go
-// config.go
-confy.NewConfy(confy.WithPkger(), confy.WithFS(os.DirFS("."))).Load(&Config, "/config/config.json")
-# or set via Environment Variable 
-$ CONFY_USE_PKGER=true  go run config.go
-```
 
 * Load From Shell Environment
 

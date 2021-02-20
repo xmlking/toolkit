@@ -13,6 +13,9 @@ import (
 	"github.com/xmlking/toolkit/util/xfs"
 )
 
+//go:embed fixtures
+var fixtures embed.FS
+
 var testFsys = fstest.MapFS{
 	"hello.txt": {
 		Data:    []byte("hello, world"),
@@ -61,9 +64,6 @@ func TestReadFile(t *testing.T) {
 }
 
 func TestXfs(t *testing.T) {
-	//go:embed fixtures
-	var fixtures embed.FS
-
 	efx := xfs.FS(fixtures)
 
 	b, err := fs.ReadFile(efx, "fixtures/hello.txt")
@@ -72,9 +72,6 @@ func TestXfs(t *testing.T) {
 }
 
 func TestEmbedFS(t *testing.T) {
-	//go:embed fixtures
-	var fixtures embed.FS
-
 	expected := []string{"fixtures/hello.txt", "fixtures"}
 	if err := fstest.TestFS(fixtures, expected...); err != nil {
 		t.Fatal(err)

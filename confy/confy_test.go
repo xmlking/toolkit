@@ -355,7 +355,7 @@ func TestLoadtestConfigurationByEnvironmentSetBytestConfig(t *testing.T) {
 
 		defaultConfig := generateDefaultConfig(t)
 		defaultConfig.APPName = "production_config2"
-		assert.Exactly(t, result, defaultConfig, "result should be load configurations by environment correctly")
+		assert.Exactly(t, defaultConfig, result, "result should be load configurations by environment correctly")
 
 		if confy.GetEnvironment() != "production" {
 			t.Errorf("confy's environment should be production")

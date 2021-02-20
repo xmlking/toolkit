@@ -1,22 +1,22 @@
 package confy
 
 import (
-    "encoding/json"
-    "fmt"
-    "io"
-    "io/fs"
-    "os"
-    "path"
-    "reflect"
-    "strings"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/fs"
+	"os"
+	"path"
+	"reflect"
+	"strings"
 
-    "github.com/cockroachdb/errors"
-    "github.com/creasty/defaults"
-    "github.com/rs/zerolog/log"
+	"github.com/cockroachdb/errors"
+	"github.com/creasty/defaults"
+	"github.com/rs/zerolog/log"
 
-    // "github.com/kelseyhightower/envconfig"
-    "github.com/stoewer/go-strcase"
-    "gopkg.in/yaml.v2"
+	// "github.com/kelseyhightower/envconfig"
+	"github.com/stoewer/go-strcase"
+	"gopkg.in/yaml.v2"
 )
 
 func getConfigFileWithEnv(file, env string, fsys fs.FS) (envFile string, err error) {
@@ -32,8 +32,8 @@ func getConfigFileWithEnv(file, env string, fsys fs.FS) (envFile string, err err
 	if fileInfo, err = fs.Stat(fsys, envFile); err != nil {
 		err = errors.Wrap(err, "error loading file with env")
 		return
-	} else if fileInfo.Mode().IsRegular() {
-		err = errors.Newf("error loading file with env. file is not regular: (%s)", envFile)
+	} else if !fileInfo.Mode().IsRegular() {
+		err = errors.Newf("error loading file with env. file is not regular: (%s)", fileInfo.Name())
 		return
 	}
 	return
@@ -299,4 +299,3 @@ func (c *confy) load(config interface{}, files ...string) (err error) {
 
 	return err
 }
-

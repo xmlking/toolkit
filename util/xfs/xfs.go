@@ -47,7 +47,8 @@ func getGoModuleDir() (path string, err error) {
 	//cmd.Env = append(os.Environ(), "GO111MODULE=on")
 	var out []byte
 	if out, err = cmd.Output(); err != nil {
-		log.Error().Err(err).Msg("error running 'go list -json -m'")
+		// error: xec: \"go\": executable file not found in $PATH"
+		// means running in in docker/pod
 		return
 	}
 

@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    labels:
+      - dependencies
+      - actions
+      - "Skip Changelog"
+    schedule:
+      day: sunday
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /
+    labels:
+      - dependencies
+      - docker
+      - "Skip Changelog"
+    schedule:
+      day: sunday
+      interval: weekly
+
+  - package-ecosystem: gomod
+    directory: /
+    labels:
+      - dependencies
+      - go
+      - "Skip Changelog"
+    schedule:
+      day: sunday
+      interval: weekly
+  - package-ecosystem: gomod
+    directory: /confy
+    labels:
+      - dependencies
+      - go
+      - "Skip Changelog"
+    schedule:
+      day: sunday
+      interval: weekly
