@@ -16,7 +16,7 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/api v0.36.0
 	google.golang.org/genproto v0.0.0-20201209185603-f92720507ed4
 	google.golang.org/grpc v1.35.0
