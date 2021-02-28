@@ -16,7 +16,7 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	google.golang.org/api v0.36.0
 	google.golang.org/genproto v0.0.0-20201209185603-f92720507ed4
-	google.golang.org/grpc v1.35.0
+	google.golang.org/grpc v1.36.0
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
