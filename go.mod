@@ -3,7 +3,7 @@ module github.com/xmlking/toolkit
 go 1.16
 
 require (
-	cloud.google.com/go/pubsub v1.9.1
+	cloud.google.com/go/pubsub v1.10.1
 	github.com/cloudevents/sdk-go/v2 v2.3.1
 	github.com/cockroachdb/errors v1.8.3
 	github.com/cockroachdb/redact v1.0.9
