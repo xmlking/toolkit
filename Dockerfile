@@ -13,7 +13,7 @@ RUN mkdir /user && \
 WORKDIR /
 COPY ./go.mod ./go.sum ./
 RUN go env -w GOPROXY="https://proxy.golang.org,direct" && go mod download && \
-    go get github.com/ahmetb/govvv && \
+    go install github.com/ahmetb/govvv@latest && \
     rm go.mod go.sum
 
 # Metadata params
