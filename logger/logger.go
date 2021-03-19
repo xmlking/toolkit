@@ -42,11 +42,11 @@ func init() {
 		}
 	}
 
-	if enableGrpcLog, _ := strconv.ParseBool(os.Getenv(" CONFY_LOG_GRPC")); enableGrpcLog {
+	if enableGrpcLog, _ := strconv.ParseBool(os.Getenv("CONFY_LOG_GRPC")); enableGrpcLog {
 		opts = append(opts, EnableGrpcLog(enableGrpcLog))
 	}
 
-	if enableFileLog, _ := strconv.ParseBool(os.Getenv(" CONFY_LOG_FILE")); enableFileLog {
+	if enableFileLog, _ := strconv.ParseBool(os.Getenv("CONFY_LOG_FILE")); enableFileLog {
 		_, fileName := filepath.Split(os.Args[0])
 		if fileName != "" {
 			// TODO defer file.Close()
