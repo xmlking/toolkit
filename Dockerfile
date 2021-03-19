@@ -12,9 +12,7 @@ RUN mkdir /user && \
 # Get dependancies - will also be cached if we won't change mod/sum
 WORKDIR /
 COPY ./go.mod ./go.sum ./
-RUN go env -w GOPROXY="https://proxy.golang.org,direct" && go mod download && \
-    go install github.com/ahmetb/govvv@latest && \
-    rm go.mod go.sum
+RUN go env -w GOPROXY="https://proxy.golang.org,direct" && go mod download && rm go.mod go.sum
 
 # Metadata params
 ARG BUILD_DATE
