@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 )
@@ -15,14 +16,20 @@ type hybridFS struct {
 }
 
 func (f hybridFS) Open(name string) (fs.File, error) {
-	file, err1 := f.ofs.Open(name)
-	if err1 == nil {
-		log.Debug().Msgf("loading from OS FileSystem: (%s)", name)
-		return file, nil
+	if filepath.IsAbs(name) {
+		log.Debug().Str("file", name).Str("FileSystem", "OS").Msg("trying to open")
+		return os.DirFS("").Open(name[1:]) // FIXME: what for windows?
 	}
 
+	log.Debug().Str("file", name).Str("FileSystem", "OS").Msg("trying to open")
+	if file, err := f.ofs.Open(name); err == nil {
+		return file, nil
+	} else {
+		log.Debug().Str("error", err.Error()).Msgf("Got error. will try Embed FS next")
+	}
+
+	log.Debug().Str("file", name).Str("FileSystem", "Embed").Msg("trying to open")
 	file, err := f.efs.Open(name)
-	log.Debug().Err(err1).Msgf("loading form Embed FileSystem: (%s)", name)
 	if err != nil {
 		return nil, err
 	}

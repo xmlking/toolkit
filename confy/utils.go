@@ -42,7 +42,7 @@ func getConfigFileWithEnv(file, env string, fsys fs.FS) (envFile string, err err
 func (c *confy) getConfigFiles(files ...string) (filesFound []string) {
 
 	if c.config.debug || c.config.verbose {
-		fmt.Printf("Current environment: '%v'\n", c.config.environment)
+        log.Info().Msgf("Current environment: '%v'\n", c.config.environment)
 	}
 
 	for _, file := range files {
@@ -72,11 +72,11 @@ func (c *confy) getConfigFiles(files ...string) (filesFound []string) {
 		if !found {
 			if example, err := getConfigFileWithEnv(file, "example", c.config.fs); err == nil {
 				if !c.config.silent {
-					fmt.Printf("Failed to find config: %v, using example file: %v\n", file, example)
+                    log.Info().Msgf("Failed to find config: %v, using example file: %v\n", file, example)
 				}
 				filesFound = append(filesFound, example)
 			} else if !c.config.silent {
-				fmt.Printf("Failed to find config: %v\n", file)
+                log.Info().Msgf("Failed to find config: %v\n", file)
 			}
 		}
 	}
@@ -175,14 +175,14 @@ func (c *confy) processTags(config interface{}, prefixes ...string) error {
 		}
 
 		if c.config.verbose {
-			fmt.Printf("Trying to load struct `%v`'s field `%v` from env %v\n", configType.Name(), fieldStruct.Name, strings.Join(envNames, ", "))
+            log.Info().Msgf("Trying to load struct `%v`'s field `%v` from env %v\n", configType.Name(), fieldStruct.Name, strings.Join(envNames, ", "))
 		}
 
 		// Load From Shell ENV
 		for _, env := range envNames {
 			if value := os.Getenv(env); value != "" {
 				if c.config.debug || c.config.verbose {
-					fmt.Printf("Loading configuration for struct `%v`'s field `%v` from env %v...\n", configType.Name(), fieldStruct.Name, env)
+                    log.Info().Msgf("Loading configuration for struct `%v`'s field `%v` from env %v...\n", configType.Name(), fieldStruct.Name, env)
 				}
 
 				switch reflect.Indirect(field).Kind() {
@@ -255,10 +255,10 @@ func (c *confy) load(config interface{}, files ...string) (err error) {
 	defer func() {
 		if c.config.debug || c.config.verbose {
 			if err != nil {
-				fmt.Printf("Failed to load configuration from %v, got %v\n", files, err)
+                log.Info().Msgf("Failed to load configuration from %v, got %v\n", files, err)
 			}
 
-			fmt.Printf("Configuration:\n  %#v\n", config)
+            log.Info().Msgf("Configuration:\n  %#v\n", config)
 		}
 	}()
 
@@ -266,7 +266,7 @@ func (c *confy) load(config interface{}, files ...string) (err error) {
 
 	for _, file := range configFiles {
 		if c.config.debug || c.config.verbose {
-			fmt.Printf("Loading configurations from file '%v'...\n", file)
+            log.Info().Msgf("Loading configurations from file '%v'...\n", file)
 		}
 		if err = c.processFile(config, file); err != nil {
 			return err
@@ -274,7 +274,7 @@ func (c *confy) load(config interface{}, files ...string) (err error) {
 	}
 
 	if c.config.verbose {
-		fmt.Printf("Configuration after loading, and before setting Defaults :\n  %#+v\n", config)
+        log.Info().Msgf("Configuration after loading, and before setting Defaults :\n  %#+v\n", config)
 	}
 
 	// process defaults
@@ -283,7 +283,7 @@ func (c *confy) load(config interface{}, files ...string) (err error) {
 	}
 
 	if c.config.verbose {
-		fmt.Printf("Configuration after loading files and setting Defaults, before processing ENV:\n  %#v\n", config)
+        log.Info().Msgf("Configuration after loading files and setting Defaults, before processing ENV:\n  %#v\n", config)
 	}
 
 	if c.config.environmentVariablePrefix == "-" { // ???
