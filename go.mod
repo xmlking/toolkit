@@ -11,11 +11,11 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/rs/zerolog v1.20.0
+	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/api v0.42.0
-	google.golang.org/genproto v0.0.0-20210312152112-fc591d9ea70f
+	google.golang.org/api v0.43.0
+	google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6
 	google.golang.org/grpc v1.36.0
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

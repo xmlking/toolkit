@@ -1,67 +1,25 @@
 package logger
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"path/filepath"
-	"runtime/debug"
-	"strconv"
-	"time"
+    "context"
+    "fmt"
+    "os"
+    "runtime/debug"
+    "time"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
-	"google.golang.org/grpc/grpclog"
+    "github.com/rs/zerolog"
+    "github.com/rs/zerolog/log"
+    "github.com/rs/zerolog/pkgerrors"
+    "google.golang.org/grpc/grpclog"
 
-	"github.com/xmlking/toolkit/logger/gcp"
-	grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
+    "github.com/xmlking/toolkit/logger/gcp"
+    grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
 )
 
 var (
 	// Default Logger
 	DefaultLogger Logger
 )
-
-func init() {
-	var opts []Option
-
-	if lvlStr := os.Getenv("CONFY_LOG_LEVEL"); len(lvlStr) > 0 {
-		if lvl, err := zerolog.ParseLevel(lvlStr); err != nil {
-			log.Fatal().Err(err).Send()
-		} else {
-			opts = append(opts, WithLevel(lvl))
-		}
-	}
-
-	if fmtStr := os.Getenv("CONFY_LOG_FORMAT"); len(fmtStr) > 0 {
-		if logFmt, err := ParseFormat(fmtStr); err != nil {
-			log.Fatal().Err(err).Send()
-		} else {
-			opts = append(opts, WithFormat(logFmt))
-		}
-	}
-
-	if enableGrpcLog, _ := strconv.ParseBool(os.Getenv("CONFY_LOG_GRPC")); enableGrpcLog {
-		opts = append(opts, EnableGrpcLog(enableGrpcLog))
-	}
-
-	if enableFileLog, _ := strconv.ParseBool(os.Getenv("CONFY_LOG_FILE")); enableFileLog {
-		_, fileName := filepath.Split(os.Args[0])
-		if fileName != "" {
-			// TODO defer file.Close()
-			if file, err := os.OpenFile(fmt.Sprintf("%s.log", fileName), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666); err != nil {
-				log.Fatal().Err(err).Send()
-			} else {
-				// Merging log writers: Stderr output and file output
-				multi := zerolog.MultiLevelWriter(os.Stderr, file)
-				opts = append(opts, WithOutput(multi))
-			}
-		}
-	}
-
-	DefaultLogger = NewLogger(opts...)
-}
 
 type Logger interface {
 	Init(options ...Option) error

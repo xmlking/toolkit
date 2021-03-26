@@ -6,6 +6,6 @@ replace github.com/xmlking/toolkit/logger => ./
 
 require (
 	github.com/cockroachdb/errors v1.8.3
-	github.com/rs/zerolog v1.20.0
+	github.com/rs/zerolog v1.21.0
 	google.golang.org/grpc v1.36.0
 )
