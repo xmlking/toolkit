@@ -2,17 +2,94 @@ package broker_test
 
 import (
 	"context"
+	"reflect"
 	"testing"
+	"time"
+	"unsafe"
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/pubsub/pstest"
-
+	broker "github.com/xmlking/toolkit/broker/pubsub"
 	"google.golang.org/api/option"
 	pb "google.golang.org/genproto/googleapis/pubsub/v1"
 	"google.golang.org/grpc"
-
-	broker "github.com/xmlking/toolkit/broker/pubsub"
 )
+
+// AckHandler implements ack/nack handling.
+type AckHandler interface {
+	// OnAck processes a message ack.
+	OnAck()
+
+	// OnNack processes a message nack.
+	OnNack()
+}
+
+type makeAckHandler struct {
+	t *testing.T
+}
+
+func (ah *makeAckHandler) OnAck() {
+	ah.t.Logf("OnAck")
+}
+func (ah *makeAckHandler) OnNack() {
+	ah.t.Logf("OnNack")
+}
+
+func makeMockMessage(ackHandler AckHandler) pubsub.Message {
+	message := pubsub.Message{
+		ID:              "1",
+		Data:            []byte("ABC"),
+		Attributes:      map[string]string{"att1": "val1"},
+		PublishTime:     time.Now(),
+		DeliveryAttempt: nil,
+		OrderingKey:     "1",
+	}
+
+	//Get a reflectable value of message
+	messageValue := reflect.ValueOf(message)
+
+	// The value above is unaddressable. So construct a new and addressable message and set it with the value of the unaddressable
+	addressableValue := reflect.New(messageValue.Type()).Elem()
+	addressableValue.Set(messageValue)
+
+	//Get message's doneFunc field
+	//doneFuncField := addressableValue.FieldByName("doneFunc")
+	doneFuncField := addressableValue.FieldByName("ackh")
+
+	//Get the address of the field
+	doneFuncFieldAddress := doneFuncField.UnsafeAddr()
+
+	//Create a pointer based on the address
+	doneFuncFieldPointer := unsafe.Pointer(doneFuncFieldAddress)
+
+	//Create a new, exported field element that points to the original
+	accessibleDoneFuncField := reflect.NewAt(doneFuncField.Type(), doneFuncFieldPointer).Elem()
+
+	//Set the field with the alternative doneFunc
+	accessibleDoneFuncField.Set(reflect.ValueOf(ackHandler))
+
+	return addressableValue.Interface().(pubsub.Message)
+}
+
+func TestPubsubMessage_Ack(t *testing.T) {
+	//Create an alternative AckHandler
+	ackHandler := &makeAckHandler{t}
+	message := makeMockMessage(ackHandler)
+
+	t.Log(message)
+	message.Ack()
+	t.Log(message)
+}
+
+func TestPubsubMessage_Nack(t *testing.T) {
+	//Create an alternative done function
+	ackHandler := &makeAckHandler{t}
+	message := makeMockMessage(ackHandler)
+
+	t.Log(message)
+	message.Nack()
+	t.Log(message)
+}
 
 func TestNewBroker(t *testing.T) {
 	ctX, cancel := context.WithCancel(context.Background())
@@ -31,7 +108,60 @@ func TestNewBroker(t *testing.T) {
 	}
 
 	// add subscriber
-	if err := broker.Subscribe("sumo", myHandler, broker.WithSubscriptionID("sumo")); err != nil {
+	if _, err := broker.NewSubscriber("sumo", myHandler); err != nil {
+		t.Fatal(err)
+	}
+
+	// start broker
+	if err := broker.Start(); err != nil {
+		t.Fatal(err)
+	}
+
+	// create publisher
+	publisher, err := broker.NewPublisher("sumo", broker.PublishAsync(false))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// publish message
+	err = publisher.Publish(context.Background(), &pubsub.Message{Data: []byte("hello")})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	//srv.Wait()
+	ms := srv.Messages()
+	t.Logf("msg1: %s", ms[0].Data)
+	tps, err := srv.GServer.ListTopics(context.TODO(), &pb.ListTopicsRequest{Project: "projects/pro1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(tps)
+}
+
+func TestSubscribeWithRecoveryHandler(t *testing.T) {
+	ctX, cancel := context.WithCancel(context.Background())
+	srv := setupFakePubsubAndBroker(ctX, t)
+	defer srv.Close()
+	defer broker.Shutdown()
+
+	myHandler := func(ctx context.Context, msg *pubsub.Message) {
+		t.Logf("received msg: %s", msg.Data)
+		msg.Ack()
+		cancel()
+		if got, want := string(msg.Data), "hello"; got != want {
+			t.Fatalf(`got "%s" message, want "%s"`, got, want)
+			msg.Nack()
+		}
+		panic("sumo")
+	}
+
+	recoveryHandler := func(ctx context.Context, msg *pubsub.Message, r interface{}) {
+		t.Logf("Recovered from panic: %v,  msg.ID: %s", r, msg.ID)
+	}
+
+	// add subscriber
+	if _, err := broker.NewSubscriber("sumo", myHandler, broker.WithRecoveryHandler(recoveryHandler)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -66,6 +196,7 @@ func TestNewBroker(t *testing.T) {
 // it also created broker and set as default.
 // Note: be sure to close server and broker!
 func setupFakePubsubAndBroker(ctx context.Context, t *testing.T) *pstest.Server {
+	t.Helper()
 
 	srv := pstest.NewServer()
 	// Connect to the server without using TLS.

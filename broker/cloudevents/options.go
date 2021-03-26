@@ -9,8 +9,6 @@ type Option func(*Options)
 type Options struct {
 	Name string
 
-	Endpoint string
-
 	// Alternative options
 	Context context.Context
 }
@@ -19,12 +17,6 @@ type Options struct {
 func Name(n string) Option {
 	return func(o *Options) {
 		o.Name = n
-	}
-}
-
-func WithEndpoint(endpoint string) Option {
-	return func(o *Options) {
-		o.Endpoint = endpoint
 	}
 }
 

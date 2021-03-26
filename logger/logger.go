@@ -1,52 +1,25 @@
 package logger
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"runtime/debug"
-	"strconv"
-	"time"
+    "context"
+    "fmt"
+    "os"
+    "runtime/debug"
+    "time"
 
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
-	"google.golang.org/grpc/grpclog"
+    "github.com/rs/zerolog"
+    "github.com/rs/zerolog/log"
+    "github.com/rs/zerolog/pkgerrors"
+    "google.golang.org/grpc/grpclog"
 
-	"github.com/xmlking/toolkit/logger/gcp"
-	grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
+    "github.com/xmlking/toolkit/logger/gcp"
+    grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
 )
 
 var (
 	// Default Logger
 	DefaultLogger Logger
 )
-
-func init() {
-	var opts []Option
-
-	if lvlStr := os.Getenv("CONFIGOR_LOG_LEVEL"); len(lvlStr) > 0 {
-		if lvl, err := zerolog.ParseLevel(lvlStr); err != nil {
-			log.Fatal().Err(err).Send()
-		} else {
-			opts = append(opts, WithLevel(lvl))
-		}
-	}
-
-	if fmtStr := os.Getenv("CONFIGOR_LOG_FORMAT"); len(fmtStr) > 0 {
-		if logFmt, err := ParseFormat(fmtStr); err != nil {
-			log.Fatal().Err(err).Send()
-		} else {
-			opts = append(opts, WithFormat(logFmt))
-		}
-	}
-
-	if enableGrpcLog, _ := strconv.ParseBool(os.Getenv("CONFIGOR_LOG_GRPC")); enableGrpcLog {
-		opts = append(opts, EnableGrpcLog(enableGrpcLog))
-	}
-
-	DefaultLogger = NewLogger(opts...)
-}
 
 type Logger interface {
 	Init(options ...Option) error

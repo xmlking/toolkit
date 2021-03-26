@@ -136,7 +136,7 @@ func TestGetOperation(t *testing.T) {
 
 	errV := fmt.Sprintf("%+v", coErrWithHint)
 	assertions.Contains(errV, "operation: test")
-	assertions.Contains(errV, "code: DataDecryptFailure")
+	assertions.Contains(errV, "code: DataSchemaNotFound")
 	assertions.True(errors.HasType(coErrWithHint, coErr))
 	assertions.True(errors.HasType(coErrWithHint, &withCode{}))
 }
@@ -172,7 +172,7 @@ func ExampleNewf() {
 	//
 	// sumo hint
 	// test
-	// DataDecryptFailure
+	// DataSchemaNotFound
 	// Data
 	// [sumo hint]
 }

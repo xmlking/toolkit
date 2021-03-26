@@ -49,9 +49,8 @@ func main() {
     // optionally add subscribe for broker
 	log.Info().Interface("ReceiveSettings", cfg.Pubsub.ReceiveSettings).Send()
 	if err := bkr.Subscribe(
-		cfg.Sources.Acro.InputTopic,
+		cfg.Pubsub.InputSubscription,
 		accountSubscriber.Handle,
-		broker.WithSubscriptionID(cfg.Sources.Acro.InputSubscription),
 		broker.WithReceiveSettings(pubsub.ReceiveSettings(cfg.Pubsub.ReceiveSettings)),
 	); err != nil {
 		log.Error().Err(err).Msgf("Failed subscribing to Topic: %s", cfg.Sources.Acro.InputTopic)
@@ -113,6 +112,22 @@ gcpl
 gcpk
 # or if you are using docker-compose
 docker-compose up down
+```
+
+## Development
+
+### Build
+
+```bask
+make upgrade_deps
+make lint
+make format
+```
+
+### Test
+
+```bask
+make test-unit
 ```
 
 ## 🔗 Credits

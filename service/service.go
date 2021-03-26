@@ -1,8 +1,9 @@
 package service
 
 import (
-	"github.com/xmlking/toolkit/broker/pubsub"
 	"google.golang.org/grpc"
+
+	"github.com/xmlking/toolkit/broker/pubsub"
 )
 
 type Remote struct {

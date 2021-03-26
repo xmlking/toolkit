@@ -2,7 +2,7 @@ package broker
 
 import (
 	"context"
-	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/pubsub"
@@ -102,7 +102,13 @@ func (b *pubsubBroker) Shutdown() (err error) {
 	}
 	// then disconnection client.
 	log.Info().Msgf("Closing pubsub client...")
-	return b.client.Close()
+	err = b.client.Close()
+	// Hint: when using pubsub emulator, you receive this error, which you can safely ignore.
+	// Live pubsub server will throw this error.
+	if err != nil && strings.Contains(err.Error(), "the client connection is closing") {
+		err = nil
+	}
+	return
 }
 
 func (b *pubsubBroker) Options() Options {
@@ -160,7 +166,7 @@ func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (pub Pu
 }
 
 // Subscribe registers a subscription to the given topic against the google pubsub api
-func (b *pubsubBroker) Subscribe(subscription string, h Handler, opts ...SubscribeOption) (err error) {
+func (b *pubsubBroker) NewSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (Subscriber, error) {
 	options := SubscribeOptions{
 		Context: b.options.Context,
 	}
@@ -172,10 +178,10 @@ func (b *pubsubBroker) Subscribe(subscription string, h Handler, opts ...Subscri
 	sub := b.client.Subscription(subscription)
 	exists, err := sub.Exists(context.TODO()) // TODO should we use context.Background()  ?
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !exists {
-		return errors.Errorf("Subscription %s doesn't exists", sub)
+		return nil, errors.Errorf("Subscription %s doesn't exists", sub)
 	}
 
 	if options.ReceiveSettings.MaxOutstandingBytes != 0 {
@@ -197,17 +203,30 @@ func (b *pubsubBroker) Subscribe(subscription string, h Handler, opts ...Subscri
 		sub.ReceiveSettings.Synchronous = options.ReceiveSettings.Synchronous
 	}
 
+	middleware := hdlr
+	if rHdlr := options.RecoveryHandler; rHdlr != nil {
+		middleware = func(ctx context.Context, msg *pubsub.Message) {
+			defer func() {
+				if r := recover(); r != nil {
+					rHdlr(ctx, msg, r)
+				}
+			}()
+
+			hdlr(ctx, msg)
+		}
+	}
+
 	subscriber := &pubsubSubscriber{
 		options: options,
 		done:    make(chan struct{}),
 		sub:     sub,
-		hdlr:    h,
+		hdlr:    middleware,
 	}
 
 	// keep track of subs
 	b.subs = append(b.subs, subscriber)
 
-	return nil
+	return subscriber, nil
 }
 
 // Start should be called once
@@ -234,9 +253,9 @@ func newBroker(ctx context.Context, opts ...Option) Broker {
 	prjID := options.ProjectID
 
 	// if `GOOGLE_CLOUD_PROJECT` is present, it will overwrite programmatically set projectID
-	if envPrjID := os.Getenv("GOOGLE_CLOUD_PROJECT"); len(envPrjID) > 0 {
-		prjID = envPrjID
-	}
+	//if envPrjID := os.Getenv("GOOGLE_CLOUD_PROJECT"); len(envPrjID) > 0 {
+	//	prjID = envPrjID
+	//}
 
 	// create pubsub client
 	c, err := pubsub.NewClient(ctx, prjID, options.ClientOptions...)

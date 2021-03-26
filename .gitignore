@@ -55,6 +55,7 @@ TODO
 config/envs/production/secrets/.dockerconfigjson
 # pkger cli generated files
 pkged.go
+/temp_confy*
 
 # certs
 ca.key

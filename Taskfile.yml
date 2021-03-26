@@ -1,0 +1,37 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GITHUB_REPO_OWNER:  xmlking
+  GITHUB_REPO_NAME:   toolkit
+  GITHUB_REPO_URL:    https://github.com/{{.GITHUB_REPO_OWNER}}/{{.GITHUB_REPO_NAME}}.git
+  GOPATH:
+    sh: go env GOPATH
+  GIT_COMMIT:
+    sh: git log -n 1 --format=%h
+  GIT_DIRTY:
+    sh: git status --porcelain 2> /dev/null
+  ALL_GO_MOD_DIRS:
+#    sh: find . -type f -name 'go.mod' -exec dirname {} \;  | sort
+    sh: find * -name 'go.mod' -mindepth 1 -exec dirname {} \; | sort
+
+env:
+  FOO: foo
+
+includes:
+  go:         task/go.yml
+  mod:        task/mod.yml
+
+tasks:
+  release:
+    desc: Go mod tag and release
+    cmds:
+      - task: mod:release
+
+  default:
+    desc: Clean, Format and Test
+    cmds:
+      - task: go:clean
+      - task: go:format
+      - task: go:test

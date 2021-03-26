@@ -29,7 +29,7 @@ func TestPubSubProcessing(t *testing.T) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	app, err := newApp(Config{context: ctx, gcpProjectName: "test", subscriptionName: testSub, topicName: resultTopic, options: []option.ClientOption{option.WithoutAuthentication()}})
 	assert.Nil(t, err, "app creation is successfull")
-	prepare(app)
+	prepare(t, app)
 
 	//subscribe first
 	go func() {
@@ -47,7 +47,8 @@ func TestPubSubProcessing(t *testing.T) {
 
 }
 
-func prepare(app *App) {
+func prepare(t *testing.T, app *App) {
+	t.Helper()
 	//no error checking, since this is just a demo
 	topic, _ := app.client.CreateTopic(app.config.context, testSubTopic)
 	app.client.CreateSubscription(app.config.context, testSub, pubsub.SubscriptionConfig{Topic: topic})

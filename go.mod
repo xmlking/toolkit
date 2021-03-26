@@ -1,21 +1,25 @@
 module github.com/xmlking/toolkit
 
-go 1.15
+go 1.16
 
 require (
-	cloud.google.com/go/pubsub v1.8.0
+	cloud.google.com/go/pubsub v1.9.1
 	github.com/cloudevents/sdk-go/v2 v2.3.1
-	github.com/cockroachdb/errors v1.7.5
-	github.com/cockroachdb/redact v1.0.7
-	github.com/gogo/protobuf v1.3.1
-	github.com/google/uuid v1.1.2
+	github.com/cockroachdb/errors v1.8.3
+	github.com/cockroachdb/redact v1.0.9
+	github.com/gogo/protobuf v1.3.2
+	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/markbates/pkger v0.17.1
-	github.com/rs/zerolog v1.20.0
-	github.com/stretchr/testify v1.6.1
-	golang.org/x/sync v0.0.0-20200930132711-30421366ff76
-	google.golang.org/api v0.32.0
-	google.golang.org/genproto v0.0.0-20200930140634-01fc692af84b
-	google.golang.org/grpc v1.32.0
+	github.com/rs/zerolog v1.21.0
+	github.com/stretchr/testify v1.7.0
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	google.golang.org/api v0.43.0
+	google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6
+	google.golang.org/grpc v1.36.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+//replace github.com/xmlking/toolkit => ./
+//
+//replace github.com/xmlking/toolkit/confy => ./confy
