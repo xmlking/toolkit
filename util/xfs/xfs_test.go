@@ -3,6 +3,7 @@ package xfs_test
 import (
 	"embed"
 	"io/fs"
+	"os"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -63,7 +64,14 @@ func TestReadFile(t *testing.T) {
 	}
 }
 
-func TestXfs(t *testing.T) {
+func TestXFS_embed(t *testing.T) {
+	expected := []string{"fixtures/hello.txt", "fixtures"}
+	if err := fstest.TestFS(fixtures, expected...); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestXFS_relative_path(t *testing.T) {
 	efx := xfs.FS(fixtures)
 
 	b, err := fs.ReadFile(efx, "fixtures/hello.txt")
@@ -71,9 +79,25 @@ func TestXfs(t *testing.T) {
 	assert.Equal(t, "hello, world", strings.TrimSpace(string(b)))
 }
 
-func TestEmbedFS(t *testing.T) {
-	expected := []string{"fixtures/hello.txt", "fixtures"}
-	if err := fstest.TestFS(fixtures, expected...); err != nil {
-		t.Fatal(err)
-	}
+func TestXFS_relative_path_from_project_root(t *testing.T) {
+	efx := xfs.FS(fixtures)
+
+	b, err := fs.ReadFile(efx, "util/xfs/fixtures/hello.txt")
+	assert.NoError(t, err)
+	assert.Equal(t, "hello, world", strings.TrimSpace(string(b)))
+}
+
+func TestXFS_absolute_path(t *testing.T) {
+	f, err := os.CreateTemp("", "sample")
+	assert.NoError(t, err)
+	err = os.WriteFile(f.Name(), []byte("hello, world"), 0666)
+	t.Log(f.Name())
+
+	efx := xfs.FS(fixtures)
+	b, err := fs.ReadFile(efx, f.Name())
+	assert.NoError(t, err)
+	assert.Equal(t, "hello, world", strings.TrimSpace(string(b)))
+
+	err = os.Remove(f.Name())
+	assert.NoError(t, err)
 }
