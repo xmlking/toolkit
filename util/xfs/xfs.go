@@ -15,25 +15,22 @@ type hybridFS struct {
 	efs fs.FS
 }
 
-func (f hybridFS) Open(name string) (fs.File, error) {
+func (f hybridFS) Open(name string) (file fs.File, err error) {
 	if filepath.IsAbs(name) {
-		log.Debug().Str("file", name).Str("FileSystem", "OS").Msg("trying to open")
-		return os.DirFS("").Open(name[1:]) // FIXME: what for windows?
+		file, err = os.DirFS("").Open(name[1:]) // FIXME: what for windows?
+		log.Debug().Str("file", name).Str("FileSystem", "OS").AnErr("error", err).Msg("loading from")
+		return
 	}
 
-	log.Debug().Str("file", name).Str("FileSystem", "OS").Msg("trying to open")
-	if file, err := f.ofs.Open(name); err == nil {
-		return file, nil
-	} else {
-		log.Debug().Str("error", err.Error()).Msgf("Got error. will try Embed FS next")
+	file, err = f.ofs.Open(name)
+	log.Debug().Str("file", name).Str("FileSystem", "OS").AnErr("error", err).Msg("loading from")
+	if err == nil {
+		return
 	}
 
-	log.Debug().Str("file", name).Str("FileSystem", "Embed").Msg("trying to open")
-	file, err := f.efs.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
+	file, err = f.efs.Open(name)
+	log.Debug().Str("file", name).Str("FileSystem", "Embed").AnErr("error", err).Msg("loading from")
+	return
 }
 
 func FS(efs fs.FS) fs.FS {

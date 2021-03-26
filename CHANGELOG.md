@@ -9,11 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.1.4"></a>
+## [v0.1.4] - 2021-03-26
+### Build
+- **go:** fix go mod
+
+### Refactor
+- **xfs:** adding debug logs
+
+### Test
+- **xfs:** adding more test cases
+
+
+<a name="logger/v0.1.3"></a>
+## [logger/v0.1.3] - 2021-03-25
+
+<a name="confy/v0.1.3"></a>
+## [confy/v0.1.3] - 2021-03-25
+
 <a name="v0.1.3"></a>
 ## [v0.1.3] - 2021-03-25
 ### Build
 - **deps:** updated deps
 - **docker:** updated docker
+- **release:** updated changelog
 
 ### Feat
 - **logger:** seperate auto logger config file
@@ -24,11 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** now support loading files with absolute path
 
 
-<a name="v0.1.2"></a>
-## [v0.1.2] - 2021-02-19
-
 <a name="confy/v0.1.2"></a>
 ## [confy/v0.1.2] - 2021-02-19
+
+<a name="v0.1.2"></a>
+## [v0.1.2] - 2021-02-19
 ### Build
 - **deps:** updated deps
 
@@ -102,8 +121,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **translog:** remove translog middleware
 
 
-[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.1.3...HEAD
-[v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.2...v0.1.3
-[v0.1.2]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.2
-[confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...confy/v0.1.2
+[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.1.4...HEAD
+[v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...v0.1.4
+[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...logger/v0.1.3
+[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...confy/v0.1.3
+[v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.3
+[confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.2...confy/v0.1.2
+[v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...v0.1.2
 [v0.1.1]: https://github.com/xmlking/toolkit/compare/v0.1.0...v0.1.1
