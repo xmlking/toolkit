@@ -1,19 +1,19 @@
 package logger
 
 import (
-    "context"
-    "fmt"
-    "os"
-    "runtime/debug"
-    "time"
+	"context"
+	"fmt"
+	"os"
+	"runtime/debug"
+	"time"
 
-    "github.com/rs/zerolog"
-    "github.com/rs/zerolog/log"
-    "github.com/rs/zerolog/pkgerrors"
-    "google.golang.org/grpc/grpclog"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
+	"google.golang.org/grpc/grpclog"
 
-    "github.com/xmlking/toolkit/logger/gcp"
-    grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
+	"github.com/xmlking/toolkit/logger/gcp"
+	grpcAdopter "github.com/xmlking/toolkit/logger/grpc"
 )
 
 var (
