@@ -4,15 +4,19 @@ This logger basically configure **zerolog** so that you can log via `github.com/
 
 ## Usage
 
-Import `shared/logger` package. It will be *self-initialized*.
+Import `shared/logger/auto` package. It will be *self-initialized*.
 
 ```golang
-import  "github.com/xmlking/toolkit/logger"
+import  "github.com/xmlking/toolkit/logger/auto"
 ```
 
 Once logger is initialized, then you can use standard `github.com/rs/zerolog/log` package's helper methods to log in your code.
 
+Other option to initialize logger is to set DefaultLogger your self. this will give more control to developer. 
 
+```golang
+    logger.DefaultLogger =logger.NewLogger(logger.WithLevel(zerolog.DebugLevel))
+```
 
 ### Environment Variables
 

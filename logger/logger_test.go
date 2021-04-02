@@ -1,17 +1,24 @@
 package logger_test
 
 import (
-	"fmt"
-	"os"
-	"testing"
-	"time"
+    "fmt"
+    "os"
+    "testing"
+    "time"
 
-	"github.com/cockroachdb/errors"
-	zerolog "github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	// bootstrap logger
-	"github.com/xmlking/toolkit/logger"
+    "github.com/cockroachdb/errors"
+    "github.com/rs/zerolog"
+    "github.com/rs/zerolog/log"
+    // bootstrap logger
+    "github.com/xmlking/toolkit/logger"
 )
+
+func TestMain(m *testing.M) {
+    logger.DefaultLogger =logger.NewLogger(logger.WithLevel(zerolog.DebugLevel))
+    code := m.Run()
+    // shutdown()
+    os.Exit(code)
+}
 
 func TestLogger(t *testing.T) {
 	log.Info().Msg("Hello World")

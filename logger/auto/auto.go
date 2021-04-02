@@ -38,7 +38,7 @@ func init() {
         _, fileName := filepath.Split(os.Args[0])
         if fileName != "" {
             // TODO defer file.Close()
-            if file, err := os.OpenFile(fmt.Sprintf("%s.log", fileName), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666); err != nil {
+            if file, err := os.OpenFile(fmt.Sprintf("%s.log", fileName), os.O_RDWR|os.O_CREATE|os.O_APPEND, os.FileMode(0o666)); err != nil {
                 log.Fatal().Err(err).Send()
             } else {
                 // Merging log writers: Stderr output and file output
