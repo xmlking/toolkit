@@ -11,12 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <a name="v0.1.5"></a>
 ## [v0.1.5] - 2021-04-01
+### Build
+- **release:** update changelog
+
 ### Docs
 - **logger:** updated docs on auto and manual init modes
 
 ### Fix
 - **signals:** adding build tags for windows and linux
 
+### Style
+- **code:** fix code lint
+
+
+<a name="logger/v0.1.4"></a>
+## [logger/v0.1.4] - 2021-03-26
+
+<a name="confy/v0.1.4"></a>
+## [confy/v0.1.4] - 2021-03-26
 
 <a name="v0.1.4"></a>
 ## [v0.1.4] - 2021-03-26
@@ -31,11 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** adding more test cases
 
 
-<a name="confy/v0.1.3"></a>
-## [confy/v0.1.3] - 2021-03-25
-
 <a name="logger/v0.1.3"></a>
 ## [logger/v0.1.3] - 2021-03-25
+
+<a name="confy/v0.1.3"></a>
+## [confy/v0.1.3] - 2021-03-25
 
 <a name="v0.1.3"></a>
 ## [v0.1.3] - 2021-03-25
@@ -53,11 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** now support loading files with absolute path
 
 
-<a name="confy/v0.1.2"></a>
-## [confy/v0.1.2] - 2021-02-19
-
 <a name="v0.1.2"></a>
 ## [v0.1.2] - 2021-02-19
+
+<a name="confy/v0.1.2"></a>
+## [confy/v0.1.2] - 2021-02-19
 ### Build
 - **deps:** updated deps
 
@@ -132,11 +144,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/xmlking/toolkit/compare/v0.1.5...HEAD
-[v0.1.5]: https://github.com/xmlking/toolkit/compare/v0.1.4...v0.1.5
-[v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...v0.1.4
-[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...confy/v0.1.3
-[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...logger/v0.1.3
-[v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.3
-[confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.2...confy/v0.1.2
-[v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...v0.1.2
+[v0.1.5]: https://github.com/xmlking/toolkit/compare/logger/v0.1.4...v0.1.5
+[logger/v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.4...logger/v0.1.4
+[confy/v0.1.4]: https://github.com/xmlking/toolkit/compare/v0.1.4...confy/v0.1.4
+[v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...v0.1.4
+[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...logger/v0.1.3
+[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...confy/v0.1.3
+[v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.2...v0.1.3
+[v0.1.2]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.2
+[confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...confy/v0.1.2
 [v0.1.1]: https://github.com/xmlking/toolkit/compare/v0.1.0...v0.1.1
