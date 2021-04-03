@@ -37,10 +37,10 @@ func FS(efs fs.FS) fs.FS {
 	root, err := getGoModuleDir()
 	if err != nil || root == "" {
 		root = "."
-		log.Info().Err(err).Msgf("got no module path. using FileSystem root as: '%s/'", root)
+		log.Debug().AnErr("error", err).Msgf("got no module path. using FileSystem root as: '%s/'", root)
 
 	} else {
-		log.Info().Msgf("got module path. using FileSystem root as: '%s'", root)
+		log.Debug().Msgf("got module path. using FileSystem root as: '%s'", root)
 	}
 	ofs := os.DirFS(root)
 	return &hybridFS{ofs, efs}
