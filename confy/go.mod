@@ -5,7 +5,7 @@ go 1.16
 replace github.com/xmlking/toolkit/confy => ./
 
 require (
-	github.com/cockroachdb/errors v1.8.3
+	github.com/cockroachdb/errors v1.8.4
 	github.com/creasty/defaults v1.5.1
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/rs/zerolog v1.21.0
