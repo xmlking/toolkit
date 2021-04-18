@@ -5,7 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go/pubsub v1.10.1
 	github.com/cloudevents/sdk-go/v2 v2.3.1
-	github.com/cockroachdb/errors v1.8.3
+	github.com/cockroachdb/errors v1.8.4
 	github.com/cockroachdb/redact v1.0.9
 	github.com/gogo/protobuf v1.3.2
 	github.com/google/uuid v1.2.0
