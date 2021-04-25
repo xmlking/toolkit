@@ -14,9 +14,9 @@ require (
 	github.com/rs/zerolog v1.21.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/api v0.43.0
-	google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6
-	google.golang.org/grpc v1.36.1
+	google.golang.org/api v0.45.0
+	google.golang.org/genproto v0.0.0-20210413151531-c14fb6ef47c3
+	google.golang.org/grpc v1.37.0
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
