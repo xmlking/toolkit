@@ -3,7 +3,7 @@ module github.com/xmlking/toolkit
 go 1.16
 
 require (
-	cloud.google.com/go/pubsub v1.10.1
+	cloud.google.com/go/pubsub v1.10.3
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/cockroachdb/errors v1.8.4
 	github.com/cockroachdb/redact v1.0.9
@@ -15,7 +15,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/api v0.45.0
-	google.golang.org/genproto v0.0.0-20210413151531-c14fb6ef47c3
+	google.golang.org/genproto v0.0.0-20210423144448-3a41ef94ed2b
 	google.golang.org/grpc v1.37.0
 )
 
