@@ -11,6 +11,10 @@ import (
 	eventing "github.com/xmlking/toolkit/broker/cloudevents/internal"
 )
 
+const (
+	DefaultName = "mkit.broker.default"
+)
+
 type ceBroker struct {
 	options Options
 	subs    []*ceSubscriber
@@ -45,7 +49,6 @@ func (b *ceBroker) NewPublisher(topic string, opts ...PublishOption) (pub Publis
 }
 
 type ceSubscriber struct {
-	name     string
 	target   string
 	ceClient cloudevents.Client
 	options  SubscribeOptions
@@ -53,9 +56,9 @@ type ceSubscriber struct {
 }
 
 func (s *ceSubscriber) start(ctx context.Context) (err error) {
-	log.Info().Str("component", "cloudevents").Msgf("Subscriber (%s) starting at: %s", s.name, s.target)
+	log.Info().Str("component", "cloudevents").Msgf("Subscribing to: %s", s.target)
 	if err = s.ceClient.StartReceiver(ctx, s.hdlr); err == nil {
-		log.Info().Str("component", "cloudevents").Msgf("Stopped Subscriber Gracefully: %s", s.name)
+		log.Info().Str("component", "cloudevents").Msgf("Stopped Subscriber Gracefully: %s", s.target)
 	}
 	return
 }
@@ -115,6 +118,7 @@ func (b *ceBroker) Start() error {
 func newBroker(ctx context.Context, opts ...Option) Broker {
 	// Default Options
 	options := Options{
+		Name:    DefaultName,
 		Context: ctx,
 	}
 

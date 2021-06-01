@@ -12,6 +12,8 @@ import (
 // Example usages of HandlerFunc could be to log panics or nack/ack messages which cause panics.
 type RecoveryHandler func(context.Context, *pubsub.Message, interface{})
 
+type SubscribeOption func(*SubscribeOptions)
+
 // SubscribeOptions TODO support more pubsub.ReceiveSettings settings
 type SubscribeOptions struct {
 	// pubsub ReceiveSettings
@@ -19,8 +21,6 @@ type SubscribeOptions struct {
 
 	RecoveryHandler RecoveryHandler
 }
-
-type SubscribeOption func(*SubscribeOptions)
 
 // WithRecoveryHandler sets the function for recovering from a panic.
 func WithRecoveryHandler(r RecoveryHandler) SubscribeOption {

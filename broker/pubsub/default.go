@@ -10,6 +10,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	DefaultName = "mkit.broker.default"
+)
+
 type pubsubBroker struct {
 	client  *pubsub.Client
 	options Options
@@ -224,6 +228,7 @@ func (b *pubsubBroker) Start() (err error) {
 func newBroker(ctx context.Context, opts ...Option) Broker {
 	// Default Options
 	options := Options{
+		Name:    DefaultName,
 		Context: ctx,
 	}
 

@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Helper Functions
+// GetListener Helper Functions
 func GetListener(endpoint string) (lis net.Listener, err error) {
 
 	var target Target
