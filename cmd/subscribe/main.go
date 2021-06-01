@@ -4,16 +4,27 @@ import (
 	"context"
 	"os"
 	"os/signal"
-
-	"github.com/xmlking/toolkit/broker/pubsub"
-	"github.com/xmlking/toolkit/util/signals"
+	"syscall"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/broker/pubsub"
+	"golang.org/x/sync/errgroup"
+)
+
+const (
+	// DefaultShutdownTimeout defines the default timeout given to the service when calling Shutdown.
+	DefaultShutdownTimeout = time.Minute * 1
 )
 
 func main() {
-	broker.DefaultBroker = broker.NewBroker(signals.NewContext())
+	appCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGHUP, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+	defer stop()
+
+	g, ctx := errgroup.WithContext(appCtx)
+
+	broker.DefaultBroker = broker.NewBroker(ctx, broker.ProjectID("my-project-id"))
 
 	myHandler := func(ctx context.Context, msg *pubsub.Message) {
 		//md, _ := metadata.FromContext(ctx)
@@ -26,18 +37,42 @@ func main() {
 		msg.Ack() // or msg.Nack()
 	}
 
-	if _, err := broker.NewSubscriber("toolkit-in-dev", myHandler); err != nil {
-		log.Error().Err(err).Msg("Failed subscribing to Topic: ingestion-in-dev")
+	if err := broker.AddSubscriber("toolkit-in-dev", myHandler); err != nil {
+		log.Fatal().Err(err).Msg("Failed subscribing to Topic: toolkit-in-dev")
 	}
 
-	broker.Start()
+	g.Go(func() error {
+		return broker.Start()
+	})
 
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, os.Interrupt)
-	<-ch
-	log.Info().Msg("Got to Go...")
-	// close all subs and then connection.
-	if err := broker.Shutdown(); err != nil {
-		log.Fatal().Err(err).Msg("Unexpected disconnect error")
+	go func() {
+		if err := g.Wait(); err != nil {
+			log.Fatal().Stack().Err(err).Msg("Unexpected error")
+		}
+		log.Info().Msg("Goodbye.....")
+		os.Exit(0)
+	}()
+
+	// Listen for the interrupt signal.
+	<-appCtx.Done()
+
+	// notify user of shutdown
+	switch ctx.Err() {
+	case context.DeadlineExceeded:
+		log.Info().Str("cause", "timeout").Msg("Shutting down gracefully, press Ctrl+C again to force")
+	case context.Canceled:
+		log.Info().Str("cause", "interrupt").Msg("Shutting down gracefully, press Ctrl+C again to force")
 	}
+
+	// Restore default behavior on the interrupt signal.
+	stop()
+
+	// Perform application shutdown with a maximum timeout of 1 minute.
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), DefaultShutdownTimeout)
+	defer cancel()
+
+	// force termination after shutdown timeout
+	<-timeoutCtx.Done()
+	log.Error().Msg("Shutdown grace period elapsed. force exit")
+	os.Exit(1)
 }

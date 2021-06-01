@@ -7,17 +7,7 @@ import (
 type Option func(*Options)
 
 type Options struct {
-	Name string
-
-	// Alternative options
 	Context context.Context
-}
-
-// Name of the service
-func Name(n string) Option {
-	return func(o *Options) {
-		o.Name = n
-	}
 }
 
 // Context specifies a context for the service.

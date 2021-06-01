@@ -6,50 +6,20 @@ import (
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/cloudevents/sdk-go/v2/event"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 
 	eventing "github.com/xmlking/toolkit/broker/cloudevents/internal"
 )
 
-const (
-	DefaultName = "mkit.broker.default"
-)
-
 type ceBroker struct {
-	opts Options
-	subs []Subscriber
-	pubs []Publisher
-}
-
-type ceSubscriber struct {
-	name     string
-	target   string
-	ceClient cloudevents.Client
-	options  SubscribeOptions
-	hdlr     Handler
-}
-
-func (s *ceSubscriber) Start() {
-	log.Info().Msgf("Subscriber (%s) starting at: %s", s.name, s.target)
-	if err := s.ceClient.StartReceiver(context.Background(), s.hdlr); err != nil {
-		log.Error().Err(err).Send()
-	}
-}
-
-// Stop should be called once
-func (s *ceSubscriber) Stop() {
-	log.Info().Msgf("Stopping Subscriber")
-	log.Info().Msgf("Stopped Subscriber Gracefully")
+	options Options
+	subs    []*ceSubscriber
+	pubs    []Publisher
 }
 
 type cePublisher struct {
-	ceClient cloudevents.Client
 	options  PublishOptions
-}
-
-// Stop should be called once
-func (p *cePublisher) Stop() {
-	log.Info().Msgf("Stopping Publisher")
-	log.Info().Msgf("Stopped Publisher Gracefully")
+	ceClient cloudevents.Client
 }
 
 func (p *cePublisher) Publish(ctx context.Context, event event.Event) (err error) {
@@ -66,25 +36,38 @@ func (b *ceBroker) NewPublisher(topic string, opts ...PublishOption) (pub Publis
 	}
 
 	pub = &cePublisher{
-		ceClient: eventing.NewSourceClient(topic),
 		options:  options,
+		ceClient: eventing.NewSourceClient(topic),
 	}
 
 	b.pubs = append(b.pubs, pub)
 	return pub, nil
 }
 
-func (b *ceBroker) NewSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (sub Subscriber, err error) {
-	options := SubscribeOptions{
-		context.Background(),
+type ceSubscriber struct {
+	name     string
+	target   string
+	ceClient cloudevents.Client
+	options  SubscribeOptions
+	hdlr     Handler
+}
+
+func (s *ceSubscriber) start(ctx context.Context) (err error) {
+	log.Info().Str("component", "cloudevents").Msgf("Subscriber (%s) starting at: %s", s.name, s.target)
+	if err = s.ceClient.StartReceiver(ctx, s.hdlr); err == nil {
+		log.Info().Str("component", "cloudevents").Msgf("Stopped Subscriber Gracefully: %s", s.name)
 	}
+	return
+}
+
+func (b *ceBroker) AddSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (err error) {
+	options := SubscribeOptions{}
 
 	for _, o := range opts {
 		o(&options)
 	}
 
-	sub = &ceSubscriber{
-		name:     b.opts.Name,
+	sub := &ceSubscriber{
 		target:   subscription,
 		ceClient: eventing.NewSinkClient(subscription),
 		options:  options,
@@ -92,47 +75,53 @@ func (b *ceBroker) NewSubscriber(subscription string, hdlr Handler, opts ...Subs
 	}
 
 	b.subs = append(b.subs, sub)
-	return sub, nil
+	return nil
 }
 
 func (b *ceBroker) Start() error {
+	ctx := b.options.Context
+	g, ctxx := errgroup.WithContext(ctx)
+
+	// start subscribers in the background.
+	// when context cancelled, they exit without error.
 	for _, sub := range b.subs {
-		go sub.Start()
+		g.Go(func() error {
+			return sub.start(ctxx)
+		})
 	}
-	return nil
+
+	g.Go(func() (err error) {
+		// listen for the interrupt signal
+		<-ctx.Done()
+
+		// log situation
+		switch ctx.Err() {
+		case context.DeadlineExceeded:
+			log.Debug().Str("component", "cloudevents").Msg("Context timeout exceeded")
+		case context.Canceled:
+			log.Debug().Str("component", "cloudevents").Msg("Context cancelled by interrupt signal")
+		}
+
+		log.Info().Str("component", "cloudevents").Msgf("Closing cloudevents client...")
+
+		return nil
+	})
+
+	// Wait for all tasks to be finished or return if error occur at any task.
+	return g.Wait()
 }
 
-func (b *ceBroker) Shutdown() (err error) {
-	// close all subs
-	for _, sub := range b.subs {
-		sub.Stop()
-	}
-	// then close all pubs
-	for _, pub := range b.pubs {
-		pub.Stop()
-	}
-	// then disconnection client.
-	log.Info().Msgf("Closing pubsub client...")
-	return nil
-}
-
-func newBroker(opts ...Option) Broker {
+// NewBroker creates a new cloudevents broker
+func newBroker(ctx context.Context, opts ...Option) Broker {
 	// Default Options
 	options := Options{
-		Name: DefaultName,
+		Context: ctx,
 	}
-	b := ceBroker{opts: options}
-	b.ApplyOptions(opts...)
-	return &b
-}
 
-func (b *ceBroker) ApplyOptions(opts ...Option) {
-	// process options
 	for _, o := range opts {
-		o(&b.opts)
+		o(&options)
 	}
-}
 
-func (b *ceBroker) Options() Options {
-	return b.opts
+	b := ceBroker{options: options}
+	return &b
 }

@@ -146,7 +146,8 @@ func TestWithErrorAndDefaultFields(t *testing.T) {
 func TestLogStack(t *testing.T) {
 	logger.Init(logger.WithFormat("pretty"))
 	err := errors.Wrap(errors.New("error message"), "from TestLogStack")
-	log.Error().Err(err).Msgf("testing: %s", "LogStack")
+	// add Stack() before Err(err) to print stacktrace
+	log.Error().Stack().Err(err).Msgf("testing: %s", "LogStack")
 }
 
 func TestWithHooks(t *testing.T) {

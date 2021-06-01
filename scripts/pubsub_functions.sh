@@ -39,7 +39,7 @@ gcloud-pubsub-stop() {
             kill -9 $i
         fi
     done
-    [ -e ${PUBSUB_LOG}  ] && rm ${PUBSUB_LOG}
+    [ -e ${PUBSUB_LOG} ] && rm ${PUBSUB_LOG}
 }
 
 gcloud-pubsub-restart() {
@@ -56,38 +56,49 @@ gcloud-pubsub-setup() {
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-dead-${2:-$ENVIRONMENT}"
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-${2:-$ENVIRONMENT}"
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}"
-    curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-error-${2:-$ENVIRONMENT}"
-    curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-error-dead-${2:-$ENVIRONMENT}"
 
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-in-${2:-$ENVIRONMENT}" \
     -H "Content-Type: application/json" \
     -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-${2:-$ENVIRONMENT}"'"
+        "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-${2:-$ENVIRONMENT}"'",
+         "deadLetterPolicy": {
+            "deadLetterTopic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-dead-${2:-$ENVIRONMENT}"'",
+            "maxDeliveryAttempts": 5
+         }
     }'
+
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-in-dead-${2:-$ENVIRONMENT}" \
     -H "Content-Type: application/json" \
     -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-dead-${2:-$ENVIRONMENT}"'"
+        "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-in-dead-${2:-$ENVIRONMENT}"'"
     }'
+
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-out-${2:-$ENVIRONMENT}" \
     -H "Content-Type: application/json" \
     -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-${2:-$ENVIRONMENT}"'"
+        "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-${2:-$ENVIRONMENT}"'",
+        "deadLetterPolicy": {
+            "deadLetterTopic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}"'",
+            "maxDeliveryAttempts": 5
+        },
+        "filter": "'"attributes."status" == "SUCCESS" OR attributes."status" == "NOHIT""'"
     }'
-    curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}" \
-    -H "Content-Type: application/json" \
-    -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}"'"
-    }'
+
     curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-error-${2:-$ENVIRONMENT}" \
     -H "Content-Type: application/json" \
     -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-error-${2:-$ENVIRONMENT}"'"
+        "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-${2:-$ENVIRONMENT}"'",
+        "deadLetterPolicy": {
+            "deadLetterTopic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}"'",
+            "maxDeliveryAttempts": 5
+        },
+        "filter": "'"attributes."status" == "ERROR" OR attributes."status" == "FAIL" OR attributes."status" == "UNSPECIFIED""'"
     }'
-    curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-error-dead-${2:-$ENVIRONMENT}" \
+
+    curl -X PUT "${PUBSUB_EMULATOR_HOST}/v1/projects/${PROJECT_ID}/subscriptions/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}" \
     -H "Content-Type: application/json" \
     -d '{
-    "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-error-dead-${2:-$ENVIRONMENT}"'"
+        "topic": "'"projects/${PROJECT_ID}/topics/${1:-$DOMAIN}-out-dead-${2:-$ENVIRONMENT}"'"
     }'
 }
 
@@ -104,4 +115,3 @@ function _shutdown_datastore_database() {
     gcloud-pubsub-init
     curl -X POST ${DATASTORE_HOST}/shutdown
 }
-

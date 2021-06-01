@@ -12,9 +12,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/xmlking/toolkit/broker/pubsub"
 	"github.com/xmlking/toolkit/util/endpoint"
-	"github.com/xmlking/toolkit/util/signals"
 )
 
 const (
@@ -28,26 +26,18 @@ const (
 type service struct {
 	opts       Options
 	grpcServer *grpc.Server
-	broker     broker.Broker
 }
 
 func newService(opts ...Option) Service {
 	// Default Options
 	options := Options{
-		Name:            DefaultName,
-		Version:         DefaultVersion,
-		ShutdownTimeout: DefaultShutdownTimeout,
-		// Set up signals so we handle the first shutdown signal gracefully.
-		Context: signals.NewContext(),
+		Name:    DefaultName,
+		Version: DefaultVersion,
 	}
 	s := service{opts: options}
 	s.ApplyOptions(opts...)
 
 	s.grpcServer = grpc.NewServer(s.opts.GrpcOptions...)
-	if len(s.opts.BrokerOptions) > 0 {
-		s.broker = broker.NewBroker(s.opts.Context, s.opts.BrokerOptions...) // Using same Context
-		broker.DefaultBroker = s.broker                                      // also set it as DefaultBroker
-	}
 
 	return &s
 }
@@ -84,10 +74,6 @@ func (s *service) Client(remote Remote) (clientConn *grpc.ClientConn, err error)
 		log.Error().Err(err).Msgf("Failed connect to: %s", remote.Endpoint)
 	}
 	return
-}
-
-func (s *service) Broker() broker.Broker {
-	return s.broker
 }
 
 func (s *service) Shutdown() error {
@@ -132,11 +118,6 @@ func (s *service) Start() (err error) {
 		errCh <- s.grpcServer.Serve(listener)
 	}()
 
-	// Start Broker will start all subscribers
-	if s.broker != nil {
-		_ = s.broker.Start()
-	}
-
 	// This will block until either a signal arrives or one of the grouped functions
 	// returns an error.
 	// <-egCtx.Done()
@@ -151,11 +132,6 @@ func (s *service) Start() (err error) {
 
 	// do any more resources closing here
 	s.grpcServer.GracefulStop()
-	if s.broker != nil {
-		if err := s.broker.Shutdown(); err != nil {
-			log.Error().Err(err).Msg("Unable to stop broker")
-		}
-	}
 	cancel()
 
 	select {

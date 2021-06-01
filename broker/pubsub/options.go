@@ -16,8 +16,6 @@ type Options struct {
 	// processing
 	ErrorHandler Handler
 
-	// Other options for implementations of the interface
-	// can be stored in a context
 	Context context.Context
 }
 

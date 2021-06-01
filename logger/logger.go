@@ -57,14 +57,14 @@ func (l *defaultLogger) Init(opts ...Option) error {
 
 		logr = zerolog.New(l.opts.Out).
 			Level(zerolog.InfoLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	} else if l.opts.Format == JSON { // Production Mode
 
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 		logr = zerolog.New(l.opts.Out).
 			Level(zerolog.InfoLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	} else { // Default  Development Mode
 
@@ -83,7 +83,7 @@ func (l *defaultLogger) Init(opts ...Option) error {
 		)
 		logr = zerolog.New(consOut).
 			Level(zerolog.DebugLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	}
 
@@ -153,7 +153,7 @@ func NewLogger(opts ...Option) Logger {
 	return l
 }
 
-// Helper functions on DefaultLogger
+// Init : Helper functions on DefaultLogger
 func Init(options ...Option) error {
 	return DefaultLogger.Init(options...)
 }
