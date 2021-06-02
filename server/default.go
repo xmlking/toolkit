@@ -40,7 +40,7 @@ func (s *grpcServer) SetServingStatus(service string, servingStatus grpc_health_
 	s.hSrv.SetServingStatus(service, servingStatus)
 }
 
-func (s *grpcServer) NewClient(target string, opts ...ClientOption) (clientConn *grpc.ClientConn, err error) {
+func (s *grpcServer) Client(target string, opts ...ClientOption) (clientConn *grpc.ClientConn, err error) {
 	// Default Options
 	options := ClientOptions{
 		Context: s.options.Context,
@@ -66,6 +66,10 @@ func (s *grpcServer) NewClient(target string, opts ...ClientOption) (clientConn 
 
 	s.clients[options.Name] = clientConn
 	return
+}
+
+func (s *grpcServer) Server() *grpc.Server{
+    return s.gSrv
 }
 
 func (s *grpcServer) Start() (err error) {
