@@ -11,8 +11,9 @@ import (
 type Server interface {
 	// NewClient creates and returns a new grpc Client
 	NewClient(target string, opts ...ClientOption) (*grpc.ClientConn, error)
-	// SetServingStatus updates server health status. concurrency safe
-	SetServingStatus(status grpc_health_v1.HealthCheckResponse_ServingStatus)
+	// SetServingStatus updates service health status. concurrency safe
+	// empty service string represents the health of the whole system
+	SetServingStatus(service string, servingStatus grpc_health_v1.HealthCheckResponse_ServingStatus)
 	Start() error
 	// Stop will force stop server
 	Stop()
@@ -32,9 +33,9 @@ func NewClient(target string, opts ...ClientOption) (*grpc.ClientConn, error) {
 	return DefaultServer.NewClient(target, opts...)
 }
 
-// SetServingStatus updates server health status. concurrency safe
-func SetServingStatus(status grpc_health_v1.HealthCheckResponse_ServingStatus) {
-	DefaultServer.SetServingStatus(status)
+// SetServingStatus updates service health status. concurrency safe
+func SetServingStatus(service string, servingStatus grpc_health_v1.HealthCheckResponse_ServingStatus) {
+	DefaultServer.SetServingStatus(service, servingStatus)
 }
 
 func Start() error {

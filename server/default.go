@@ -30,14 +30,14 @@ const (
 )
 
 type grpcServer struct {
-	options ServerOptions
-	server  *grpc.Server
-	clients map[string]*grpc.ClientConn
-	status  chan grpc_health_v1.HealthCheckResponse_ServingStatus
+	options      ServerOptions
+	server       *grpc.Server
+	healthServer *health.Server
+	clients      map[string]*grpc.ClientConn
 }
 
-func (s *grpcServer) SetServingStatus(status grpc_health_v1.HealthCheckResponse_ServingStatus) {
-	s.status <- status
+func (s *grpcServer) SetServingStatus(service string, servingStatus grpc_health_v1.HealthCheckResponse_ServingStatus) {
+	s.healthServer.SetServingStatus(service, servingStatus)
 }
 
 func (s *grpcServer) NewClient(target string, opts ...ClientOption) (clientConn *grpc.ClientConn, err error) {
@@ -73,21 +73,11 @@ func (s *grpcServer) Start() (err error) {
 	g, _ := errgroup.WithContext(s.options.Context)
 
 	// Add HealthChecks after all user services are registered
-	hsrv := health.NewServer()
+	s.healthServer = health.NewServer()
 	for name := range s.server.GetServiceInfo() {
-		hsrv.SetServingStatus(name, grpc_health_v1.HealthCheckResponse_SERVING)
+		s.healthServer.SetServingStatus(name, grpc_health_v1.HealthCheckResponse_SERVING)
 	}
-	grpc_health_v1.RegisterHealthServer(s.server, hsrv)
-
-	// asynchronously inspect dependencies and toggle serving status as needed
-	go func() {
-		for next := range s.status {
-			log.Info().Str("component", "grpc").Msgf("Health status changed to: %s", next)
-			// empty string represents the health of the whole system
-			hsrv.SetServingStatus("", next)
-		}
-		log.Info().Str("component", "grpc").Msg("Stopped health status update watch job")
-	}()
+	grpc_health_v1.RegisterHealthServer(s.server, s.healthServer)
 
 	// registers the server reflection service on the given gRPC server.
 	reflection.Register(s.server)
@@ -108,9 +98,8 @@ func (s *grpcServer) Start() (err error) {
 			log.Debug().Str("component", "grpc").Msg("Context cancelled by interrupt signal")
 		}
 
-		// Inform readiness prob to stop sending traffic
-		SetServingStatus(grpc_health_v1.HealthCheckResponse_NOT_SERVING)
-		close(s.status)
+		// Gracefully stop healthServer
+		s.healthServer.Shutdown()
 
 		// Gracefully stop clients
 		for name, client := range s.clients {
@@ -164,6 +153,5 @@ func newServer(ctx context.Context, opts ...ServerOption) Server {
 		options: options,
 		server:  server,
 		clients: make(map[string]*grpc.ClientConn),
-		status:  make(chan grpc_health_v1.HealthCheckResponse_ServingStatus),
 	}
 }
