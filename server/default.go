@@ -30,14 +30,14 @@ const (
 )
 
 type grpcServer struct {
-	options      ServerOptions
-	server       *grpc.Server
-	healthServer *health.Server
-	clients      map[string]*grpc.ClientConn
+	options ServerOptions
+	gSrv    *grpc.Server
+	hSrv    *health.Server
+	clients map[string]*grpc.ClientConn
 }
 
 func (s *grpcServer) SetServingStatus(service string, servingStatus grpc_health_v1.HealthCheckResponse_ServingStatus) {
-	s.healthServer.SetServingStatus(service, servingStatus)
+	s.hSrv.SetServingStatus(service, servingStatus)
 }
 
 func (s *grpcServer) NewClient(target string, opts ...ClientOption) (clientConn *grpc.ClientConn, err error) {
@@ -72,18 +72,18 @@ func (s *grpcServer) Start() (err error) {
 	ctx := s.options.Context
 	g, _ := errgroup.WithContext(s.options.Context)
 
-	// Add HealthChecks after all user services are registered
-	s.healthServer = health.NewServer()
-	for name := range s.server.GetServiceInfo() {
-		s.healthServer.SetServingStatus(name, grpc_health_v1.HealthCheckResponse_SERVING)
+	// Add HealthChecks only after all user services are registered
+	s.hSrv = health.NewServer()
+	for name := range s.gSrv.GetServiceInfo() {
+		s.hSrv.SetServingStatus(name, grpc_health_v1.HealthCheckResponse_SERVING)
 	}
-	grpc_health_v1.RegisterHealthServer(s.server, s.healthServer)
+	grpc_health_v1.RegisterHealthServer(s.gSrv, s.hSrv)
 
 	// registers the server reflection service on the given gRPC server.
-	reflection.Register(s.server)
+	reflection.Register(s.gSrv)
 
 	g.Go(func() error {
-		return s.server.Serve(s.options.Listener)
+		return s.gSrv.Serve(s.options.Listener)
 	})
 
 	g.Go(func() (err error) {
@@ -99,7 +99,7 @@ func (s *grpcServer) Start() (err error) {
 		}
 
 		// Gracefully stop healthServer
-		s.healthServer.Shutdown()
+		s.hSrv.Shutdown()
 
 		// Gracefully stop clients
 		for name, client := range s.clients {
@@ -108,7 +108,7 @@ func (s *grpcServer) Start() (err error) {
 		}
 		log.Info().Str("component", "grpc").Msg("Stopping grpc server...")
 		// Gracefully stop server
-		s.server.GracefulStop()
+		s.gSrv.GracefulStop()
 
 		return
 	})
@@ -118,7 +118,7 @@ func (s *grpcServer) Start() (err error) {
 }
 
 func (s *grpcServer) Stop() {
-	s.server.Stop()
+	s.gSrv.Stop()
 }
 
 func newServer(ctx context.Context, opts ...ServerOption) Server {
@@ -151,7 +151,7 @@ func newServer(ctx context.Context, opts ...ServerOption) Server {
 
 	return &grpcServer{
 		options: options,
-		server:  server,
+		gSrv:    server,
 		clients: make(map[string]*grpc.ClientConn),
 	}
 }
