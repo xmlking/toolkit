@@ -18,18 +18,18 @@ type hybridFS struct {
 func (f hybridFS) Open(name string) (file fs.File, err error) {
 	if filepath.IsAbs(name) {
 		file, err = os.DirFS("").Open(name[1:]) // FIXME: what for windows?
-		log.Debug().Str("file", name).Str("FileSystem", "OS").AnErr("error", err).Msg("loading from")
+		log.Debug().Str("file", name).Str("FileSystem", "OS").Err(err).Msg("loading from")
 		return
 	}
 
 	file, err = f.ofs.Open(name)
-	log.Debug().Str("file", name).Str("FileSystem", "OS").AnErr("error", err).Msg("loading from")
+	log.Debug().Str("file", name).Str("FileSystem", "OS").Err(err).Msg("loading from")
 	if err == nil {
 		return
 	}
 
 	file, err = f.efs.Open(name)
-	log.Debug().Str("file", name).Str("FileSystem", "Embed").AnErr("error", err).Msg("loading from")
+	log.Debug().Str("file", name).Str("FileSystem", "Embed").Err(err).Msg("loading from")
 	return
 }
 
@@ -37,7 +37,7 @@ func FS(efs fs.FS) fs.FS {
 	root, err := getGoModuleDir()
 	if err != nil || root == "" {
 		root = "."
-		log.Debug().AnErr("error", err).Msgf("got no module path. using FileSystem root as: '%s/'", root)
+		log.Debug().Err(err).Msgf("got no module path. using FileSystem root as: '%s/'", root)
 
 	} else {
 		log.Debug().Msgf("got module path. using FileSystem root as: '%s'", root)

@@ -119,9 +119,9 @@ docker-compose up down
 ### Build
 
 ```bask
-make upgrade_deps
-make lint
-make format
+task mod:upgrade
+task go:lint
+task go:format
 ```
 
 ### Test

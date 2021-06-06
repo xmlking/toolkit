@@ -7,9 +7,7 @@ import (
 type Option func(*Options)
 
 type Options struct {
-	Name string
-
-	// Alternative options
+	Name    string
 	Context context.Context
 }
 
@@ -20,9 +18,7 @@ func Name(n string) Option {
 	}
 }
 
-// Context specifies a context for the service.
-// Can be used to signal shutdown of the service
-// Can be used for extra option values.
+// Context  appContext to trigger terminate signal
 func Context(ctx context.Context) Option {
 	return func(o *Options) {
 		o.Context = ctx

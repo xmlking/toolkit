@@ -3,20 +3,22 @@ package broker
 import (
 	"context"
 	"strings"
-	"time"
 
 	"cloud.google.com/go/pubsub"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"golang.org/x/sync/errgroup"
+)
+
+const (
+	DefaultName = "mkit.broker.default"
 )
 
 type pubsubBroker struct {
 	client  *pubsub.Client
 	options Options
-	subs    []Subscriber
-	pubs    []Publisher
+	subs    []*pubsubSubscriber
+	pubs    []*pubsubPublisher
 }
 
 type pubsubPublisher struct {
@@ -29,10 +31,11 @@ func (p *pubsubPublisher) Topic() string {
 }
 
 // Stop should be called once
-func (p *pubsubPublisher) Stop() {
-	log.Info().Msgf("Stopping Publisher: %s", p.Topic())
+func (p *pubsubPublisher) stop() {
+	log.Info().Str("component", "pubsub").Msgf("Stopping Publisher: %s", p.Topic())
+	// It blocks until all items have been flushed.
 	p.topic.Stop()
-	log.Info().Msgf("Stopped Publisher Gracefully: %s", p.Topic())
+	log.Info().Str("component", "pubsub").Msgf("Stopped Publisher Gracefully: %s", p.Topic())
 }
 
 func (p *pubsubPublisher) Publish(ctx context.Context, msg *pubsub.Message) (err error) {
@@ -52,89 +55,33 @@ type pubsubSubscriber struct {
 	done    chan struct{}
 }
 
-func (s *pubsubSubscriber) Start() {
-	for {
-		log.Info().Msgf("Subscribing: %s", s.sub)
-		if err := s.sub.Receive(s.options.Context, s.hdlr); err != nil {
-			if e, ok := status.FromError(err); ok {
-				switch e.Code() {
-				case codes.Canceled:
-					log.Info().Msgf("Subscriber(%s) Canceled. Stopping Subscription", s.sub)
-					break
-				default:
-					log.Error().Err(err).Msgf("Subscriber(%s) Error. Retrying...", s.sub)
-				}
-			} else {
-				log.Error().Err(err).Msgf("Subscriber(%s) Error Unknown. Retrying...", s.sub)
-			}
-			// got error while subscribing to topic. lets retry after 1 sec.
-			time.Sleep(time.Second)
-			continue
-		} else {
-			// ctx is done. gracefully exiting the loop
-			break
-		}
-	}
-	close(s.done)
-}
-
-// Stop should be called once
-func (s *pubsubSubscriber) Stop() {
-	log.Info().Msgf("Stopping Subscriber: %s", s.sub)
-	for {
-		select {
-		case <-s.done:
-			log.Info().Msgf("Stopped Subscriber Gracefully: %s", s.sub)
-			return
-		}
-	}
-}
-
-// Shutdown shuts down all subscribers gracefully and then close the connection
-func (b *pubsubBroker) Shutdown() (err error) {
-	// close all subs
-	for _, sub := range b.subs {
-		sub.Stop()
-	}
-	// then close all pubs
-	for _, pub := range b.pubs {
-		pub.Stop()
-	}
-	// then disconnection client.
-	log.Info().Msgf("Closing pubsub client...")
-	err = b.client.Close()
-	// Hint: when using pubsub emulator, you receive this error, which you can safely ignore.
-	// Live pubsub server will throw this error.
-	if err != nil && strings.Contains(err.Error(), "the client connection is closing") {
-		err = nil
+func (s *pubsubSubscriber) start(ctx context.Context) (err error) {
+	defer close(s.done)
+	log.Info().Str("component", "pubsub").Msgf("Subscribing to: %s", s.sub)
+	// If ctx is done, Receive returns nil after all of the outstanding calls to `s.hdlr` have returned
+	// and all messages have been acknowledged or have expired.
+	if err = s.sub.Receive(ctx, s.hdlr); err == nil {
+		log.Info().Str("component", "pubsub").Msgf("Stopped Subscriber Gracefully: %s", s.sub)
 	}
 	return
 }
 
-func (b *pubsubBroker) Options() Options {
-	return b.options
-}
-
-func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (pub Publisher, err error) {
+func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (Publisher, error) {
 	t := b.client.Topic(topic)
 
 	options := PublishOptions{
-		Async:   false,
-		Context: b.options.Context,
+		Async: false,
 	}
 
 	for _, o := range opts {
 		o(&options)
 	}
 
-	var exists bool
-	exists, err = t.Exists(options.Context)
-	if err != nil {
-		return
-	}
-	if !exists {
+	if exists, err := t.Exists(context.Background()); err != nil {
+		return nil, err
+	} else if !exists {
 		err = errors.Errorf("Doesn't exist Topic: %s", t)
-		return
+		return nil, err
 	}
 
 	if options.PublishSettings.DelayThreshold != 0 {
@@ -156,32 +103,28 @@ func (b *pubsubBroker) NewPublisher(topic string, opts ...PublishOption) (pub Pu
 		t.PublishSettings.BufferedByteLimit = options.PublishSettings.BufferedByteLimit
 	}
 
-	pub = &pubsubPublisher{
+	pub := &pubsubPublisher{
 		topic: t,
 	}
 	// keep track of pubs
 	b.pubs = append(b.pubs, pub)
 
-	return
+	return pub, nil
 }
 
-// Subscribe registers a subscription to the given topic against the google pubsub api
-func (b *pubsubBroker) NewSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) (Subscriber, error) {
-	options := SubscribeOptions{
-		Context: b.options.Context,
-	}
+// AddSubscriber registers a subscription to the given topic against the google pubsub api
+func (b *pubsubBroker) AddSubscriber(subscription string, hdlr Handler, opts ...SubscribeOption) error {
+	options := SubscribeOptions{}
 
 	for _, o := range opts {
 		o(&options)
 	}
 
 	sub := b.client.Subscription(subscription)
-	exists, err := sub.Exists(context.TODO()) // TODO should we use context.Background()  ?
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.Errorf("Subscription %s doesn't exists", sub)
+	if exists, err := sub.Exists(context.Background()); err != nil {
+		return err
+	} else if !exists {
+		return errors.Errorf("Subscription %s doesn't exists", sub)
 	}
 
 	if options.ReceiveSettings.MaxOutstandingBytes != 0 {
@@ -226,22 +169,66 @@ func (b *pubsubBroker) NewSubscriber(subscription string, hdlr Handler, opts ...
 	// keep track of subs
 	b.subs = append(b.subs, subscriber)
 
-	return subscriber, nil
+	return nil
 }
 
-// Start should be called once
-func (b *pubsubBroker) Start() error {
+// Start blocking. run as background process.
+func (b *pubsubBroker) Start() (err error) {
+	ctx := b.options.Context
+	g, egCtx := errgroup.WithContext(ctx)
+
+	// start subscribers in the background.
+	// when context cancelled, they exit without error.
 	for _, sub := range b.subs {
-		// TODO: should we capture start error and return? via errCh <- ?
-		go sub.Start()
+		g.Go(func() error {
+			return sub.start(egCtx)
+		})
 	}
-	return nil
+
+	g.Go(func() (err error) {
+		// listen for the interrupt signal
+		<-ctx.Done()
+
+		// log situation
+		switch ctx.Err() {
+		case context.DeadlineExceeded:
+			log.Debug().Str("component", "pubsub").Msg("Context timeout exceeded")
+		case context.Canceled:
+			log.Debug().Str("component", "pubsub").Msg("Context cancelled by interrupt signal")
+		}
+
+		// wait for all subs to stop
+		for _, sub := range b.subs {
+			log.Info().Str("component", "pubsub").Msgf("Stopping Subscriber: %s", sub.sub)
+			<-sub.done
+		}
+
+		// then stop all pubs
+		for _, pub := range b.pubs {
+			pub.stop()
+		}
+
+		// then disconnection client.
+		log.Info().Str("component", "pubsub").Msgf("Closing pubsub client...")
+		err = b.client.Close()
+
+		// Hint: when using pubsub emulator, you receive this error, which you can safely ignore.
+		// Live pubsub server will throw this error.
+		if err != nil && strings.Contains(err.Error(), "the client connection is closing") {
+			err = nil
+		}
+		return
+	})
+
+	// Wait for all tasks to be finished or return if error occur at any task.
+	return g.Wait()
 }
 
 // NewBroker creates a new google pubsub broker
 func newBroker(ctx context.Context, opts ...Option) Broker {
 	// Default Options
 	options := Options{
+		Name:    DefaultName,
 		Context: ctx,
 	}
 

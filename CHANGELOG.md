@@ -9,10 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.2.0"></a>
+## [v0.2.0] - 2021-06-05
+### Build
+- **deps:** updated deps
+
+### Docs
+- **logger:** updated logger docs and GetListener now support xds
+
+### Refactor
+- **broker:** refactor/polich broker and grpc server components
+- **server:** now using healthServer ref for updates
+- **server:** now using healthServer ref for updates
+- **server:** now using healthServer ref for updates
+- **server:** added API to updateing Health Status anytime from anywhere
+
+
+<a name="logger/v0.1.6"></a>
+## [logger/v0.1.6] - 2021-04-03
+
+<a name="confy/v0.1.6"></a>
+## [confy/v0.1.6] - 2021-04-03
+
 <a name="v0.1.6"></a>
 ## [v0.1.6] - 2021-04-03
 ### Build
 - **deps:** bump cloud.google.com/go/pubsub from 1.9.1 to 1.10.1
+- **release:** update changelog
 
 ### Fix
 - **xfs:** change log level to debug
@@ -40,11 +63,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **code:** fix code lint
 
 
-<a name="logger/v0.1.4"></a>
-## [logger/v0.1.4] - 2021-03-26
-
 <a name="confy/v0.1.4"></a>
 ## [confy/v0.1.4] - 2021-03-26
+
+<a name="logger/v0.1.4"></a>
+## [logger/v0.1.4] - 2021-03-26
 
 <a name="v0.1.4"></a>
 ## [v0.1.4] - 2021-03-26
@@ -59,11 +82,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** adding more test cases
 
 
-<a name="confy/v0.1.3"></a>
-## [confy/v0.1.3] - 2021-03-25
-
 <a name="logger/v0.1.3"></a>
 ## [logger/v0.1.3] - 2021-03-25
+
+<a name="confy/v0.1.3"></a>
+## [confy/v0.1.3] - 2021-03-25
 
 <a name="v0.1.3"></a>
 ## [v0.1.3] - 2021-03-25
@@ -159,16 +182,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **translog:** remove translog middleware
 
 
-[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.2.0...HEAD
+[v0.2.0]: https://github.com/xmlking/toolkit/compare/logger/v0.1.6...v0.2.0
+[logger/v0.1.6]: https://github.com/xmlking/toolkit/compare/confy/v0.1.6...logger/v0.1.6
+[confy/v0.1.6]: https://github.com/xmlking/toolkit/compare/v0.1.6...confy/v0.1.6
 [v0.1.6]: https://github.com/xmlking/toolkit/compare/logger/v0.1.5...v0.1.6
 [logger/v0.1.5]: https://github.com/xmlking/toolkit/compare/confy/v0.1.5...logger/v0.1.5
 [confy/v0.1.5]: https://github.com/xmlking/toolkit/compare/v0.1.5...confy/v0.1.5
-[v0.1.5]: https://github.com/xmlking/toolkit/compare/logger/v0.1.4...v0.1.5
-[logger/v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.4...logger/v0.1.4
-[confy/v0.1.4]: https://github.com/xmlking/toolkit/compare/v0.1.4...confy/v0.1.4
-[v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...v0.1.4
-[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...confy/v0.1.3
-[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...logger/v0.1.3
+[v0.1.5]: https://github.com/xmlking/toolkit/compare/confy/v0.1.4...v0.1.5
+[confy/v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.4...confy/v0.1.4
+[logger/v0.1.4]: https://github.com/xmlking/toolkit/compare/v0.1.4...logger/v0.1.4
+[v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...v0.1.4
+[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...logger/v0.1.3
+[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...confy/v0.1.3
 [v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.3
 [confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.2...confy/v0.1.2
 [v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...v0.1.2

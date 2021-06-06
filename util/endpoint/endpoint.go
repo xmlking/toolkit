@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Helper Functions
+// GetListener Helper Functions
 func GetListener(endpoint string) (lis net.Listener, err error) {
 
 	var target Target
@@ -22,7 +22,7 @@ func GetListener(endpoint string) (lis net.Listener, err error) {
 	switch target.Scheme {
 	case "unix":
 		return net.Listen("unix", target.Path)
-	case "tcp", "dns", "http", "https", "kubernetes":
+	case "tcp", "http", "https", "dns", "xds", "kubernetes":
 		if target.Port == "" {
 			target.Port = "0"
 		}

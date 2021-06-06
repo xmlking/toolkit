@@ -3,7 +3,8 @@ package logger
 import (
 	"context"
 	"fmt"
-	"os"
+    "io/ioutil"
+    "os"
 	"runtime/debug"
 	"time"
 
@@ -56,14 +57,14 @@ func (l *defaultLogger) Init(opts ...Option) error {
 
 		logr = zerolog.New(l.opts.Out).
 			Level(zerolog.InfoLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	} else if l.opts.Format == JSON { // Production Mode
 
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 		logr = zerolog.New(l.opts.Out).
 			Level(zerolog.InfoLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	} else { // Default  Development Mode
 
@@ -82,7 +83,7 @@ func (l *defaultLogger) Init(opts ...Option) error {
 		)
 		logr = zerolog.New(consOut).
 			Level(zerolog.DebugLevel).
-			With().Timestamp().Stack().Logger()
+			With().Timestamp().Logger()
 
 	}
 
@@ -117,6 +118,7 @@ func (l *defaultLogger) Init(opts ...Option) error {
 	// Also set it as grpclog's Default logger
 	if l.opts.EnableGrpcLog {
 		gLogger := logr.With().Str("module", "grpc").Logger()
+        grpclog.NewLoggerV2(ioutil.Discard, ioutil.Discard, ioutil.Discard) // Reset first
 		grpclog.SetLoggerV2(grpcAdopter.New(&gLogger))
 	}
 
@@ -151,7 +153,7 @@ func NewLogger(opts ...Option) Logger {
 	return l
 }
 
-// Helper functions on DefaultLogger
+// Init : Helper functions on DefaultLogger
 func Init(options ...Option) error {
 	return DefaultLogger.Init(options...)
 }

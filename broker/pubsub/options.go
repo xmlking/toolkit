@@ -8,7 +8,10 @@ import (
 
 // https://github.com/cloudevents/sdk-go/blob/master/protocol/pubsub/v2/options.go
 
+type Option func(*Options)
+
 type Options struct {
+	Name          string
 	ClientOptions []option.ClientOption
 	ProjectID     string
 
@@ -16,12 +19,15 @@ type Options struct {
 	// processing
 	ErrorHandler Handler
 
-	// Other options for implementations of the interface
-	// can be stored in a context
 	Context context.Context
 }
 
-type Option func(*Options)
+// Name of the service
+func Name(n string) Option {
+	return func(o *Options) {
+		o.Name = n
+	}
+}
 
 // ClientOption is a broker Option which allows google pubsub client options to be
 // set for the client
@@ -46,9 +52,7 @@ func ErrorHandler(h Handler) Option {
 	}
 }
 
-// Context specifies a context for the service.
-// Can be used to signal shutdown of the service
-// Can be used for extra option values.
+// Context  appContext to trigger terminate signal
 func Context(ctx context.Context) Option {
 	return func(o *Options) {
 		o.Context = ctx
