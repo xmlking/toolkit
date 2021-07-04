@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.10.1
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/cockroachdb/errors v1.8.4
-	github.com/cockroachdb/redact v1.0.9
+	github.com/cockroachdb/redact v1.1.3
 	github.com/gogo/protobuf v1.3.2
 	github.com/google/uuid v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
