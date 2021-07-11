@@ -3,7 +3,7 @@ module github.com/xmlking/toolkit
 go 1.16
 
 require (
-	cloud.google.com/go/pubsub v1.10.1
+	cloud.google.com/go/pubsub v1.12.2
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/cockroachdb/errors v1.8.4
 	github.com/cockroachdb/redact v1.0.9
@@ -14,9 +14,9 @@ require (
 	github.com/rs/zerolog v1.22.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/api v0.47.0
-	google.golang.org/genproto v0.0.0-20210513213006-bf773b8c8384
-	google.golang.org/grpc v1.38.0
+	google.golang.org/api v0.50.0
+	google.golang.org/genproto v0.0.0-20210707164411-8c882eb9abba
+	google.golang.org/grpc v1.39.0
 )
 
 //replace github.com/xmlking/toolkit => ./
