@@ -133,3 +133,9 @@ make test-unit
 ## 🔗 Credits
 https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
 https://github.com/spencer-p/moroncloudevents/tree/master
+
+## Similar Projects
+
+- [Kratos](https://go-kratos.dev/)
+    - [Kratos Docs]( https://go-kratos.dev/en/docs/) 
+    - [Kratos Project Template](https://github.com/go-kratos/kratos-layout)
