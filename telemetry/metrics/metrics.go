@@ -46,12 +46,7 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			log.Fatal().Stack().Err(err).Msg("failed to initialize resources for metrics exporter")
 		}
 
-		target, err := telemetry.ParseBackend(cfg.Backend)
-		if err != nil {
-			log.Fatal().Stack().Err(err).Msg("telemetry.metrics config error:")
-		}
-
-		switch target {
+		switch cfg.Backend {
 		case telemetry.GCP:
 			projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
 			opts := []cloudmetric.Option{cloudmetric.WithProjectID(projectID)}
@@ -128,6 +123,9 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			if err != nil {
 				log.Fatal().Stack().Err(err).Msg("failed to initialize metrics controller")
 			}
+
+        default:
+            log.Fatal().Msgf("unsupported tracing Backend: '%s'", cfg.Backend)
 		}
 
 		// Registers metrics Provider globally.

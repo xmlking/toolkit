@@ -38,12 +38,7 @@ func InitTracing(ctx context.Context, cfg *telemetry.TracingConfig) func() {
 			log.Fatal().Stack().Err(err).Msg("failed to initialize resources for tracing exporter")
 		}
 
-		target, err := telemetry.ParseBackend(cfg.Backend)
-		if err != nil {
-			log.Fatal().Stack().Err(err).Msg("telemetry.tracing config error:")
-		}
-
-		switch target {
+		switch cfg.Backend {
 		case telemetry.GCP:
 			projectID := os.Getenv("GOOGLE_CLOUD_PROJECT")
 			exporter, err = cloudtrace.New(cloudtrace.WithProjectID(projectID))
@@ -78,7 +73,7 @@ func InitTracing(ctx context.Context, cfg *telemetry.TracingConfig) func() {
 			)
 
 		default:
-			log.Fatal().Msgf("unsupported tracing Target: '%s'", target)
+			log.Fatal().Msgf("unsupported tracing Backend: '%s'", cfg.Backend)
 		}
 
 		// Registers trace Provider globally.
