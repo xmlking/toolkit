@@ -9,10 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.2.1"></a>
+## [v0.2.1] - 2021-08-05
+### Build
+- **deps:** fix deps
+- **deps:** updated deps
+
+### Feat
+- **modules:** adding go.mod for each module
+- **telemetry:** adding openTelemetry initialization helpers
+
+### Fix
+- **deps:** updated deps
+- **telemetry:** adding const for GCP/PROMETHEUS/STDOUT
+
+
 <a name="v0.2.0"></a>
 ## [v0.2.0] - 2021-06-05
 ### Build
 - **deps:** updated deps
+- **release:** update changelog
 
 ### Docs
 - **logger:** updated logger docs and GetListener now support xds
@@ -182,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **translog:** remove translog middleware
 
 
-[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.2.1...HEAD
+[v0.2.1]: https://github.com/xmlking/toolkit/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/xmlking/toolkit/compare/logger/v0.1.6...v0.2.0
 [logger/v0.1.6]: https://github.com/xmlking/toolkit/compare/confy/v0.1.6...logger/v0.1.6
 [confy/v0.1.6]: https://github.com/xmlking/toolkit/compare/v0.1.6...confy/v0.1.6
