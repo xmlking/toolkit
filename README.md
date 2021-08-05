@@ -190,6 +190,13 @@ task go:format
 make test-unit
 ```
 
+### Release
+
+```bask
+git switch main
+task mod:release TAG=v0.2.1
+```
+
 ## 🔗 Credits
 
 https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
