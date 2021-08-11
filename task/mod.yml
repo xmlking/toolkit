@@ -14,10 +14,11 @@ tasks:
   download:
     desc: Downloads and tidy Go modules
     cmds:
-      - echo "Removeing go.sum and downloading deps...."
+      - echo "Removeing all go.sum files and re download deps...."
       - |
         for d in `find * -name 'go.mod'`; do
           pushd `dirname $d` >/dev/null
+          echo downloading $d
           rm -f go.sum
           go mod download
           popd >/dev/null
@@ -31,6 +32,7 @@ tasks:
       - |
         for d in `find * -name 'go.mod'`; do
           pushd `dirname $d` >/dev/null
+          echo verifying $d
           go mod verify
           go mod tidy
           popd >/dev/null

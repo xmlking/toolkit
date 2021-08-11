@@ -1,28 +1,27 @@
 package metrics
 
 import (
-	"context"
-	"net"
-	"net/http"
-	"os"
-	"sync"
+    "context"
+    "net"
+    "net/http"
+    "os"
+    "sync"
 
-	cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
-	goprom "github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/zerolog/log"
-	"github.com/xmlking/toolkit/telemetry"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/propagation"
-	export "go.opentelemetry.io/otel/sdk/export/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
-	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
-	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
-	"go.opentelemetry.io/otel/sdk/resource"
+    cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
+    goprom "github.com/prometheus/client_golang/prometheus"
+    "github.com/rs/zerolog/log"
+    "github.com/xmlking/toolkit/telemetry"
+    "go.opentelemetry.io/otel"
+    "go.opentelemetry.io/otel/exporters/prometheus"
+    "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+    "go.opentelemetry.io/otel/metric/global"
+    "go.opentelemetry.io/otel/propagation"
+    export "go.opentelemetry.io/otel/sdk/export/metric"
+    "go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
+    controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+    processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
+    "go.opentelemetry.io/otel/sdk/metric/selector/simple"
+    "go.opentelemetry.io/otel/sdk/resource"
 )
 
 var (
@@ -41,7 +40,7 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			// Builtin detectors provide default values and support
 			// OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
 			resource.WithProcess(),                                  // This option configures a set of Detectors that discover process information
-			resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
+			// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
 		)
 		if err != nil {
 			log.Fatal().Stack().Err(err).Msg("failed to initialize resources for metrics exporter")

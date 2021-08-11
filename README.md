@@ -187,7 +187,7 @@ task go:format
 ### Test
 
 ```bask
-make test-unit
+task go:test
 ```
 
 ### Release
