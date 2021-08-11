@@ -1,32 +1,32 @@
 package metrics
 
 import (
-	"context"
-	"net"
-	"net/http"
-	"os"
-	"sync"
+    "context"
+    "net"
+    "net/http"
+    "os"
+    "sync"
 
-	cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
-	"github.com/rs/zerolog/log"
+    cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
+    goprom "github.com/prometheus/client_golang/prometheus"
+    "github.com/rs/zerolog/log"
     "github.com/xmlking/toolkit/telemetry"
     "go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/prometheus"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
-	"go.opentelemetry.io/otel/metric/global"
-	"go.opentelemetry.io/otel/propagation"
-	export "go.opentelemetry.io/otel/sdk/export/metric"
-	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
-	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
-	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
-	"go.opentelemetry.io/otel/sdk/resource"
+    "go.opentelemetry.io/otel/exporters/prometheus"
+    "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+    "go.opentelemetry.io/otel/metric/global"
+    "go.opentelemetry.io/otel/propagation"
+    export "go.opentelemetry.io/otel/sdk/export/metric"
+    "go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
+    controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+    processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
+    "go.opentelemetry.io/otel/sdk/metric/selector/simple"
+    "go.opentelemetry.io/otel/sdk/resource"
 )
 
 var (
 	once sync.Once
-    cont *controller.Controller
+	cont *controller.Controller
 )
 
 // InitMetrics Initialize Metrics exporter
@@ -40,7 +40,7 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			// Builtin detectors provide default values and support
 			// OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
 			resource.WithProcess(),                                  // This option configures a set of Detectors that discover process information
-			resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
+			// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
 		)
 		if err != nil {
 			log.Fatal().Stack().Err(err).Msg("failed to initialize resources for metrics exporter")
@@ -60,8 +60,10 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			}
 
 		case telemetry.PROMETHEUS:
-			pConfig := prometheus.Config{
-				DefaultHistogramBoundaries: []float64{.0005, 0.0075, 0.001, 0.002, 0.003, 0.004, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10},
+			var pConfig = prometheus.Config{Registry: goprom.DefaultRegisterer.(*goprom.Registry)}
+
+			if cfg.HistogramDistribution != nil {
+				pConfig.DefaultHistogramBoundaries = cfg.HistogramDistribution
 			}
 
 			pController := controller.New(
@@ -86,13 +88,13 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			// start prometheus exporter
 			http.HandleFunc("/metrics", exporter.ServeHTTP)
 			pSrv := &http.Server{
-			    // use appCtx which get canceled on signal
+				// use appCtx which get canceled on signal
 				BaseContext: func(_ net.Listener) context.Context { return ctx },
 			}
-            listener, err := net.Listen("tcp", cfg.Endpoint)
-            if err != nil {
-                log.Fatal().Stack().Err(err).Msg("error creating listener for prometheus exporter")
-            }
+			listener, err := net.Listen("tcp", cfg.Endpoint)
+			if err != nil {
+				log.Fatal().Stack().Err(err).Msg("error creating listener for prometheus exporter")
+			}
 			go func() {
 				if err := pSrv.Serve(listener); err != http.ErrServerClosed {
 					log.Fatal().Stack().Err(err).Msg("Prometheus exporter error:")
@@ -124,8 +126,8 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 				log.Fatal().Stack().Err(err).Msg("failed to initialize metrics controller")
 			}
 
-        default:
-            log.Fatal().Msgf("unsupported tracing Backend: '%s'", cfg.Backend)
+		default:
+			log.Fatal().Msgf("unsupported tracing Backend: '%s'", cfg.Backend)
 		}
 
 		// Registers metrics Provider globally.

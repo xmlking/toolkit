@@ -1,19 +1,19 @@
 package tracing
 
 import (
-	"context"
-	"os"
-	"sync"
+    "context"
+    "os"
+    "sync"
 
-	cloudtrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
-	"github.com/rs/zerolog/log"
+    cloudtrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
+    "github.com/rs/zerolog/log"
     "github.com/xmlking/toolkit/telemetry"
     "go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+    // "go.opentelemetry.io/otel/attribute"
+    "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+    "go.opentelemetry.io/otel/sdk/resource"
+    "go.opentelemetry.io/otel/sdk/trace"
+    sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
 var (
@@ -32,7 +32,7 @@ func InitTracing(ctx context.Context, cfg *telemetry.TracingConfig) func() {
 			// Builtin detectors provide default values and support
 			// OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
 			resource.WithProcess(),                                  // This option configures a set of Detectors that discover process information
-			resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
+			//resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
 		)
 		if err != nil {
 			log.Fatal().Stack().Err(err).Msg("failed to initialize resources for tracing exporter")
