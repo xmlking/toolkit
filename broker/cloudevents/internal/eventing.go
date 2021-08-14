@@ -7,6 +7,7 @@ import (
 	//cepubsub "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/util/endpoint"
 )
 
 func NewSourceClient(target string) cloudevents.Client {
@@ -55,7 +56,7 @@ func NewSinkClient(target string) cloudevents.Client {
 	// The default client is HTTP.
 	//client, err := cloudevents.NewDefaultClient()
 
-	lis, err := GetListener(target)
+	lis, err := endpoint.GetListener(target)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to create listener for target: %v", target)
 	}

@@ -2,8 +2,6 @@ module github.com/xmlking/toolkit/confy
 
 go 1.16
 
-replace github.com/xmlking/toolkit/confy => ./
-
 require (
 	github.com/cockroachdb/errors v1.8.6
 	github.com/creasty/defaults v1.5.1
