@@ -67,18 +67,18 @@ tasks:
 
   test:
     desc: Runs test suite
-#    deps: [install]
+    deps: [install]
     cmds:
       - go test {{catLines .GO_PACKAGES}}
     silent: true
 
   ci:
-    - task: go-get
+    - task: go-install
       vars: {REPO: golang.org/x/lint/golint}
     - task: lint
     - task: test
 
-  go-get: go get -u {{.REPO}}
+  go-install: go install {{.REPO}}
 
   packages:
     cmds:

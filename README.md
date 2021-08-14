@@ -179,7 +179,7 @@ docker-compose up down
 ### Build
 
 ```bask
-task mod:upgrade
+task mod:download
 task go:lint
 task go:format
 ```
@@ -192,10 +192,55 @@ task go:test
 
 ### Release
 
+Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
+
+1. Start release
+
+```bask
+git switch develop
+git flow release start vx.y.z
+```
+
+2. Update files
+
+Update  all **go.mod** files that have reference to `github.com/xmlking/toolkit v0.2.3` -> `github.com/xmlking/toolkit vx.y.z`. e.g., 
+
+```
+broker/cloudevents/go.mod
+cmd/publish/go.mod
+cmd/subscribe/go.mod
+```
+
+3. update deps
+```bask
+task mod:outdated
+# then upgrade recomended versions in each go.mod files
+task mod:sync
+task mod:verify
+```
+
+4. update changelog
+```bask
+git-chglog -c .github/chglog/config.yml -o CHANGELOG.md --next-tag vx.y.z
+```
+
+5. Finish release
+```bask
+git add .
+git commit -m "build(release): update changelog"
+git flow release finish
+git push origin --all && git push origin --tags # alias for gpoat 
+```
+
+6. Push tags for all modules
 ```bask
 git switch main
-task mod:release TAG=v0.2.1
+task mod:release TAG=vx.y.z
 ```
+
+### Release
+
+
 
 ## 🔗 Credits
 

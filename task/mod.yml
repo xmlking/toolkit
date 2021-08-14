@@ -11,22 +11,23 @@ tasks:
     cmds:
       - task: download
 
-  download:
-    desc: Downloads and tidy Go modules
+  sync:
+    desc: Delete go.sum, sync Go modules
     cmds:
-      - echo "Removeing all go.sum files and re download deps...."
+      - echo "Removeing all go.sum files and download sync deps...."
       - |
         for d in `find * -name 'go.mod'`; do
           pushd `dirname $d` >/dev/null
-          echo downloading $d
+          echo delete and sync $d
           rm -f go.sum
           go mod download
+          go mod tidy
           popd >/dev/null
         done
     silent: true
 
-  update:
-    desc: Go mod verify and tidy.
+  verify:
+    desc: Verify and tidy Go modules
     cmds:
       - echo "Go mod verify and tidy...."
       - |
@@ -39,7 +40,7 @@ tasks:
         done
     silent: true
 
-  upgrade:
+  outdated:
     desc: Show outdated dependencies
     cmds:
       - cmd: goup -v -m ./...
