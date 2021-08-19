@@ -1,14 +1,15 @@
 package confy
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"reflect"
-	"regexp"
-	"strconv"
+    "context"
+    "fmt"
+    "os"
+    "reflect"
+    "regexp"
+    "strconv"
 
-	"github.com/go-playground/validator/v10"
+    "github.com/go-playground/validator/v10"
+    "github.com/rs/zerolog/log"
 )
 
 var (
@@ -83,8 +84,11 @@ func (c *confy) Load(config interface{}, files ...string) (err error) {
 	return
 }
 
-// ENV return environment
+// GetEnvironment return environment
 func GetEnvironment() string {
+    if DefaultConfy == nil {
+        log.Fatal().Msg("config not initialized yet...")
+    }
 	return DefaultConfy.GetEnvironment()
 }
 
