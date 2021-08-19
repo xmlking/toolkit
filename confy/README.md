@@ -155,11 +155,13 @@ $ CONFY_ENV=production go run config.go
 // Will load `config.json`, `config.production.json` if it exists
 // `config.production.json` will overwrite `config.json`'s configuration
 
-$ go test ./confy/...
+$ cd confy
+
+$ go test ./...
 // Will load `config.json`, `config.test.json` if it exists
 // `config.test.json` will overwrite `config.json`'s configuration
 
-$ CONFY_ENV=production go test ./confy/...
+$ CONFY_ENV=production go test ./...
 // Will load `config.json`, `config.production.json` if it exists
 // `config.production.json` will overwrite `config.json`'s configuration
 ```

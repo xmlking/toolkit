@@ -7,7 +7,6 @@ import (
 	//cepubsub "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/pubsub"
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/rs/zerolog/log"
-
 	"github.com/xmlking/toolkit/util/endpoint"
 )
 

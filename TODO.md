@@ -2,6 +2,8 @@
 
 ## TODO
  
+*** Implement proto errors based on [Kratos Docs]( https://go-kratos.dev/en/docs/) 
+
 WithConfig( interface{})
 
 ```go

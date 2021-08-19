@@ -68,8 +68,8 @@ func (s *grpcServer) Client(target string, opts ...ClientOption) (clientConn *gr
 	return
 }
 
-func (s *grpcServer) Server() *grpc.Server{
-    return s.gSrv
+func (s *grpcServer) Server() *grpc.Server {
+	return s.gSrv
 }
 
 func (s *grpcServer) Start() (err error) {
