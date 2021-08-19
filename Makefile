@@ -17,12 +17,12 @@ BASE_VERSION					:= latest
 
 VERSION					:= $(shell git describe --tags || echo "HEAD")
 GOPATH					:= $(shell go env GOPATH)
-CODECOV_FILE 		:= build/coverage.txt
+CODECOV_FILE 			:= build/coverage.txt
 TIMEOUT  				:= 60s
 # don't override
 GIT_TAG					:= $(shell git describe --tags --abbrev=0 --always --match "v*")
-GIT_DIRTY 			:= $(shell git status --porcelain 2> /dev/null)
-GIT_BRANCH  		:= $(shell git rev-parse --abbrev-ref HEAD)
+GIT_DIRTY 				:= $(shell git status --porcelain 2> /dev/null)
+GIT_BRANCH  			:= $(shell git rev-parse --abbrev-ref HEAD)
 HAS_GOVVV				:= $(shell command -v govvv 2> /dev/null)
 HAS_KO					:= $(shell command -v ko 2> /dev/null)
 HTTPS_GIT 				:= https://github.com/$(GITHUB_REPO_OWNER)/$(GITHUB_REPO_NAME).git
@@ -40,8 +40,8 @@ BUILD_FLAGS = $(shell govvv -flags -version $(VERSION) -pkg $(VERSION_PACKAGE))
 # $(warning VERSION = $(VERSION), HAS_GOVVV = $(HAS_GOVVV), HAS_KO = $(HAS_KO))
 # $(warning VERSION_PACKAGE = $(VERSION_PACKAGE), BUILD_FLAGS = $(BUILD_FLAGS))
 
-.PHONY: all tools check_dirty update_dep
-.PHONY: lint lint-% upgrade_deps
+.PHONY: all tools check_dirty sync
+.PHONY: lint lint-% outdated
 .PHONY: format format-%
 .PHONY: release/draft release/publish
 
@@ -53,10 +53,10 @@ all: build
 
 tools:
 	@echo "==> Installing dev tools"
-	# go install github.com/ahmetb/govvv
-	# GO111MODULE=off go get github.com/golangci/golangci-lint/cmd/golangci-lint
-	# GO111MODULE=on go get github.com/bufbuild/buf/cmd/buf
-	# GO111MODULE=on go get github.com/rvflash/goup
+	# go install github.com/ahmetb/govvv@latest
+	# go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	# go install github.com/bufbuild/buf/cmd/buf@latest
+	# go install github.com/rvflash/goup@latest
 
 check_dirty:
 ifdef GIT_DIRTY
@@ -67,23 +67,28 @@ endif
 # Target: go-mod                                                               #
 ################################################################################
 
-update_deps:
+sync:
+	@echo Removing all go.sum files and download sync deps....
 	@for d in `find * -name 'go.mod'`; do \
 		pushd `dirname $$d` >/dev/null; \
+	    echo delete and sync $$d; \
+	    rm -f go.sum; \
+	    go mod download; \
+	    go mod tidy; \
+		popd >/dev/null; \
+	done
+
+verify:
+	@echo Go mod verify and tidy....
+	@for d in `find * -name 'go.mod'`; do \
+		pushd `dirname $$d` >/dev/null; \
+		echo verifying $$d; \
 		go mod verify; \
 		go mod tidy; \
 		popd >/dev/null; \
 	done
 
-download_deps:
-	@for d in `find * -name 'go.mod'`; do \
-		pushd `dirname $$d` >/dev/null; \
-		rm -f go.sum; \
-		go mod download; \
-		popd >/dev/null; \
-	done
-
-upgrade_deps:
+outdated:
 	@goup -v -m ./...
 
 ################################################################################
@@ -141,7 +146,7 @@ check test tests:
 # Target: release                                                              #
 ################################################################################
 
-release: download_deps
+release: verify
 	@if [ -z $(TAG) ]; then \
 		echo "no  TAG. Usage: make release TAG=v0.1.1"; \
 	else \
