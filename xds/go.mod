@@ -1,4 +1,4 @@
-module github.com/xmlking/toolkit/xds-server
+module github.com/xmlking/toolkit/xds
 
 go 1.16
 
