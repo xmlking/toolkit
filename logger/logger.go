@@ -3,8 +3,8 @@ package logger
 import (
 	"context"
 	"fmt"
-    "io/ioutil"
-    "os"
+	"io/ioutil"
+	"os"
 	"runtime/debug"
 	"time"
 
@@ -118,7 +118,7 @@ func (l *defaultLogger) Init(opts ...Option) error {
 	// Also set it as grpclog's Default logger
 	if l.opts.EnableGrpcLog {
 		gLogger := logr.With().Str("module", "grpc").Logger()
-        grpclog.NewLoggerV2(ioutil.Discard, ioutil.Discard, ioutil.Discard) // Reset first
+		grpclog.NewLoggerV2(ioutil.Discard, ioutil.Discard, ioutil.Discard) // Reset first
 		grpclog.SetLoggerV2(grpcAdopter.New(&gLogger))
 	}
 

@@ -103,10 +103,10 @@ func teardown() {
 
 func TestMain(m *testing.M) {
 	setup()
-    // Run tests
+	// Run tests
 	code := m.Run()
 	teardown()
-    // Exit with exit value from tests
+	// Exit with exit value from tests
 	os.Exit(code)
 }
 
@@ -688,7 +688,7 @@ func TestValidation(t *testing.T) {
 		Endpoint string `validate:"required"`
 		Count    int64  `validate:"required"`
 		Slient   bool   `validate:"required"`
-        MyFile   string  `validate:"file,required"`
+		MyFile   string `validate:"file,required"`
 	}
 
 	cfg := &config{Email: "a@b.com", Email2: "", AuthorIP: "1.1"}
@@ -704,27 +704,26 @@ func TestValidation(t *testing.T) {
 }
 
 func TestValidationStrict(t *testing.T) {
-    type config struct {
-        Name     string `validate:"-"`
-        Title    string `validate:"alphanum,required"`
-        AuthorIP string `validate:"ipv4"`
-        Email    string `validate:"email"`
-        Slient   bool   `validate:"required"`
-        MyFile   string  `validate:"file,required"`
-    }
+	type config struct {
+		Name     string `validate:"-"`
+		Title    string `validate:"alphanum,required"`
+		AuthorIP string `validate:"ipv4"`
+		Email    string `validate:"email"`
+		Slient   bool   `validate:"required"`
+		MyFile   string `validate:"file,required"`
+	}
 
-    cfg := &config{Title:"aaa", Email: "a@b.com", Slient: true, AuthorIP: "1.1", MyFile: "fixtures/goodbye.yml"}
-    err := confy.Load(cfg)
-    fmt.Printf("%+v\n", cfg)
-    if err != nil {
-        errs := err.(validator.ValidationErrors)
-        for index, err := range errs {
-            fmt.Printf("\t%d.  %s\n", index, err)
-        }
-        // t.Error("Error validating")
-    }
+	cfg := &config{Title: "aaa", Email: "a@b.com", Slient: true, AuthorIP: "1.1", MyFile: "fixtures/goodbye.yml"}
+	err := confy.Load(cfg)
+	fmt.Printf("%+v\n", cfg)
+	if err != nil {
+		errs := err.(validator.ValidationErrors)
+		for index, err := range errs {
+			fmt.Printf("\t%d.  %s\n", index, err)
+		}
+		// t.Error("Error validating")
+	}
 }
-
 
 func TestValidationMore(t *testing.T) {
 
