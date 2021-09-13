@@ -41,7 +41,18 @@ func (r *staticRefresher) GetSnapshotCache() cachev3.SnapshotCache {
 	return r.snapshotCache
 }
 
+
 func (r *staticRefresher) Start() (err error) {
+    //ticker := time.NewTicker(interval * time.Millisecond)
+    //for {
+    //    select {
+    //    case <-ticker.C:
+    //        doSomething()
+    //    case <-ctx.Done():
+    //        return
+    //    }
+    //}
+
 	for id, v := range strSlice {
 		log.Debug().Msgf("resource(%d): %s", id, v)
 

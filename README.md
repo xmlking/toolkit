@@ -207,8 +207,8 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
 
     ```
     broker/cloudevents/go.mod
-    cmd/publish/go.mod
-    cmd/subscribe/go.mod
+    examples/publish/go.mod
+    examples/subscribe/go.mod
     ```
 
 3. update deps
