@@ -79,3 +79,4 @@ func main() {
 
 - https://github.com/open-telemetry/opentelemetry-go/blob/main/example/prometheus/main.go
 - https://github.com/GoogleCloudPlatform/opentelemetry-operations-go/blob/master/example/metric/example.go
+- https://github.com/GoogleCloudPlatform/opentelemetry-operations-go/tree/main/example/metric

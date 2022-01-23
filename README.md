@@ -178,7 +178,7 @@ docker-compose up down
 
 ### Build
 
-```bask
+```bash
 task mod:download
 task go:lint
 task go:format
@@ -186,7 +186,7 @@ task go:format
 
 ### Test
 
-```bask
+```bash
 task go:test
 ```
 
@@ -248,11 +248,13 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
 
 ## 🔗 Credits
 
-https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
-https://github.com/spencer-p/moroncloudevents/tree/master
+- https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
+- https://github.com/spencer-p/moroncloudevents/tree/master
 
 ## Similar Projects
 
 - [Kratos](https://go-kratos.dev/)
     - [Kratos Docs]( https://go-kratos.dev/en/docs/)
     - [Kratos Project Template](https://github.com/go-kratos/kratos-layout)
+- [rookie-ninja](https://github.com/rookie-ninja/rk-boot)
+    - [RK Docs](https://rkdev.info/docs/bootstrapper/concept/)
