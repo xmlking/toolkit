@@ -36,7 +36,6 @@ func NewOTelCallbacks() (cb serverv3.Callbacks, err error) {
 		"active_streams",
 		metric.WithDescription("Active grpc streams to xds-controller"),
 		metric.WithUnit(unit.Dimensionless),
-		metric.WithInstrumentationName(libraryName),
 	); err != nil {
 		return
 	}
@@ -45,7 +44,6 @@ func NewOTelCallbacks() (cb serverv3.Callbacks, err error) {
 		"stream_requests",
 		metric.WithDescription("No.of requests via grpc streams to xds-controller"),
 		metric.WithUnit(unit.Dimensionless),
-		metric.WithInstrumentationName(libraryName),
 	); err != nil {
 		return
 	}
@@ -54,7 +52,6 @@ func NewOTelCallbacks() (cb serverv3.Callbacks, err error) {
 		"stream_responses",
 		metric.WithDescription("No.of Responses sent to clients by  xds-controller"),
 		metric.WithUnit(unit.Dimensionless),
-		metric.WithInstrumentationName(libraryName),
 	); err != nil {
 		return
 	}
@@ -91,7 +88,7 @@ func (cb *otelCallbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest)
 }
 
 // OnStreamResponse is called immediately prior to sending a response on a stream.
-func (cb *otelCallbacks) OnStreamResponse(a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
+func (cb *otelCallbacks) OnStreamResponse(ctx context.Context, a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.resCounter.Add(context.Background(), 1)

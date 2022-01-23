@@ -17,6 +17,7 @@ import (
 	envoy_api_v3_auth "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
+	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
@@ -41,17 +42,16 @@ func (r *staticRefresher) GetSnapshotCache() cachev3.SnapshotCache {
 	return r.snapshotCache
 }
 
-
 func (r *staticRefresher) Start() (err error) {
-    //ticker := time.NewTicker(interval * time.Millisecond)
-    //for {
-    //    select {
-    //    case <-ticker.C:
-    //        doSomething()
-    //    case <-ctx.Done():
-    //        return
-    //    }
-    //}
+	//ticker := time.NewTicker(interval * time.Millisecond)
+	//for {
+	//    select {
+	//    case <-ticker.C:
+	//        doSomething()
+	//    case <-ctx.Done():
+	//        return
+	//    }
+	//}
 
 	for id, v := range strSlice {
 		log.Debug().Msgf("resource(%d): %s", id, v)
@@ -78,7 +78,7 @@ func (r *staticRefresher) Start() (err error) {
 			log.Fatal().Err(err).Send()
 		}
 
-		c := []types.Resource{
+		clr := []types.Resource{
 			&cluster.Cluster{
 				Name:                 clusterName,
 				ConnectTimeout:       ptypes.DurationProto(2 * time.Second),
@@ -219,7 +219,7 @@ func (r *staticRefresher) Start() (err error) {
 			log.Fatal().Err(err).Send()
 		}
 
-		var l = []types.Resource{
+		var lsr = []types.Resource{
 			&listener.Listener{
 				Name: listenerName,
 				Address: &core.Address{
@@ -271,13 +271,22 @@ func (r *staticRefresher) Start() (err error) {
 		// =================================================================================
 		atomic.AddUint32(&r.version, 1)
 		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating snapshot Version " + fmt.Sprint(r.version))
+		snap, err := cachev3.NewSnapshot("v0", map[resource.Type][]types.Resource{
+			//resource.EndpointType:        endpoints,
+			resource.ClusterType: clr,
+			//resource.RouteType:           routes,
+			//resource.ScopedRouteType:     scopedRoutes,
+			resource.ListenerType: lsr,
+			//resource.RuntimeType:         runtimes,
+			resource.SecretType: s,
+			//resource.ExtensionConfigType: extensions,
+		})
 
-		snap := cachev3.NewSnapshot(fmt.Sprint(r.version), nil, c, nil, l, nil, s)
 		if err := snap.Consistent(); err != nil {
 			log.Error().Msgf("snapshot inconsistency: %+v\n%+v", snap, err)
 			os.Exit(1)
 		}
-		err = r.snapshotCache.SetSnapshot(nodeId, snap)
+		err = r.snapshotCache.SetSnapshot(r.ctx, nodeId, snap)
 		if err != nil {
 			log.Fatal().Msgf("Could not set snapshot %v", err)
 		}

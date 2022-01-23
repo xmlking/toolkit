@@ -17,6 +17,7 @@ import (
 	envoy_api_v3_auth "github.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
+	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
@@ -257,12 +258,22 @@ func (r *fileRefresher) Start() (err error) {
 		atomic.AddUint32(&r.version, 1)
 		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating snapshot Version " + fmt.Sprint(r.version))
 
-		snap := cachev3.NewSnapshot(fmt.Sprint(r.version), nil, c, nil, l, nil, s)
+		snap, err := cachev3.NewSnapshot("v0", map[resource.Type][]types.Resource{
+			//resource.EndpointType:        endpoints,
+			resource.ClusterType: c,
+			//resource.RouteType:           routes,
+			//resource.ScopedRouteType:     scopedRoutes,
+			resource.ListenerType: l,
+			//resource.RuntimeType:         runtimes,
+			resource.SecretType: s,
+			//resource.ExtensionConfigType: extensions,
+		})
+
 		if err := snap.Consistent(); err != nil {
 			log.Error().Msgf("snapshot inconsistency: %+v\n%+v", snap, err)
 			os.Exit(1)
 		}
-		err = r.snapshotCache.SetSnapshot(nodeId, snap)
+		err = r.snapshotCache.SetSnapshot(r.ctx, nodeId, snap)
 		if err != nil {
 			log.Fatal().Msgf("Could not set snapshot %v", err)
 		}

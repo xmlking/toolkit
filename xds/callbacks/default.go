@@ -55,10 +55,12 @@ func (cb *defaultCallbacks) OnStreamRequest(id int64, r *discoverygrpc.Discovery
 	cb.Requests++
 	return nil
 }
-func (cb *defaultCallbacks) OnStreamResponse(int64, *discoverygrpc.DiscoveryRequest, *discoverygrpc.DiscoveryResponse) {
+
+func (cb *defaultCallbacks) OnStreamResponse(context.Context, int64, *discoverygrpc.DiscoveryRequest, *discoverygrpc.DiscoveryResponse) {
 	log.Info().Msgf("OnStreamResponse...")
 	cb.Report()
 }
+
 func (cb *defaultCallbacks) OnFetchRequest(ctx context.Context, req *discoverygrpc.DiscoveryRequest) error {
 	log.Info().Msgf("OnFetchRequest...")
 	cb.mu.Lock()
