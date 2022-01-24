@@ -1,16 +1,16 @@
 package main
 
 import (
-	"context"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+    "context"
+    "os"
+    "os/signal"
+    "syscall"
+    "time"
 
-	"cloud.google.com/go/pubsub"
-	"github.com/rs/zerolog/log"
-	"github.com/xmlking/toolkit/broker/pubsub"
-	"golang.org/x/sync/errgroup"
+    "github.com/rs/zerolog/log"
+    "github.com/xmlking/toolkit/broker/pubsub"
+    "github.com/xmlking/toolkit/examples/subscribe/sub"
+    "golang.org/x/sync/errgroup"
 )
 
 const (
@@ -26,18 +26,9 @@ func main() {
 
 	broker.DefaultBroker = broker.NewBroker(ctx, broker.ProjectID("my-project-id"))
 
-	myHandler := func(ctx context.Context, msg *pubsub.Message) {
-		//md, _ := metadata.FromContext(ctx)
-		//log.Info().Interface("md", md).Send()
-		log.Info().Interface("event.Message.ID", msg.ID).Send()
-		log.Info().Interface("event.Message.Attributes", msg.Attributes).Send()
-		log.Info().Interface("event.Message.Data", msg.Data).Send()
+    mySub := sub.NewMySub()
 
-		log.Info().Interface("event.Message", msg).Send()
-		msg.Ack() // or msg.Nack()
-	}
-
-	if err := broker.AddSubscriber("toolkit-in-dev", myHandler); err != nil {
+	if err := broker.AddSubscriber("toolkit-in-dev", mySub.Handle); err != nil {
 		log.Fatal().Err(err).Msg("Failed subscribing to Topic: toolkit-in-dev")
 	}
 

@@ -10,11 +10,15 @@ See [Staring PubSub Emulator](../../README.md#PubSub)
 ### Local Run
 
 ```bash
-go run cmd/subscribe/main.go cmd/subscribe/plugin.go
+cd examples/subscribe
+```
+
+```bash
+go run main.go plugin.go
 ```
 
 ### Prod Run
 
 ```bash
-go run cmd/subscribe/main.go
+go run main.go
 ```

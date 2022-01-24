@@ -178,7 +178,7 @@ docker-compose up down
 
 ### Build
 
-```bask
+```bash
 task mod:download
 task go:lint
 task go:format
@@ -186,7 +186,7 @@ task go:format
 
 ### Test
 
-```bask
+```bash
 task go:test
 ```
 
@@ -196,47 +196,51 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
 
 1. Start release
 
-```bask
-git switch develop
-git flow release start vx.y.z
-```
+    ```bask
+    git switch develop
+    git flow release start vx.y.z
+    ```
 
 2. Update files
 
-Update  all **go.mod** files that have reference to `github.com/xmlking/toolkit v0.2.3` -> `github.com/xmlking/toolkit vx.y.z`. e.g., 
+    Update  all **go.mod** files that have reference to `github.com/xmlking/toolkit v0.2.3` -> `github.com/xmlking/toolkit vx.y.z`. e.g., 
 
-```
-broker/cloudevents/go.mod
-cmd/publish/go.mod
-cmd/subscribe/go.mod
-```
+    ```
+    broker/cloudevents/go.mod
+    examples/publish/go.mod
+    examples/subscribe/go.mod
+    ```
 
 3. update deps
-```bask
-task mod:outdated
-# then upgrade recomended versions in each go.mod files
-task mod:sync
-task mod:verify
-```
+
+    ```bask
+    task mod:outdated
+    # then upgrade recomended versions in each go.mod files
+    task mod:sync
+    task mod:verify
+    ```
 
 4. update changelog
-```bask
-git-chglog -c .github/chglog/config.yml -o CHANGELOG.md --next-tag vx.y.z
-```
+
+    ```bask
+    git-chglog -c .github/chglog/config.yml -o CHANGELOG.md --next-tag vx.y.z
+    ```
 
 5. Finish release
-```bask
-git add .
-git commit -m "build(release): update changelog"
-git flow release finish
-git push origin --all && git push origin --tags # alias for gpoat 
-```
+
+    ```bask
+    git add .
+    git commit -m "build(release): update changelog"
+    git flow release finish
+    git push origin --all && git push origin --tags # alias for gpoat 
+    ```
 
 6. Push tags for all modules
-```bask
-git switch main
-task mod:release TAG=vx.y.z
-```
+
+    ```bask
+    git switch main
+    task mod:release TAG=vx.y.z
+    ```
 
 ### Release
 
@@ -244,11 +248,13 @@ task mod:release TAG=vx.y.z
 
 ## 🔗 Credits
 
-https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
-https://github.com/spencer-p/moroncloudevents/tree/master
+- https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
+- https://github.com/spencer-p/moroncloudevents/tree/master
 
 ## Similar Projects
 
 - [Kratos](https://go-kratos.dev/)
     - [Kratos Docs]( https://go-kratos.dev/en/docs/)
     - [Kratos Project Template](https://github.com/go-kratos/kratos-layout)
+- [rookie-ninja](https://github.com/rookie-ninja/rk-boot)
+    - [RK Docs](https://rkdev.info/docs/bootstrapper/concept/)

@@ -2,6 +2,21 @@
 
 ## TODO
  
+---
+### XDS 
+keep k8s resource files here and keep cmd/main.go  in grpc-starter-kit
+https://github.com/stevesloka/envoy-xds-server
+https://www.youtube.com/watch?v=qAuq4cKEG_E
+
+
+https://github.com/tak2siva/Envoy-Pilot
+
+
+https://github.com/salrashid123/envoy_control
+https://github.com/salrashid123/envoy_control/blob/master/src/main.go
+
+---
+
 *** Implement proto errors based on [Kratos Docs]( https://go-kratos.dev/en/docs/) 
 
 WithConfig( interface{})

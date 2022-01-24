@@ -1,27 +1,27 @@
 package metrics
 
 import (
-    "context"
-    "net"
-    "net/http"
-    "os"
-    "sync"
+	"context"
+	"net"
+	"net/http"
+	"os"
+	"sync"
 
-    cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
-    goprom "github.com/prometheus/client_golang/prometheus"
-    "github.com/rs/zerolog/log"
-    "github.com/xmlking/toolkit/telemetry"
-    "go.opentelemetry.io/otel"
-    "go.opentelemetry.io/otel/exporters/prometheus"
-    "go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
-    "go.opentelemetry.io/otel/metric/global"
-    "go.opentelemetry.io/otel/propagation"
-    export "go.opentelemetry.io/otel/sdk/export/metric"
-    "go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
-    controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
-    processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
-    "go.opentelemetry.io/otel/sdk/metric/selector/simple"
-    "go.opentelemetry.io/otel/sdk/resource"
+	cloudmetric "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
+	goprom "github.com/prometheus/client_golang/prometheus"
+	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/telemetry"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
+	"go.opentelemetry.io/otel/metric/global"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
+	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
+	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
+	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
+	"go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	"go.opentelemetry.io/otel/sdk/resource"
 )
 
 var (
@@ -39,7 +39,7 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 		resources, err := resource.New(ctx,
 			// Builtin detectors provide default values and support
 			// OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME environment variables
-			resource.WithProcess(),                                  // This option configures a set of Detectors that discover process information
+			resource.WithProcess(), // This option configures a set of Detectors that discover process information
 			// resource.WithAttributes(attribute.String("foo", "bar")), // Or specify resource attributes directly
 		)
 		if err != nil {
@@ -67,11 +67,11 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			}
 
 			pController := controller.New(
-				processor.New(
+				processor.NewFactory(
 					simple.NewWithHistogramDistribution(
 						histogram.WithExplicitBoundaries(pConfig.DefaultHistogramBoundaries),
 					),
-					export.CumulativeExportKindSelector(),
+					aggregation.CumulativeTemporalitySelector(),
 					processor.WithMemory(true),
 				),
 				controller.WithCollectPeriod(cfg.CollectPeriod),
@@ -104,20 +104,20 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 			log.Info().Msgf("Prometheus exporter running at: %s\n", listener.Addr())
 
 		case telemetry.STDOUT:
-			opts := []stdoutmetric.Option{
-				stdoutmetric.WithPrettyPrint(),
-			}
-			var metricExporter *stdoutmetric.Exporter
-			metricExporter, err = stdoutmetric.New(opts...)
+			exporter, err := stdoutmetric.New(stdoutmetric.WithPrettyPrint())
 			if err != nil {
 				log.Fatal().Stack().Err(err).Msg("failed to initialize metrics exporter")
 			}
+			println(exporter)
+
+			proc := processor.NewFactory(
+				simple.NewWithInexpensiveDistribution(),
+				exporter,
+			)
+
 			cont = controller.New(
-				processor.New(
-					simple.NewWithExactDistribution(),
-					metricExporter,
-				),
-				controller.WithExporter(metricExporter),
+				proc,
+				controller.WithExporter(exporter),
 				controller.WithCollectPeriod(cfg.CollectPeriod),
 				controller.WithResource(resources),
 			)
@@ -131,7 +131,7 @@ func InitMetrics(ctx context.Context, cfg *telemetry.MetricsConfig) func() {
 		}
 
 		// Registers metrics Provider globally.
-		global.SetMeterProvider(cont.MeterProvider())
+		global.SetMeterProvider(cont)
 		propagator := propagation.NewCompositeTextMapPropagator(propagation.Baggage{}, propagation.TraceContext{})
 		otel.SetTextMapPropagator(propagator)
 	})
