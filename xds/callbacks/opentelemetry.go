@@ -83,7 +83,7 @@ func (cb *otelCallbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest)
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.reqCounter.Add(context.Background(), 1)
-	log.Debug().Msgf("Callback: Stream Request", d)
+	log.Debug().Msgf("Callback: Stream Request %v", d)
 	return nil
 }
 
@@ -92,7 +92,7 @@ func (cb *otelCallbacks) OnStreamResponse(ctx context.Context, a int64, req *dis
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 	cb.resCounter.Add(context.Background(), 1)
-	log.Debug().Msgf("Callback: Stream Response", d)
+	log.Debug().Msgf("Callback: Stream Response: %v", d)
 }
 
 // OnFetchRequest Marker Impl: No expecting Rest Client

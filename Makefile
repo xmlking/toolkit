@@ -34,11 +34,9 @@ override TYPES:= service
 TARGET = $(word 1,$(subst -, ,$*))
 
 override VERSION_PACKAGE = $(shell go list ./internal/config)
-BUILD_FLAGS = $(shell govvv -flags -version $(VERSION) -pkg $(VERSION_PACKAGE))
 
 # $(warning TYPES = $(TYPE), TARGET = $(TARGET))
 # $(warning VERSION = $(VERSION), HAS_GOVVV = $(HAS_GOVVV), HAS_KO = $(HAS_KO))
-# $(warning VERSION_PACKAGE = $(VERSION_PACKAGE), BUILD_FLAGS = $(BUILD_FLAGS))
 
 .PHONY: all tools check_dirty sync
 .PHONY: lint lint-% outdated
