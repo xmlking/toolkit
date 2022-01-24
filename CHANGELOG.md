@@ -14,13 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Build
 - **cleanup:** remove unused file
 - **deps:** updated deps
-- **deps:** updated deps
-- **deps:** updated deps
 - **deps:** updated to golang 1.17 and deps
+- **deps:** updated deps
+- **deps:** updated deps
 - **deps:** updated deps
 - **deps:** updated deps
 - **deps:** deps updated
 - **makefile:** polish makefile
+- **mod:** updated command to go mod tidy -compat=1.17
+- **mod:** fix go mod
+- **release:** update changelog
 
 ### Feat
 - **xds:** adding SDK to bootstrap xDS server

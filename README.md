@@ -242,10 +242,6 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
     task mod:release TAG=vx.y.z
     ```
 
-### Release
-
-
-
 ## 🔗 Credits
 
 - https://github.com/infobloxopen/atlas-app-toolkit/tree/master/server
