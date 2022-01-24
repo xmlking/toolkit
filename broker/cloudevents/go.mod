@@ -2,8 +2,6 @@ module github.com/xmlking/toolkit/broker/cloudevents
 
 go 1.17
 
-replace github.com/xmlking/toolkit => ../..
-
 require (
 	github.com/cloudevents/sdk-go/v2 v2.8.0
 	github.com/rs/zerolog v1.26.1

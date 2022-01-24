@@ -2,10 +2,6 @@ module github.com/xmlking/toolkit/examples/subscribe
 
 go 1.17
 
-replace github.com/xmlking/toolkit/broker/pubsub => ../../broker/pubsub
-
-replace github.com/xmlking/toolkit => ../..
-
 require (
 	cloud.google.com/go/pubsub v1.13.0
 	github.com/cockroachdb/errors v1.8.6
