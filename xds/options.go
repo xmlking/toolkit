@@ -10,7 +10,9 @@ type Option func(*Options)
 type Options struct {
 	SourceType      string
 	RefreshInterval time.Duration
+	NodeID          string
 	Namespace       string
+	Hostnames       []string
 	// FileSystem to load config files from. default: os.DirFS(".")
 	FileSys fs.FS
 }
@@ -33,6 +35,13 @@ func WithRefreshInterval(interval time.Duration) Option {
 	}
 }
 
+// WithNodeID set NodeID in UUID format which should math to xDS Bootstrap file
+func WithNodeID(nodeID string) Option {
+	return func(o *Options) {
+		o.NodeID = nodeID
+	}
+}
+
 // *** for file source *** //
 
 // WithFS enables use custom FileSystem to load config files. e.g., embed.FS
@@ -46,8 +55,15 @@ func WithFS(fs fs.FS) Option {
 // *** for kubernetes source *** //
 
 // WithNamespace : kubernetes namespace to monitor for endpoints
-func WithNamespace(n string) Option {
+func WithNamespace(namespace string) Option {
 	return func(o *Options) {
-		o.SourceType = n
+		o.Namespace = namespace
+	}
+}
+
+// WithHostnames : kubernetes namespace to monitor for endpoints
+func WithHostnames(hostnames []string) Option {
+	return func(o *Options) {
+		o.Hostnames = hostnames
 	}
 }

@@ -192,7 +192,7 @@ task go:test
 
 ### Release
 
-Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
+Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 1. Start release
 
@@ -240,6 +240,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
     ```bask
     git switch main
     task mod:release TAG=vx.y.z
+    git pull --all
     ```
 
 ## 🔗 Credits
