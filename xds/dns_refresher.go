@@ -76,6 +76,7 @@ func (d *dnsRefresher) GetCache() cache.Cache {
 }
 
 func (d *dnsRefresher) Start() (err error) {
+	ticker := time.NewTicker(d.refreshInterval)
 	for {
 		select {
 		case <-d.ctx.Done():
@@ -88,7 +89,7 @@ func (d *dnsRefresher) Start() (err error) {
 			}
 			log.Info().Str("component", "xds").Msg("Stopping dnsRefresher...")
 			return
-		default:
+		case <-ticker.C:
 			if dnsEndpoints, err2 := d.getEndpoints(); err2 == nil {
 				// TODO check if dnsEndpoints changed, skip next steps if not changed.
 				version := uuid.New().String()
@@ -118,7 +119,6 @@ func (d *dnsRefresher) Start() (err error) {
 					d.errors.Add(d.ctx, 1)
 				}
 			}
-			time.Sleep(d.refreshInterval)
 		}
 	}
 }
