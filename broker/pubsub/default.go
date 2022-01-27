@@ -172,7 +172,7 @@ func (b *pubsubBroker) AddSubscriber(subscription string, hdlr Handler, opts ...
 	return nil
 }
 
-// Start blocking. run as background process.
+// Start is blocking. run as background process.
 func (b *pubsubBroker) Start() (err error) {
 	ctx := b.options.Context
 	g, egCtx := errgroup.WithContext(ctx)
