@@ -12,6 +12,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/xds/api"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/unit"
@@ -32,9 +33,9 @@ type dnsRefresher struct {
 	mu        sync.Mutex
 }
 
-var _ Refresher = (*dnsRefresher)(nil)
+var _ api.Refresher = (*dnsRefresher)(nil)
 
-func NewDNSRefresher(ctx context.Context, refreshInterval time.Duration, nodeID string, hostnames []string, snapshotCache cache.SnapshotCache) Refresher {
+func NewDNSRefresher(ctx context.Context, refreshInterval time.Duration, nodeID string, hostnames []string, snapshotCache cache.SnapshotCache) api.Refresher {
 	meter := global.Meter("otel-k8s-refresher")
 	dns := &dnsRefresher{
 		ctx:             ctx,
@@ -74,7 +75,7 @@ func (d *dnsRefresher) GetCache() cache.Cache {
 	return d.snapshotCache
 }
 
-func (d *dnsRefresher) Start() error {
+func (d *dnsRefresher) Start() (err error) {
 	for {
 		select {
 		case <-d.ctx.Done():
@@ -86,25 +87,26 @@ func (d *dnsRefresher) Start() error {
 				log.Debug().Str("component", "xds").Msg("Context cancelled by interrupt signal")
 			}
 			log.Info().Str("component", "xds").Msg("Stopping dnsRefresher...")
-			return nil
+			return
 		default:
-			if dnsEndpoints, err := d.getEndpoints(); err == nil {
+			if dnsEndpoints, err2 := d.getEndpoints(); err2 == nil {
 				// TODO check if dnsEndpoints changed, skip next steps if not changed.
 				version := uuid.New().String()
 				endpoints := dnsEndpointsToResources(dnsEndpoints)
 
-				snapshot, err := cache.NewSnapshot(version, ResourcesToMap(endpoints))
+				var snapshot cache.Snapshot
+				snapshot, err = cache.NewSnapshot(version, api.ResourcesToMap(endpoints))
 				if err != nil {
 					log.Error().Err(err).Str("component", "xds").Msg("Failed to create New Snapshot")
-					return err
+					return
 				}
-				if err := snapshot.Consistent(); err != nil {
+				if err = snapshot.Consistent(); err != nil {
 					log.Error().Err(err).Str("component", "xds").Msg("Snapshot inconsistent")
-					return err
+					return
 				}
-				if err := d.snapshotCache.SetSnapshot(d.ctx, d.nodeID, snapshot); err != nil {
+				if err = d.snapshotCache.SetSnapshot(d.ctx, d.nodeID, snapshot); err != nil {
 					log.Error().Err(err).Str("component", "xds").Msg("Failed to Set Snapshot to cache")
-					return err
+					return
 				} else {
 					if d.telemetry {
 						d.snapshots.Add(d.ctx, 1)
@@ -123,16 +125,12 @@ func (d *dnsRefresher) Start() error {
 
 // getEndpoints returns a slice of that host's IP addresses for each host
 func (d *dnsRefresher) getEndpoints() (endpoints map[string][]string, err error) {
+	endpoints = make(map[string][]string)
 	for _, host := range d.hostnames {
-		d.mu.Lock()
-		defer d.mu.Unlock()
-		var netResolver = net.DefaultResolver
 		var addrs []string
-		if addrs, err = netResolver.LookupHost(context.Background(), host); err != nil {
-			log.Debug().Str("component", "xds").
-				Str("hostname", host).
-				Strs("addresses", addrs).
-				Msg("DNS resolved")
+		if addrs, err = d.getAddresses(host); err == nil {
+			log.Debug().Str("component", "xds").Str("hostname", host).
+				Strs("addresses", addrs).Msg("DNS resolved")
 			endpoints[host] = addrs
 		} else {
 			log.Error().Err(err).Str("component", "xds").
@@ -140,6 +138,13 @@ func (d *dnsRefresher) getEndpoints() (endpoints map[string][]string, err error)
 		}
 	}
 	return
+}
+
+func (d *dnsRefresher) getAddresses(hostname string) (addrs []string, err error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	var netResolver = net.DefaultResolver
+	return netResolver.LookupHost(context.Background(), hostname)
 }
 
 func dnsEndpointsToResources(endpoints map[string][]string) (out []types.Resource) {

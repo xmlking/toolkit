@@ -21,6 +21,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/xds/api"
 )
 
 // refresher struct
@@ -33,7 +34,7 @@ type fileRefresher struct {
 	snapshotCache   cachev3.SnapshotCache
 }
 
-var _ Refresher = (*fileRefresher)(nil)
+var _ api.Refresher = (*fileRefresher)(nil)
 
 func (r *fileRefresher) GetCache() cachev3.Cache {
 	return r.snapshotCache
@@ -60,7 +61,7 @@ func (r *fileRefresher) Start() (err error) {
 		uctx := &envoy_api_v3_auth.UpstreamTlsContext{}
 		tctx, err := ptypes.MarshalAny(uctx)
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		c := []types.Resource{
@@ -140,16 +141,16 @@ func (r *fileRefresher) Start() (err error) {
 
 		pbst, err := ptypes.MarshalAny(manager)
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		priv, err := fs.ReadFile(r.fs, "config/certs/upstream-localhost-key.pem")
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 		pub, err := fs.ReadFile(r.fs, "config/certs/upstream-localhost-cert.pem")
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		// use the following imports
@@ -201,7 +202,7 @@ func (r *fileRefresher) Start() (err error) {
 
 		scfg, err := ptypes.MarshalAny(sdsTls)
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		var l = []types.Resource{
@@ -274,7 +275,7 @@ func (r *fileRefresher) Start() (err error) {
 		}
 		err = r.snapshotCache.SetSnapshot(r.ctx, r.nodeID, snap)
 		if err != nil {
-			log.Fatal().Str("component", "xds").Msgf("Could not set snapshot %v", err)
+			log.Fatal().Stack().Err(err).Str("component", "xds").Msg("Could not set snapshot")
 		}
 
 		time.Sleep(10 * time.Second)

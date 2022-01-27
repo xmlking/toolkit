@@ -8,7 +8,7 @@ import (
 type Option func(*Options)
 
 type Options struct {
-	SourceType      string
+	//SourceType      string
 	RefreshInterval time.Duration
 	NodeID          string
 	Namespace       string
@@ -18,11 +18,11 @@ type Options struct {
 }
 
 // SourceType Type of the endpoints source
-func SourceType(t string) Option {
-	return func(o *Options) {
-		o.SourceType = t
-	}
-}
+//func SourceType(t string) Option {
+//	return func(o *Options) {
+//		o.SourceType = t
+//	}
+//}
 
 // WithRefreshInterval specifies the interval to poll Source for endpoints updates. default = 0, means: never refresh
 func WithRefreshInterval(interval time.Duration) Option {

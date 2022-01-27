@@ -16,9 +16,11 @@ type Configuration struct {
 	SourceType           string        `yaml:"source_type,omitempty" validate:"oneof=dns kubernetes file static" default:"static"`
 	NodeID               string        `yaml:"node_id,omitempty" validate:"required,uuid"`
 	RefreshInterval      time.Duration `yaml:"refresh_interval,omitempty" validate:"omitempty,min=0s,max=1h" default:"30s"`
-	// Namespace to monitor when SourceType = kubernetes. default:"" means all namespaces
-	Namespace string `yaml:"namespace,omitempty" validate:"omitempty,alphanum" default:""`
-	DNS       struct {
-		Hostnames []string `yaml:"hostnames" validate:"omitempty,dive,alphanum"`
+	Kubernetes           struct {
+		// Namespace to monitor when SourceType = kubernetes. default:"" means all namespaces
+		Namespace string `yaml:"namespace,omitempty" validate:"omitempty,ascii" default:""`
+	} ` yaml:"kubernetes,omitempty" validate:"omitempty"`
+	DNS struct {
+		Hostnames []string `yaml:"hostnames" validate:"omitempty,dive,hostname"`
 	} `yaml:"dns,omitempty" validate:"omitempty"`
 }

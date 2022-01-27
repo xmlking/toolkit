@@ -9,7 +9,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/cache/types"
 	cachev3 "github.com/envoyproxy/go-control-plane/pkg/cache/v3"
 	"github.com/rs/zerolog/log"
-	"github.com/xmlking/toolkit/xds"
+	"github.com/xmlking/toolkit/xds/api"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,17 +38,20 @@ func (k *kubeRefresher) startEndpoints(ctx context.Context) error {
 		endpoints := kubeEndpointsToResources(sliceToEndpoints(store.List()))
 		version := reflector.LastSyncResourceVersion()
 
-		snapshot, err := cachev3.NewSnapshot(version, xds.ResourcesToMap(endpoints))
+		snapshot, err := cachev3.NewSnapshot(version, api.ResourcesToMap(endpoints))
 		if err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Msg("Failed to create New Snapshot")
+			log.Fatal().Stack().Err(err).Str("component", "xds").Msg("Failed to create New Snapshot")
 		}
 
 		if err := snapshot.Consistent(); err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Msg("Snapshot inconsistent")
+			println(api.DebugSnapshot(&snapshot))
+			log.Fatal().Stack().Err(err).
+				Interface("snapshot", snapshot).
+				Str("component", "xds").Msg("Snapshot inconsistent")
 		}
 
 		if err := k.endpointsCache.SetSnapshot(ctx, k.nodeID, snapshot); err != nil {
-			log.Fatal().Err(err).Str("component", "xds").Msg("Failed to Set Snapshot to cache")
+			log.Fatal().Stack().Err(err).Str("component", "xds").Msg("Failed to Set Snapshot to cache")
 		} else {
 			if k.telemetry {
 				k.snapshots.Add(ctx, 1)

@@ -1,4 +1,4 @@
-package xds
+package api
 
 import (
 	"strings"

@@ -8,7 +8,7 @@ import (
 	xlog "github.com/envoyproxy/go-control-plane/pkg/log"
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v3"
 	"github.com/rs/zerolog/log"
-	"github.com/xmlking/toolkit/xds"
+	"github.com/xmlking/toolkit/xds/api"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/unit"
@@ -33,7 +33,7 @@ type kubeRefresher struct {
 	errors    metric.Int64Counter
 }
 
-var _ xds.Refresher = (*kubeRefresher)(nil)
+var _ api.Refresher = (*kubeRefresher)(nil)
 
 func mapTypeURL(typeURL string) string {
 	switch typeURL {
@@ -46,16 +46,16 @@ func mapTypeURL(typeURL string) string {
 	}
 }
 
-func NewkubeRefresher(ctx context.Context, refreshInterval time.Duration, nodeID string, namespace string, logger xlog.Logger) xds.Refresher {
+func NewKubeRefresher(ctx context.Context, refreshInterval time.Duration, nodeID string, namespace string, logger xlog.Logger) api.Refresher {
 	meter := global.Meter("otel-dns-refresher")
 
 	clientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(clientcmd.NewDefaultClientConfigLoadingRules(), nil).ClientConfig()
 	if err != nil {
-		log.Fatal().Err(err).Str("component", "xds").Msg("Fail to create Kubernetes client config")
+		log.Fatal().Stack().Err(err).Str("component", "xds").Msg("Fail to create Kubernetes client config")
 	}
 	k8sClient, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
-		log.Fatal().Err(err).Str("component", "xds").Msg("Fail to create Kubernetes client")
+		log.Fatal().Stack().Err(err).Str("component", "xds").Msg("Fail to create Kubernetes client")
 	}
 
 	servicesCache := cache.NewSnapshotCache(false, cache.IDHash{}, logger)
