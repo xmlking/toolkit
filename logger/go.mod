@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/cockroachdb/errors v1.8.6
 	github.com/rs/zerolog v1.26.1
-	google.golang.org/grpc v1.43.0
+	google.golang.org/grpc v1.45.0
 )
 
 require (
