@@ -1,0 +1,14 @@
+go 1.18
+
+use (
+	.
+	./broker/cloudevents
+	./broker/pubsub
+	./confy
+	./examples/emulator
+	./examples/publish
+	./examples/subscribe
+	./logger
+	./telemetry
+	./xds
+)
