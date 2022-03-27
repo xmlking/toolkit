@@ -179,7 +179,7 @@ docker-compose up down
 ### Build
 
 ```bash
-task mod:download
+task mod:sync
 task go:lint
 task go:format
 ```

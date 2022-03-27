@@ -72,7 +72,7 @@ sync:
 	    echo delete and sync $$d; \
 	    rm -f go.sum; \
 	    go mod download; \
-	    go mod tidy -compat=1.17; \
+	    go mod tidy -compat=1.18; \
 		popd >/dev/null; \
 	done
 
@@ -82,7 +82,7 @@ verify:
 		pushd `dirname $$d` >/dev/null; \
 		echo verifying $$d; \
 		go mod verify; \
-		go mod tidy -compat=1.17; \
+		go mod tidy -compat=1.18; \
 		popd >/dev/null; \
 	done
 

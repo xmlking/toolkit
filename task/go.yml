@@ -13,7 +13,7 @@ vars:
   VERSION:
     sh: git rev-parse --short HEAD
   GO_PACKAGES:
-    sh: go mod tidy -compat=1.17 && go list ./...
+    sh: go mod tidy -compat=1.18 && go list ./...
   TIMEOUT: 60s
   CODECOV_FILE: build/coverage.txt
 
