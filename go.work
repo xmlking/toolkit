@@ -12,3 +12,8 @@ use (
 	./telemetry
 	./xds
 )
+replace (
+    github.com/xmlking/toolkit v0.2.5 => ./
+    github.com/xmlking/toolkit/broker/pubsub v0.2.5  => ./broker/pubsub
+    github.com/xmlking/toolkit/broker/cloudevents  v0.2.5  => ./broker/cloudevents
+)

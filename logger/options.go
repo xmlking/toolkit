@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Log format enum.
+// Format format enum.
 type Format string
 
 const (
