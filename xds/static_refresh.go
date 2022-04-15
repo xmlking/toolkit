@@ -21,6 +21,7 @@ import (
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/rs/zerolog/log"
+	"github.com/xmlking/toolkit/xds/api"
 )
 
 const localhost = "127.0.0.1"
@@ -31,14 +32,15 @@ var strSlice = [...]string{"www.bbc.com", "www.yahoo.com", "blog.salrashid.me"}
 type staticRefresher struct {
 	version         uint32
 	refreshInterval time.Duration
+	nodeID          string
 	fs              fs.FS
 	ctx             context.Context
 	snapshotCache   cachev3.SnapshotCache
 }
 
-var _ Refresher = (*fileRefresher)(nil)
+var _ api.Refresher = (*fileRefresher)(nil)
 
-func (r *staticRefresher) GetSnapshotCache() cachev3.SnapshotCache {
+func (r *staticRefresher) GetCache() cachev3.Cache {
 	return r.snapshotCache
 }
 
@@ -54,14 +56,12 @@ func (r *staticRefresher) Start() (err error) {
 	//}
 
 	for id, v := range strSlice {
-		log.Debug().Msgf("resource(%d): %s", id, v)
-
-		nodeId := "25386353-c3e2-42f5-ad65-2b003c3386f5" //r.snapshotCache.GetStatusKeys()[0]
+		log.Debug().Str("component", "xds").Msgf("resource(%d): %s", id, v)
 
 		var clusterName = "service_bbc"
 		var remoteHost = v
 
-		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating cluster, remoteHost, nodeID %s,  %s, %s", clusterName, v, nodeId)
+		log.Info().Str("component", "xds").Msgf(">>>>>>>>>>>>>>>>>>> creating cluster, remoteHost, nodeID %s,  %s, %s", clusterName, v, r.nodeID)
 
 		hst := &core.Address{Address: &core.Address_SocketAddress{
 			SocketAddress: &core.SocketAddress{
@@ -75,7 +75,7 @@ func (r *staticRefresher) Start() (err error) {
 		uctx := &envoy_api_v3_auth.UpstreamTlsContext{}
 		tctx, err := ptypes.MarshalAny(uctx)
 		if err != nil {
-			log.Fatal().Err(err).Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		clr := []types.Resource{
@@ -114,7 +114,7 @@ func (r *staticRefresher) Start() (err error) {
 		var virtualHostName = "local_service"
 		var routeConfigName = "local_route"
 
-		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating listener " + listenerName)
+		log.Info().Str("component", "xds").Msgf(">>>>>>>>>>>>>>>>>>> creating listener " + listenerName)
 
 		rte := &route.RouteConfiguration{
 			Name: routeConfigName,
@@ -155,16 +155,16 @@ func (r *staticRefresher) Start() (err error) {
 
 		pbst, err := ptypes.MarshalAny(manager)
 		if err != nil {
-			log.Fatal().Err(err).Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		priv, err := fs.ReadFile(r.fs, "config/certs/upstream-localhost-key.pem")
 		if err != nil {
-			log.Fatal().Err(err).Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 		pub, err := fs.ReadFile(r.fs, "config/certs/upstream-localhost-cert.pem")
 		if err != nil {
-			log.Fatal().Err(err).Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		// use the following imports
@@ -216,7 +216,7 @@ func (r *staticRefresher) Start() (err error) {
 
 		scfg, err := ptypes.MarshalAny(sdsTls)
 		if err != nil {
-			log.Fatal().Err(err).Send()
+			log.Fatal().Stack().Err(err).Str("component", "xds").Send()
 		}
 
 		var lsr = []types.Resource{
@@ -251,7 +251,7 @@ func (r *staticRefresher) Start() (err error) {
 
 		var secretName = "server_cert"
 
-		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating Secret " + secretName)
+		log.Info().Str("component", "xds").Msgf(">>>>>>>>>>>>>>>>>>> creating Secret " + secretName)
 		var s = []types.Resource{
 			&envoy_api_v3_auth.Secret{
 				Name: secretName,
@@ -270,7 +270,7 @@ func (r *staticRefresher) Start() (err error) {
 
 		// =================================================================================
 		atomic.AddUint32(&r.version, 1)
-		log.Info().Msgf(">>>>>>>>>>>>>>>>>>> creating snapshot Version " + fmt.Sprint(r.version))
+		log.Info().Str("component", "xds").Msgf(">>>>>>>>>>>>>>>>>>> creating snapshot Version " + fmt.Sprint(r.version))
 		snap, err := cachev3.NewSnapshot("v0", map[resource.Type][]types.Resource{
 			//resource.EndpointType:        endpoints,
 			resource.ClusterType: clr,
@@ -283,12 +283,12 @@ func (r *staticRefresher) Start() (err error) {
 		})
 
 		if err := snap.Consistent(); err != nil {
-			log.Error().Msgf("snapshot inconsistency: %+v\n%+v", snap, err)
+			log.Error().Str("component", "xds").Msgf("snapshot inconsistency: %+v\n%+v", snap, err)
 			os.Exit(1)
 		}
-		err = r.snapshotCache.SetSnapshot(r.ctx, nodeId, snap)
+		err = r.snapshotCache.SetSnapshot(r.ctx, r.nodeID, snap)
 		if err != nil {
-			log.Fatal().Msgf("Could not set snapshot %v", err)
+			log.Fatal().Stack().Err(err).Str("component", "xds").Msgf("Could not set snapshot")
 		}
 
 		// time.Sleep(10 * time.Second)

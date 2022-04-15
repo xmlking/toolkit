@@ -5,117 +5,108 @@ import (
 	"sync"
 
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
-	serverv3 "github.com/envoyproxy/go-control-plane/pkg/server/v3"
+	"github.com/envoyproxy/go-control-plane/pkg/server/v3"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/metric/unit"
 )
 
-const libraryName = "xds_controller"
-
-// go-control-plane defines standard interface for  callback mechanism, which can be used to record and expose metrics out of the xDS requests.
-// GRPC SoTW (State of The World) part of XDS server functions below.. (Rest functions are not implemented)
-
 type otelCallbacks struct {
-	//Stream counters
-	activeGauge metric.Int64UpDownCounter
-	reqCounter  metric.Int64Counter
-	resCounter  metric.Int64Counter
-	// mux for incrementing counters
-	mu sync.Mutex
+	connectedClients metric.Int64UpDownCounter
+	requestsTotal    metric.Int64Counter
+	responsesTotal   metric.Int64Counter
+	mu               sync.Mutex
 }
 
-var _ serverv3.Callbacks = (*otelCallbacks)(nil)
+var _ server.Callbacks = (*otelCallbacks)(nil)
 
-func NewOTelCallbacks() (cb serverv3.Callbacks, err error) {
-	cbo := &otelCallbacks{}
-	meter := global.Meter("otel-xds-controller")
-
-	if cbo.activeGauge, err = meter.NewInt64UpDownCounter(
-		"active_streams",
-		metric.WithDescription("Active grpc streams to xds-controller"),
-		metric.WithUnit(unit.Dimensionless),
-	); err != nil {
-		return
+func NewOTelCallbacks() server.Callbacks {
+	meter := global.Meter("otel-xds-server")
+	return &otelCallbacks{
+		connectedClients: metric.Must(meter).NewInt64UpDownCounter(
+			"connected_clients",
+			metric.WithDescription("Number of clients currently connected to the xds-server"),
+			metric.WithUnit(unit.Dimensionless),
+		),
+		requestsTotal: metric.Must(meter).NewInt64Counter(
+			"requests_total",
+			metric.WithDescription("Number of requests from clients to the xds-server"),
+			metric.WithUnit(unit.Dimensionless),
+		),
+		responsesTotal: metric.Must(meter).NewInt64Counter(
+			"responses_total",
+			metric.WithDescription("Number of responses sent to clients by the xds-server"),
+			metric.WithUnit(unit.Dimensionless),
+		),
 	}
-
-	if cbo.reqCounter, err = meter.NewInt64Counter(
-		"stream_requests",
-		metric.WithDescription("No.of requests via grpc streams to xds-controller"),
-		metric.WithUnit(unit.Dimensionless),
-	); err != nil {
-		return
-	}
-
-	if cbo.resCounter, err = meter.NewInt64Counter(
-		"stream_responses",
-		metric.WithDescription("No.of Responses sent to clients by  xds-controller"),
-		metric.WithUnit(unit.Dimensionless),
-	); err != nil {
-		return
-	}
-
-	return cbo, err
 }
 
-// OnStreamOpen is called once an xDS stream is open with a stream ID and the type URL (or "" for ADS).
-// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
-func (cb *otelCallbacks) OnStreamOpen(ctx context.Context, id int64, typ string) error {
+func (cb *otelCallbacks) OnStreamOpen(ctx context.Context, streamID int64, typeURL string) error {
+	// TODO: Implement Auth ? metadata, ok := metadata.FromIncomingContext(ctx);  metadata[credentialTokenHeaderKey];
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	(cb.activeGauge).Add(ctx, 1)
-	log.Debug().Msgf("Callback: Stream open for  id: %d open for type: %s", id, typ)
+	cb.connectedClients.Add(ctx, 1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).Str("type", typeURL).Msg("StreamOpen")
 	return nil
 }
 
-// OnStreamClosed is called immediately prior to closing an xDS stream with a stream ID.
-func (cb *otelCallbacks) OnStreamClosed(id int64) {
+func (cb *otelCallbacks) OnStreamClosed(streamID int64) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.activeGauge.Add(context.Background(), -1)
-	log.Debug().Msgf("Callback: Stream Closed for  id: %d", id)
+	cb.connectedClients.Add(context.Background(), -1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).Msg("StreamClosed")
 }
 
-// OnStreamRequest is called once a request is received on a stream.
-// Returning an error will end processing and close the stream. OnStreamClosed will still be called.
-func (cb *otelCallbacks) OnStreamRequest(a int64, d *discovery.DiscoveryRequest) error {
+func (cb *otelCallbacks) OnDeltaStreamOpen(ctx context.Context, streamID int64, typeURL string) error {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.reqCounter.Add(context.Background(), 1)
-	log.Debug().Msgf("Callback: Stream Request %v", d)
+	cb.connectedClients.Add(ctx, 1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).Str("type", typeURL).Msg("DeltaStreamOpen")
 	return nil
 }
 
-// OnStreamResponse is called immediately prior to sending a response on a stream.
-func (cb *otelCallbacks) OnStreamResponse(ctx context.Context, a int64, req *discovery.DiscoveryRequest, d *discovery.DiscoveryResponse) {
+func (cb *otelCallbacks) OnDeltaStreamClosed(streamID int64) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
-	cb.resCounter.Add(context.Background(), 1)
-	log.Debug().Msgf("Callback: Stream Response: %v", d)
+	cb.connectedClients.Add(context.Background(), -1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).Msg("DeltaStreamClosed")
 }
 
-// OnFetchRequest Marker Impl: No expecting Rest Client
+func (cb *otelCallbacks) OnStreamRequest(streamID int64, req *discovery.DiscoveryRequest) error {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	cb.requestsTotal.Add(context.Background(), 1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).
+		Interface("request", req).Msg("StreamRequest")
+	return nil
+}
+
+func (cb *otelCallbacks) OnStreamResponse(ctx context.Context, streamID int64, req *discovery.DiscoveryRequest, resp *discovery.DiscoveryResponse) {
+	cb.mu.Lock()
+	defer cb.mu.Unlock()
+	cb.responsesTotal.Add(context.Background(), 1)
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).
+		Interface("request", req).Interface("response", resp).Msg("StreamResponse")
+}
+
+func (cb *otelCallbacks) OnStreamDeltaRequest(streamID int64, req *discovery.DeltaDiscoveryRequest) error {
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).
+		Interface("request", req).Msg("StreamDeltaRequest")
+	return nil
+}
+
+func (cb *otelCallbacks) OnStreamDeltaResponse(streamID int64, req *discovery.DeltaDiscoveryRequest, resp *discovery.DeltaDiscoveryResponse) {
+	log.Debug().Str("component", "xds").Int64("streamID", streamID).
+		Interface("request", req).Interface("response", resp).Msg("StreamDeltaResponse")
+}
+
 func (cb *otelCallbacks) OnFetchRequest(ctx context.Context, req *discovery.DiscoveryRequest) error {
+	log.Debug().Str("component", "xds").Interface("request", req).Msg("FetchRequest")
 	return nil
 }
 
-// OnFetchResponse Marker Impl: No expecting Rest Client
 func (cb *otelCallbacks) OnFetchResponse(req *discovery.DiscoveryRequest, resp *discovery.DiscoveryResponse) {
-}
-
-func (cb *otelCallbacks) OnDeltaStreamOpen(ctx context.Context, i int64, s string) error {
-	panic("implement me")
-}
-
-func (cb *otelCallbacks) OnDeltaStreamClosed(i int64) {
-	panic("implement me")
-}
-
-func (cb *otelCallbacks) OnStreamDeltaRequest(i int64, request *discovery.DeltaDiscoveryRequest) error {
-	panic("implement me")
-}
-
-func (cb *otelCallbacks) OnStreamDeltaResponse(i int64, request *discovery.DeltaDiscoveryRequest, response *discovery.DeltaDiscoveryResponse) {
-	panic("implement me")
+	log.Debug().Str("component", "xds").Interface("request", req).
+		Interface("response", resp).Msg("FetchResponse")
 }

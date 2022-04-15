@@ -179,7 +179,7 @@ docker-compose up down
 ### Build
 
 ```bash
-task mod:download
+task mod:sync
 task go:lint
 task go:format
 ```
@@ -192,7 +192,7 @@ task go:test
 
 ### Release
 
-Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
+Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 1. Start release
 
@@ -203,7 +203,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
 
 2. Update files
 
-    Update  all **go.mod** files that have reference to `github.com/xmlking/toolkit v0.2.3` -> `github.com/xmlking/toolkit vx.y.z`. e.g., 
+    Update  all **go.mod** files that have reference to `github.com/xmlking/toolkit v0.2.5` -> `github.com/xmlking/toolkit vx.y.z`. e.g., 
 
     ```
     broker/cloudevents/go.mod
@@ -240,6 +240,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.3**
     ```bask
     git switch main
     task mod:release TAG=vx.y.z
+    git pull --all
     ```
 
 ## 🔗 Credits

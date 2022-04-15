@@ -83,13 +83,13 @@ func (b *ceBroker) AddSubscriber(subscription string, hdlr Handler, opts ...Subs
 
 func (b *ceBroker) Start() error {
 	ctx := b.options.Context
-	g, ctxx := errgroup.WithContext(ctx)
+	g, egCtx := errgroup.WithContext(ctx)
 
 	// start subscribers in the background.
 	// when context cancelled, they exit without error.
 	for _, sub := range b.subs {
 		g.Go(func() error {
-			return sub.start(ctxx)
+			return sub.start(egCtx)
 		})
 	}
 
