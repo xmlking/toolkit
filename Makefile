@@ -72,7 +72,7 @@ sync:
 	    echo delete and sync $$d; \
 	    rm -f go.sum; \
 	    go mod download; \
-	    go mod tidy -compat=1.18; \
+	    go mod tidy; \
 		popd >/dev/null; \
 	done
 
@@ -82,12 +82,12 @@ verify:
 		pushd `dirname $$d` >/dev/null; \
 		echo verifying $$d; \
 		go mod verify; \
-		go mod tidy -compat=1.18; \
+		go mod tidy; \
 		popd >/dev/null; \
 	done
 
 outdated:
-	@goup -v -m ./...
+	@go-mod-upgrade
 
 ################################################################################
 # Target: lints                                                                #

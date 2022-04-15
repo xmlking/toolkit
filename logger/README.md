@@ -36,7 +36,7 @@ Your can set **Logger** config via Environment Variables
  CONFY_LOG_LEVEL=<trace,debug,info,warn,error,fatal,panic>
  CONFY_LOG_FORMAT=<pretty/json/gcp>
  CONFY_LOG_GRPC=true
- CONFY_LOG_FILE=false
+ CONFY_LOG_FILE=app1.log
 ```
 
 ## Test
