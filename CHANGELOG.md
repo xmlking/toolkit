@@ -9,20 +9,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+<a name="v0.2.5"></a>
+## [v0.2.5] - 2022-04-14
+### Build
+- **deps:** bump actions/checkout from 2 to 3
+- **deps:** go-mod-upgrade
+- **deps:** bump golang from 1.16-alpine to 1.17.6-alpine
+- **mod:** go mod update
+- **mod:** go mod update
+- **roor:** upgraded to go 1.18 and upgraded all deps
+- **root:** moving to go.work
+- **root:** upgraded to go 1.18 and upgraded all deps
+
+### Docs
+- **xds:** updated docs
+
+### Feat
+- **logger:** CONFY_LOG_FILE env now expect log file name
+- **xds:** fix getGoModuleDir() to make it work with go 1.18 workspaces
+- **xds:** adding kubeRefresher
+
+### Fix
+- **deps:** fix go mod deps
+- **xds:** using time ticker for refreshInterval
+- **xds:** add error handling
+
+
+<a name="broker/cloudevents/v0.2.4"></a>
+## [broker/cloudevents/v0.2.4] - 2022-01-24
+
+<a name="examples/subscribe/v0.2.4"></a>
+## [examples/subscribe/v0.2.4] - 2022-01-24
+
+<a name="logger/v0.2.4"></a>
+## [logger/v0.2.4] - 2022-01-24
+
+<a name="confy/v0.2.4"></a>
+## [confy/v0.2.4] - 2022-01-24
+
+<a name="examples/emulator/v0.2.4"></a>
+## [examples/emulator/v0.2.4] - 2022-01-24
+
+<a name="xds/v0.2.4"></a>
+## [xds/v0.2.4] - 2022-01-24
+
+<a name="examples/publish/v0.2.4"></a>
+## [examples/publish/v0.2.4] - 2022-01-24
+
+<a name="broker/pubsub/v0.2.4"></a>
+## [broker/pubsub/v0.2.4] - 2022-01-24
+
+<a name="telemetry/v0.2.4"></a>
+## [telemetry/v0.2.4] - 2022-01-24
+
 <a name="v0.2.4"></a>
 ## [v0.2.4] - 2022-01-24
 ### Build
 - **cleanup:** remove unused file
 - **deps:** updated deps
-- **deps:** updated to golang 1.17 and deps
 - **deps:** updated deps
+- **deps:** updated to golang 1.17 and deps
 - **deps:** updated deps
 - **deps:** updated deps
 - **deps:** updated deps
 - **deps:** deps updated
 - **makefile:** polish makefile
-- **mod:** updated command to go mod tidy -compat=1.17
 - **mod:** fix go mod
+- **mod:** updated command to go mod tidy -compat=1.17
+- **release:** update changelog
 - **release:** update changelog
 
 ### Feat
@@ -33,29 +87,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **config:** getEnvironment() now check if DefaultConfy is nil
 
 
-<a name="logger/v0.2.3"></a>
-## [logger/v0.2.3] - 2021-08-14
-
-<a name="broker/cloudevents/v0.2.3"></a>
-## [broker/cloudevents/v0.2.3] - 2021-08-14
+<a name="cmd/subscribe/v0.2.3"></a>
+## [cmd/subscribe/v0.2.3] - 2021-08-14
 
 <a name="cmd/publish/v0.2.3"></a>
 ## [cmd/publish/v0.2.3] - 2021-08-14
 
-<a name="broker/pubsub/v0.2.3"></a>
-## [broker/pubsub/v0.2.3] - 2021-08-14
+<a name="broker/cloudevents/v0.2.3"></a>
+## [broker/cloudevents/v0.2.3] - 2021-08-14
+
+<a name="logger/v0.2.3"></a>
+## [logger/v0.2.3] - 2021-08-14
+
+<a name="confy/v0.2.3"></a>
+## [confy/v0.2.3] - 2021-08-14
 
 <a name="telemetry/v0.2.3"></a>
 ## [telemetry/v0.2.3] - 2021-08-14
 
-<a name="cmd/subscribe/v0.2.3"></a>
-## [cmd/subscribe/v0.2.3] - 2021-08-14
+<a name="broker/pubsub/v0.2.3"></a>
+## [broker/pubsub/v0.2.3] - 2021-08-14
 
 <a name="cmd/emulator/v0.2.3"></a>
 ## [cmd/emulator/v0.2.3] - 2021-08-14
-
-<a name="confy/v0.2.3"></a>
-## [confy/v0.2.3] - 2021-08-14
 
 <a name="v0.2.3"></a>
 ## [v0.2.3] - 2021-08-14
@@ -64,29 +118,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **release:** update changelog
 
 
+<a name="cmd/publish/v0.2.2"></a>
+## [cmd/publish/v0.2.2] - 2021-08-11
+
 <a name="broker/cloudevents/v0.2.2"></a>
 ## [broker/cloudevents/v0.2.2] - 2021-08-11
-
-<a name="cmd/subscribe/v0.2.2"></a>
-## [cmd/subscribe/v0.2.2] - 2021-08-11
-
-<a name="logger/v0.2.2"></a>
-## [logger/v0.2.2] - 2021-08-11
 
 <a name="telemetry/v0.2.2"></a>
 ## [telemetry/v0.2.2] - 2021-08-11
 
-<a name="cmd/publish/v0.2.2"></a>
-## [cmd/publish/v0.2.2] - 2021-08-11
-
 <a name="broker/pubsub/v0.2.2"></a>
 ## [broker/pubsub/v0.2.2] - 2021-08-11
+
+<a name="cmd/subscribe/v0.2.2"></a>
+## [cmd/subscribe/v0.2.2] - 2021-08-11
 
 <a name="confy/v0.2.2"></a>
 ## [confy/v0.2.2] - 2021-08-11
 
 <a name="cmd/emulator/v0.2.2"></a>
 ## [cmd/emulator/v0.2.2] - 2021-08-11
+
+<a name="logger/v0.2.2"></a>
+## [logger/v0.2.2] - 2021-08-11
 
 <a name="v0.2.2"></a>
 ## [v0.2.2] - 2021-08-11
@@ -101,29 +155,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **telemetry:** now auto Register NewGoCollector
 
 
-<a name="cmd/subscribe/v0.2.1"></a>
-## [cmd/subscribe/v0.2.1] - 2021-08-05
-
-<a name="cmd/publish/v0.2.1"></a>
-## [cmd/publish/v0.2.1] - 2021-08-05
-
-<a name="logger/v0.2.1"></a>
-## [logger/v0.2.1] - 2021-08-05
-
 <a name="broker/cloudevents/v0.2.1"></a>
 ## [broker/cloudevents/v0.2.1] - 2021-08-05
 
 <a name="broker/pubsub/v0.2.1"></a>
 ## [broker/pubsub/v0.2.1] - 2021-08-05
 
-<a name="telemetry/v0.2.1"></a>
-## [telemetry/v0.2.1] - 2021-08-05
+<a name="cmd/publish/v0.2.1"></a>
+## [cmd/publish/v0.2.1] - 2021-08-05
 
 <a name="cmd/emulator/v0.2.1"></a>
 ## [cmd/emulator/v0.2.1] - 2021-08-05
 
+<a name="cmd/subscribe/v0.2.1"></a>
+## [cmd/subscribe/v0.2.1] - 2021-08-05
+
+<a name="logger/v0.2.1"></a>
+## [logger/v0.2.1] - 2021-08-05
+
 <a name="confy/v0.2.1"></a>
 ## [confy/v0.2.1] - 2021-08-05
+
+<a name="telemetry/v0.2.1"></a>
+## [telemetry/v0.2.1] - 2021-08-05
 
 <a name="v0.2.1"></a>
 ## [v0.2.1] - 2021-08-05
@@ -164,11 +218,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **server:** added API to updateing Health Status anytime from anywhere
 
 
-<a name="logger/v0.1.6"></a>
-## [logger/v0.1.6] - 2021-04-03
-
 <a name="confy/v0.1.6"></a>
 ## [confy/v0.1.6] - 2021-04-03
+
+<a name="logger/v0.1.6"></a>
+## [logger/v0.1.6] - 2021-04-03
 
 <a name="v0.1.6"></a>
 ## [v0.1.6] - 2021-04-03
@@ -180,11 +234,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** change log level to debug
 
 
-<a name="confy/v0.1.5"></a>
-## [confy/v0.1.5] - 2021-04-01
-
 <a name="logger/v0.1.5"></a>
 ## [logger/v0.1.5] - 2021-04-01
+
+<a name="confy/v0.1.5"></a>
+## [confy/v0.1.5] - 2021-04-01
 
 <a name="v0.1.5"></a>
 ## [v0.1.5] - 2021-04-01
@@ -202,11 +256,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **code:** fix code lint
 
 
-<a name="confy/v0.1.4"></a>
-## [confy/v0.1.4] - 2021-03-26
-
 <a name="logger/v0.1.4"></a>
 ## [logger/v0.1.4] - 2021-03-26
+
+<a name="confy/v0.1.4"></a>
+## [confy/v0.1.4] - 2021-03-26
 
 <a name="v0.1.4"></a>
 ## [v0.1.4] - 2021-03-26
@@ -221,11 +275,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **xfs:** adding more test cases
 
 
-<a name="logger/v0.1.3"></a>
-## [logger/v0.1.3] - 2021-03-25
-
 <a name="confy/v0.1.3"></a>
 ## [confy/v0.1.3] - 2021-03-25
+
+<a name="logger/v0.1.3"></a>
+## [logger/v0.1.3] - 2021-03-25
 
 <a name="v0.1.3"></a>
 ## [v0.1.3] - 2021-03-25
@@ -321,49 +375,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **translog:** remove translog middleware
 
 
-[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.2.4...HEAD
-[v0.2.4]: https://github.com/xmlking/toolkit/compare/logger/v0.2.3...v0.2.4
-[logger/v0.2.3]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.3...logger/v0.2.3
-[broker/cloudevents/v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.3...broker/cloudevents/v0.2.3
-[cmd/publish/v0.2.3]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.3...cmd/publish/v0.2.3
-[broker/pubsub/v0.2.3]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.3...broker/pubsub/v0.2.3
-[telemetry/v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.3...telemetry/v0.2.3
-[cmd/subscribe/v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/emulator/v0.2.3...cmd/subscribe/v0.2.3
-[cmd/emulator/v0.2.3]: https://github.com/xmlking/toolkit/compare/confy/v0.2.3...cmd/emulator/v0.2.3
-[confy/v0.2.3]: https://github.com/xmlking/toolkit/compare/v0.2.3...confy/v0.2.3
-[v0.2.3]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.2...v0.2.3
-[broker/cloudevents/v0.2.2]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.2...broker/cloudevents/v0.2.2
-[cmd/subscribe/v0.2.2]: https://github.com/xmlking/toolkit/compare/logger/v0.2.2...cmd/subscribe/v0.2.2
-[logger/v0.2.2]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.2...logger/v0.2.2
-[telemetry/v0.2.2]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.2...telemetry/v0.2.2
-[cmd/publish/v0.2.2]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.2...cmd/publish/v0.2.2
-[broker/pubsub/v0.2.2]: https://github.com/xmlking/toolkit/compare/confy/v0.2.2...broker/pubsub/v0.2.2
+[Unreleased]: https://github.com/xmlking/toolkit/compare/v0.2.5...HEAD
+[v0.2.5]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.4...v0.2.5
+[broker/cloudevents/v0.2.4]: https://github.com/xmlking/toolkit/compare/examples/subscribe/v0.2.4...broker/cloudevents/v0.2.4
+[examples/subscribe/v0.2.4]: https://github.com/xmlking/toolkit/compare/logger/v0.2.4...examples/subscribe/v0.2.4
+[logger/v0.2.4]: https://github.com/xmlking/toolkit/compare/confy/v0.2.4...logger/v0.2.4
+[confy/v0.2.4]: https://github.com/xmlking/toolkit/compare/examples/emulator/v0.2.4...confy/v0.2.4
+[examples/emulator/v0.2.4]: https://github.com/xmlking/toolkit/compare/xds/v0.2.4...examples/emulator/v0.2.4
+[xds/v0.2.4]: https://github.com/xmlking/toolkit/compare/examples/publish/v0.2.4...xds/v0.2.4
+[examples/publish/v0.2.4]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.4...examples/publish/v0.2.4
+[broker/pubsub/v0.2.4]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.4...broker/pubsub/v0.2.4
+[telemetry/v0.2.4]: https://github.com/xmlking/toolkit/compare/v0.2.4...telemetry/v0.2.4
+[v0.2.4]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.3...v0.2.4
+[cmd/subscribe/v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.3...cmd/subscribe/v0.2.3
+[cmd/publish/v0.2.3]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.3...cmd/publish/v0.2.3
+[broker/cloudevents/v0.2.3]: https://github.com/xmlking/toolkit/compare/logger/v0.2.3...broker/cloudevents/v0.2.3
+[logger/v0.2.3]: https://github.com/xmlking/toolkit/compare/confy/v0.2.3...logger/v0.2.3
+[confy/v0.2.3]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.3...confy/v0.2.3
+[telemetry/v0.2.3]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.3...telemetry/v0.2.3
+[broker/pubsub/v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/emulator/v0.2.3...broker/pubsub/v0.2.3
+[cmd/emulator/v0.2.3]: https://github.com/xmlking/toolkit/compare/v0.2.3...cmd/emulator/v0.2.3
+[v0.2.3]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.2...v0.2.3
+[cmd/publish/v0.2.2]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.2...cmd/publish/v0.2.2
+[broker/cloudevents/v0.2.2]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.2...broker/cloudevents/v0.2.2
+[telemetry/v0.2.2]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.2...telemetry/v0.2.2
+[broker/pubsub/v0.2.2]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.2...broker/pubsub/v0.2.2
+[cmd/subscribe/v0.2.2]: https://github.com/xmlking/toolkit/compare/confy/v0.2.2...cmd/subscribe/v0.2.2
 [confy/v0.2.2]: https://github.com/xmlking/toolkit/compare/cmd/emulator/v0.2.2...confy/v0.2.2
-[cmd/emulator/v0.2.2]: https://github.com/xmlking/toolkit/compare/v0.2.2...cmd/emulator/v0.2.2
-[v0.2.2]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.1...v0.2.2
-[cmd/subscribe/v0.2.1]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.1...cmd/subscribe/v0.2.1
-[cmd/publish/v0.2.1]: https://github.com/xmlking/toolkit/compare/logger/v0.2.1...cmd/publish/v0.2.1
-[logger/v0.2.1]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.1...logger/v0.2.1
+[cmd/emulator/v0.2.2]: https://github.com/xmlking/toolkit/compare/logger/v0.2.2...cmd/emulator/v0.2.2
+[logger/v0.2.2]: https://github.com/xmlking/toolkit/compare/v0.2.2...logger/v0.2.2
+[v0.2.2]: https://github.com/xmlking/toolkit/compare/broker/cloudevents/v0.2.1...v0.2.2
 [broker/cloudevents/v0.2.1]: https://github.com/xmlking/toolkit/compare/broker/pubsub/v0.2.1...broker/cloudevents/v0.2.1
-[broker/pubsub/v0.2.1]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.1...broker/pubsub/v0.2.1
-[telemetry/v0.2.1]: https://github.com/xmlking/toolkit/compare/cmd/emulator/v0.2.1...telemetry/v0.2.1
-[cmd/emulator/v0.2.1]: https://github.com/xmlking/toolkit/compare/confy/v0.2.1...cmd/emulator/v0.2.1
-[confy/v0.2.1]: https://github.com/xmlking/toolkit/compare/v0.2.1...confy/v0.2.1
+[broker/pubsub/v0.2.1]: https://github.com/xmlking/toolkit/compare/cmd/publish/v0.2.1...broker/pubsub/v0.2.1
+[cmd/publish/v0.2.1]: https://github.com/xmlking/toolkit/compare/cmd/emulator/v0.2.1...cmd/publish/v0.2.1
+[cmd/emulator/v0.2.1]: https://github.com/xmlking/toolkit/compare/cmd/subscribe/v0.2.1...cmd/emulator/v0.2.1
+[cmd/subscribe/v0.2.1]: https://github.com/xmlking/toolkit/compare/logger/v0.2.1...cmd/subscribe/v0.2.1
+[logger/v0.2.1]: https://github.com/xmlking/toolkit/compare/confy/v0.2.1...logger/v0.2.1
+[confy/v0.2.1]: https://github.com/xmlking/toolkit/compare/telemetry/v0.2.1...confy/v0.2.1
+[telemetry/v0.2.1]: https://github.com/xmlking/toolkit/compare/v0.2.1...telemetry/v0.2.1
 [v0.2.1]: https://github.com/xmlking/toolkit/compare/logger/v0.2.0...v0.2.1
 [logger/v0.2.0]: https://github.com/xmlking/toolkit/compare/confy/v0.2.0...logger/v0.2.0
 [confy/v0.2.0]: https://github.com/xmlking/toolkit/compare/v0.2.0...confy/v0.2.0
-[v0.2.0]: https://github.com/xmlking/toolkit/compare/logger/v0.1.6...v0.2.0
-[logger/v0.1.6]: https://github.com/xmlking/toolkit/compare/confy/v0.1.6...logger/v0.1.6
-[confy/v0.1.6]: https://github.com/xmlking/toolkit/compare/v0.1.6...confy/v0.1.6
-[v0.1.6]: https://github.com/xmlking/toolkit/compare/confy/v0.1.5...v0.1.6
-[confy/v0.1.5]: https://github.com/xmlking/toolkit/compare/logger/v0.1.5...confy/v0.1.5
-[logger/v0.1.5]: https://github.com/xmlking/toolkit/compare/v0.1.5...logger/v0.1.5
-[v0.1.5]: https://github.com/xmlking/toolkit/compare/confy/v0.1.4...v0.1.5
-[confy/v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.4...confy/v0.1.4
-[logger/v0.1.4]: https://github.com/xmlking/toolkit/compare/v0.1.4...logger/v0.1.4
-[v0.1.4]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...v0.1.4
-[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...logger/v0.1.3
-[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...confy/v0.1.3
+[v0.2.0]: https://github.com/xmlking/toolkit/compare/confy/v0.1.6...v0.2.0
+[confy/v0.1.6]: https://github.com/xmlking/toolkit/compare/logger/v0.1.6...confy/v0.1.6
+[logger/v0.1.6]: https://github.com/xmlking/toolkit/compare/v0.1.6...logger/v0.1.6
+[v0.1.6]: https://github.com/xmlking/toolkit/compare/logger/v0.1.5...v0.1.6
+[logger/v0.1.5]: https://github.com/xmlking/toolkit/compare/confy/v0.1.5...logger/v0.1.5
+[confy/v0.1.5]: https://github.com/xmlking/toolkit/compare/v0.1.5...confy/v0.1.5
+[v0.1.5]: https://github.com/xmlking/toolkit/compare/logger/v0.1.4...v0.1.5
+[logger/v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.4...logger/v0.1.4
+[confy/v0.1.4]: https://github.com/xmlking/toolkit/compare/v0.1.4...confy/v0.1.4
+[v0.1.4]: https://github.com/xmlking/toolkit/compare/confy/v0.1.3...v0.1.4
+[confy/v0.1.3]: https://github.com/xmlking/toolkit/compare/logger/v0.1.3...confy/v0.1.3
+[logger/v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.3...logger/v0.1.3
 [v0.1.3]: https://github.com/xmlking/toolkit/compare/v0.1.2...v0.1.3
 [v0.1.2]: https://github.com/xmlking/toolkit/compare/confy/v0.1.2...v0.1.2
 [confy/v0.1.2]: https://github.com/xmlking/toolkit/compare/v0.1.1...confy/v0.1.2
