@@ -17,8 +17,8 @@ type hybridFS struct {
 
 func (f hybridFS) Open(name string) (file fs.File, err error) {
 	if filepath.IsAbs(name) {
-		//file, err = os.DirFS("").Open(name[1:]) // FIXME: what for windows?
 		root := "/"
+		// For Windows, absolute paths starting with volume need to be handled
 		if vol := filepath.VolumeName(name); vol != "" {
 			root = vol + "\\"
 		}
