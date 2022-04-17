@@ -196,7 +196,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 1. Start release
 
-    ```bask
+    ```shell
     git switch develop
     git flow release start vx.y.z
     ```
@@ -213,7 +213,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 3. update deps
 
-    ```bask
+    ```shell
     task mod:outdated
     # then upgrade recomended versions in each go.mod files
     go work sync
@@ -223,13 +223,13 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 4. update changelog
 
-    ```bask
+    ```shell
     git-chglog -c .github/chglog/config.yml -o CHANGELOG.md --next-tag vx.y.z
     ```
 
 5. Finish release
 
-    ```bask
+    ```shell
     git add .
     git commit -m "build(release): update changelog"
     git flow release finish
@@ -238,7 +238,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
 6. Push tags for all modules
 
-    ```bask
+    ```shell
     git switch main
     task mod:release TAG=vx.y.z
     git pull --all
