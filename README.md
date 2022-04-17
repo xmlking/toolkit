@@ -216,6 +216,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
     ```bask
     task mod:outdated
     # then upgrade recomended versions in each go.mod files
+    go work sync
     task mod:sync
     task mod:verify
     ```

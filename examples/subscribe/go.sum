@@ -380,10 +380,7 @@ github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a/go.mod h1:v3UYOV
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
 github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415/go.mod h1:GwrjFmJcFw6At/Gs6z4yjiIwzuJ1/+UwLxMQDVQXShQ=
 github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQluxsYJ78Id3Y=
-github.com/xmlking/toolkit v0.2.5 h1:Hdfpwi5nejFXb56Ef+A8KVGKf9FSvhryowQWrMGbAR4=
-github.com/xmlking/toolkit v0.2.5/go.mod h1:nXEbHpOnBrvW9GBR547EKVPa/Lxr8hdKgZ8O3MVKpH4=
-github.com/xmlking/toolkit/broker/pubsub v0.2.5 h1:bLg0TylokZ83/ctgvb+uAbfi0mc/iRPUWTSgYlJ8f9M=
-github.com/xmlking/toolkit/broker/pubsub v0.2.5/go.mod h1:sQt029L76qHStfvqjONQ9vZ0RvL075umJErlLsuqVrE=
+github.com/xmlking/toolkit v0.2.6 h1:kvy4ktpbdMbH9EX1UvPF4snhrNHzYgr7BcCVLqLefHI=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0/go.mod h1:/LWChgwKmvncFJFHJ7Gvn9wZArjbV5/FppcK2fKk/tI=
 github.com/yudai/gojsondiff v1.0.0/go.mod h1:AY32+k2cwILAkW1fbgxQ5mUmMiZFgLIV+FBNExI05xg=
