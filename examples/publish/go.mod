@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.19.0
 	github.com/google/uuid v1.3.0
 	github.com/rs/zerolog v1.26.1
-	github.com/xmlking/toolkit/broker/pubsub v0.2.5
+	github.com/xmlking/toolkit/broker/pubsub v0.2.6
 )
 
 require (
