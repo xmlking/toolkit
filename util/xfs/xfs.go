@@ -1,11 +1,9 @@
 package xfs
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/rs/zerolog/log"
@@ -19,7 +17,17 @@ type hybridFS struct {
 
 func (f hybridFS) Open(name string) (file fs.File, err error) {
 	if filepath.IsAbs(name) {
-		file, err = os.DirFS("").Open(name[1:]) // FIXME: what for windows?
+		root := "/"
+		// For Windows, absolute paths starting with volume need to be handled
+		if vol := filepath.VolumeName(name); vol != "" {
+			root = vol + "\\"
+		}
+		var rel string
+		if rel, err = filepath.Rel(root, name); err != nil {
+			return
+		}
+		rel = filepath.ToSlash(rel)
+		file, err = os.DirFS(root).Open(rel)
 		log.Debug().Str("file", name).Str("FileSystem", "OS").Err(err).Msg("loading from")
 		return
 	}
@@ -46,29 +54,6 @@ func FS(efs fs.FS) fs.FS {
 	}
 	ofs := os.DirFS(root)
 	return &hybridFS{ofs, efs}
-}
-
-// TODO: remove this method.
-// this only works for non-workspace projects (go 1.18)
-func getGoModuleDirForNonWorkspace() (path string, err error) {
-	cmd := exec.Command("go", "list", "-json", "-m")
-	//cmd.Env = append(os.Environ(), "GO111MODULE=on")
-	var out []byte
-	if out, err = cmd.Output(); err != nil {
-		// error: xec: \"go\": executable file not found in $PATH"
-		// means running in in docker/pod
-		return
-	}
-
-	var mod struct {
-		Dir string
-	}
-	if err = json.Unmarshal(out, &mod); err != nil {
-		log.Error().Err(err).Msg("error Unmarshal 'go list -json -m' output")
-		return
-	}
-	path = mod.Dir
-	return
 }
 
 func getGoModuleDir() (path string, err error) {

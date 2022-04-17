@@ -98,6 +98,7 @@ func TestXFS_absolute_path(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "hello, world", strings.TrimSpace(string(b)))
 
+	_ = f.Close()
 	err = os.Remove(f.Name())
 	assert.NoError(t, err)
 }

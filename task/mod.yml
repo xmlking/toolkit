@@ -53,10 +53,10 @@ tasks:
       - |
         find * -name 'go.mod' -mindepth 1 -exec dirname {} \; | sort | while read dir; do
         pushd $dir >/dev/null
-        hub release create -m "$dir/{{.TAG}} release" $dir/{{.TAG}}
+        gh release create $dir/{{.TAG}} --generate-notes
         popd >/dev/null
         done
-        hub release create -m "{{.TAG}} release" {{.TAG}}
+        gh release create {{.TAG}} --generate-notes
     preconditions:
       - sh: "[ '{{.TAG}}' != '' ]"
         msg: "Missing  TAG. Usage: 'task mod:release TAG=v1.1.1'"
