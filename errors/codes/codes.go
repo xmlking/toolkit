@@ -34,8 +34,9 @@ const (
 	// DataErrors - such as invalid/missing input, insufficient/corrupted payload, etc.
 	// not-retryable as they are permanent errors. fix the payload and replay.
 	// DataErrors fall in between 150 - 199
-	DataSchemaNotFound TCode = 150
-	DataInvalidInput   TCode = 151
+	DataSchemaNotFound   TCode = 150
+	DataInvalidInput     TCode = 151
+	DataResourceNotFound TCode = 152
 
 	_maxCode = 200
 )
@@ -60,7 +61,9 @@ func (c TCode) String() string {
 	case DataSchemaNotFound:
 		return "DataSchemaNotFound"
 	case DataInvalidInput:
-		return "DataSchemaNameNotFound"
+		return "DataInvalidInput"
+	case DataResourceNotFound:
+		return "DataResourceNotFound"
 	default:
 		return "Code(" + strconv.FormatInt(int64(c), 10) + ")"
 	}
