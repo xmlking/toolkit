@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/cockroachdb/errors v1.9.0
 	github.com/creasty/defaults v1.5.2
-	github.com/go-playground/validator/v10 v10.10.1
+	github.com/go-playground/validator/v10 v10.11.0
 	github.com/rs/zerolog v1.26.1
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.7.1
