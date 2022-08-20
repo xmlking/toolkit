@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/rs/zerolog v1.26.1
 	github.com/stoewer/go-strcase v1.2.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.8.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -30,5 +30,5 @@ require (
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e // indirect
 	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
