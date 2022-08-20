@@ -1,6 +1,6 @@
 module github.com/xmlking/toolkit/broker/cloudevents
 
-go 1.18
+go 1.19
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.9.0
@@ -16,6 +16,7 @@ require (
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect

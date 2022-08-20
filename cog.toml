@@ -1,0 +1,23 @@
+tag_prefix = "v"
+ignore_merge_commits = true
+branch_whitelist = ["master", "main"]
+
+pre_bump_hooks = [
+    "echo {{version}}",
+]
+post_bump_hooks = [
+    "git push",
+    "git push --tags",
+]
+
+[commit_types]
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "toolkit"
+owner = "xmlking"
+authors = [{ username = "xmlking", signature = "Sumanth Chinthagunta" }]
+
+[bump_profiles]

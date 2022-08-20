@@ -38,7 +38,8 @@ type ErrorCoder interface {
 ## TODO
 - make this package generic (use `int` instead fo `codes.Code`?) and move it to `toolkit`
 - `codes.Code` should be in consuming application
- 
+- Explore implementation of [kratos errors](https://go-kratos.dev/en/docs/component/errors/) and [connect errors](https://connect.build/docs/go/errors)
+
 ## Reference
 - [Failure is your Domain](https://middlemost.com/failure-is-your-domain/)
 - [Creating domain specific error helpers in Go with errors.As](https://blog.carlmjohnson.net/post/2020/working-with-errors-as/)

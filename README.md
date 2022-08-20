@@ -256,3 +256,5 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
     - [Kratos Project Template](https://github.com/go-kratos/kratos-layout)
 - [rookie-ninja](https://github.com/rookie-ninja/rk-boot)
     - [RK Docs](https://rkdev.info/docs/bootstrapper/concept/)
+- [connect-go](https://connect.build/) RPC framework for building gRPC-compatible and browser accessible APIs  
+- [go-zero](https://go-zero.dev/docs/introduction/)
