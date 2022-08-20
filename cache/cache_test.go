@@ -17,9 +17,11 @@ import (
 	"github.com/xmlking/toolkit/cache"
 )
 
-/********************
+/*
+*******************
 Models
-********************/
+*******************
+*/
 type ServiceCache struct {
 	Enabled bool
 	Size    int
@@ -40,9 +42,11 @@ func fakeGetProductByID(productID string) (*Product, error) {
 	}, nil
 }
 
-/********************
+/*
+*******************
 CatalogService
-********************/
+*******************
+*/
 type CatalogService interface {
 	GetProductByID(productID string) (prod *Product, err error)
 }
@@ -76,9 +80,11 @@ func NewCatalogService(cacheConf ServiceCache) CatalogService {
 	}
 }
 
-/********************
+/*
+*******************
 Unit Tests
-********************/
+*******************
+*/
 func TestMain(m *testing.M) {
 	closer := func() {
 		log.Info().Msg("closing the resource")

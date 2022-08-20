@@ -198,6 +198,8 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 
     ```shell
     git switch main
+    task mod:outdated
+    # then upgrade recommended versions in each go.mod files
     ```
 
 2. Update files
@@ -213,9 +215,6 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 3. update deps
 
     ```shell
-    git switch main
-    task mod:outdated
-    # then upgrade recomended versions in each go.mod files
     go work sync
     task mod:sync
     task mod:verify

@@ -44,7 +44,7 @@ tasks:
     desc: Downloads CLI dependencies
     cmds:
       - task: go-get
-        vars: {REPO: golang.org/x/lint/golint}
+        vars: {REPO: github.com/golangci/golangci-lint/cmd/golangci-lint}
       - task: go-get
         vars: {REPO: github.com/goreleaser/goreleaser}
       - task: go-get
@@ -62,9 +62,9 @@ tasks:
     silent: true
 
   lint:
-    desc: Runs golint
+    desc: Runs golangci
     cmds:
-      - golint {{catLines .GO_PACKAGES}}
+      - golangci-lint run
     silent: true
 
   test:
