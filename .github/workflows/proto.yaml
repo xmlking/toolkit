@@ -1,19 +1,47 @@
+# Docs: https://docs.buf.build/ci-cd/github-actions
 name: Proto
 on:
+  pull_request:
   push:
-    paths:
-      - '**.proto'
+    branches:
+      - '**'
+    tags-ignore:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    paths-ignore:
+      - 'README.md'
+      - 'docs'
+#    paths:
+#      - '**.proto'
+
 jobs:
-  build:
+  cog_check_job:
+    name: check conventional commit compliance
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
+      - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          ref: master
-      - name: checkout-master
-        run: git checkout master
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: make local
-        run: make -f Makefile_proto local
+          fetch-depth: 0
+
+      - name: Conventional commits check
+        uses: oknozor/cocogitto-action@v3
+        with:
+          check-latest-tag-only: true
+  check:
+    name: Buf checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ github.token }}
+      # Install `protoc`
+      # - uses: arduino/setup-protoc@v1
+      - uses: bufbuild/buf-lint-action@v1
+      - uses: bufbuild/buf-breaking-action@v1
+        with:
+          # The 'main' branch of the GitHub repository that defines the module.
+          against: 'https://github.com/${GITHUB_REPOSITORY}.git#branch=main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
