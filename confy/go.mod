@@ -6,7 +6,7 @@ require (
 	github.com/cockroachdb/errors v1.9.0
 	github.com/creasty/defaults v1.5.2
 	github.com/go-playground/validator/v10 v10.10.1
-	github.com/rs/zerolog v1.26.1
+	github.com/rs/zerolog v1.27.0
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/yaml.v2 v2.4.0
@@ -24,6 +24,8 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
