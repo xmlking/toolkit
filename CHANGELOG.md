@@ -12,6 +12,22 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.3.0](https://github.com/xmlking/toolkit/compare/v0.2.6..v0.3.0) - 2022-08-20
+#### Build system
+- **(deps)** update deps - ([36ec03b](https://github.com/xmlking/toolkit/commit/36ec03b310f23979d261127ef36f35a7353522a8)) - [@xmlking](https://github.com/xmlking)
+- **(deps)** go work sync - ([c537973](https://github.com/xmlking/toolkit/commit/c537973e2589ed5717c25bf08d8fe5b2efae53a7)) - [@xmlking](https://github.com/xmlking)
+- **(deps)** go work sync - ([fa48e0a](https://github.com/xmlking/toolkit/commit/fa48e0add69c4f75095dcb53fb8a119dc4ffa985)) - [@xmlking](https://github.com/xmlking)
+- **(root)** updated deps [skip ci] - ([a10846c](https://github.com/xmlking/toolkit/commit/a10846cc90d7152e71d51a1f56f9dcfd76f94ce0)) - [@xmlking](https://github.com/xmlking)
+- **(root)** updated deps [skip ci] - ([b21704e](https://github.com/xmlking/toolkit/commit/b21704e60929cac976c75e50c8b482a54cd817a7)) - [@xmlking](https://github.com/xmlking)
+- **(root)** updated deps [skip ci] - ([7af6e5f](https://github.com/xmlking/toolkit/commit/7af6e5fa4339db6c473e7eb924ea986ba660f3f0)) - [@xmlking](https://github.com/xmlking)
+- **(root)** updated go-version: 1.19 [skip ci] - ([cc16adf](https://github.com/xmlking/toolkit/commit/cc16adf03c4306326a7b5a9bccd045c86ee1e728)) - [@xmlking](https://github.com/xmlking)
+- **(root)** updated deps [skip ci] - ([894cd58](https://github.com/xmlking/toolkit/commit/894cd5827653e9c5517f0b33edb71ad8ba2d9bf2)) - [@xmlking](https://github.com/xmlking)
+#### Features
+- **(errors)** adding error code DataResourceNotFound - ([96a1712](https://github.com/xmlking/toolkit/commit/96a1712f5db4b0c23acedd36088d7d9a9d763f36)) - [@xmlking](https://github.com/xmlking)
+- **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 
 ## [v0.2.6](https://github.com/xmlking/toolkit/compare/878c5346090072d3da9595bceeddf05e5218b4f5..v0.2.6) - 2022-08-20
 #### Bug Fixes
