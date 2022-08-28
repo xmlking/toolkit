@@ -15,7 +15,7 @@ require (
 	go.opentelemetry.io/otel/exporters/prometheus v0.31.0
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 	golang.org/x/tools v0.1.12
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 )
 
 require (
