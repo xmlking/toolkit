@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/cockroachdb/errors v1.9.0
-	github.com/rs/zerolog v1.27.0
+	github.com/rs/zerolog v1.28.0
 	google.golang.org/grpc v1.48.0
 )
 
