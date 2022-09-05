@@ -15,6 +15,9 @@
 
 ## Usage
 
+<details>
+  <summary>Usage Example</summary>
+
 ```go
 func main() {
     serviceName := constants.PLAY_SERVICE
@@ -124,7 +127,9 @@ func main() {
     }
 ```
 
-## Run
+</details>
+
+## Infra
 
 ### PubSub
 
@@ -175,6 +180,15 @@ docker-compose up down
 ```
 
 ## Development
+
+### Maintenance
+
+update outdated Go dependencies interactively
+
+```shell
+go-mod-upgrade
+# then commit the changes. 
+```
 
 ### Build
 

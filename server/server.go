@@ -34,7 +34,7 @@ func NewServer(ctx context.Context, opts ...ServerOption) Server {
 
 // NewClient creates and returns a new grpc client connection
 // Users should call ClientConn.Close() to terminate all the pending operations.
-// also keep track of all clients so that, it disconnect client connections gracefully on kill signal.
+// also keep track of all clients so that, it disconnects client connections gracefully on kill signal.
 // throw error if connection fail or if there is already a client created with same name
 func NewClient(target string, opts ...ClientOption) (*grpc.ClientConn, error) {
 	return DefaultServer.Client(target, opts...)
