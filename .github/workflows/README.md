@@ -33,7 +33,7 @@
             -H "Accept: application/vnd.github.ant-man-preview+json"  \
             -H "Content-Type: application/json" \
             https://api.github.com/repos/xmlking/toolkit/deployments \
-            --data '{"ref": "develop", "environment": "e2e", "payload":   "payload": { "what": "deployment for e2e testing"}}'
+            --data '{"ref": "main", "environment": "e2e", "payload":   "payload": { "what": "deployment for e2e testing"}}'
   ```
 
 ## TODO
