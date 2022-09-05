@@ -46,6 +46,21 @@ tasks:
       - cmd: go-mod-upgrade
         ignore_error: true
 
+  update:
+    desc: Update outdated dependencies
+    cmds:
+      - echo "Go mod update and tidy...."
+      - |
+        for d in `find * -name 'go.mod'`; do
+          pushd `dirname $d` >/dev/null
+          echo updating $d
+          go get -u
+          go mod tidy
+          popd >/dev/null
+        done
+    silent: true
+
+
   release:
     desc: Go mod tag and release.
     cmds:

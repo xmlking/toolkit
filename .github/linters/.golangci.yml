@@ -1,44 +1,57 @@
-# This file contains all available configuration options
-# with their default values.
+---
+#########################
+#########################
+## Golang Linter rules ##
+#########################
+#########################
 
-# options for analysis running
+# configure golangci-lint
+# see https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
 run:
   # which dirs to skip: they won't be analyzed;
   skip-dirs:
-    - mkit
+    - gen
   skip-files:
     - lib/bad.go
-
-# all available settings of specific linters
-linters-settings:
-  errcheck:
-
-# Enable/Disable specific linter
-linters:
-  enable:
-    - gofmt
-    - gosec
-    - prealloc
-    - interfacer
-    - gocyclo
-    - maligned
-
 issues:
-  # List of regexps of issue texts to exclude, empty list by default.
   exclude:
-
-  # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
-    # Exclude some linters from running on tests files.
-    - path: service
+    - path: _test\.go
       linters:
-        - errcheck
-    - path: api
+        - dupl
+        - gosec
+        - goconst
+    - path: service
       linters:
         - errcheck
     - path: cmd
       linters:
         - errcheck
-    - path: shared
+    - path: internal
       linters:
         - errcheck
+linters:
+  enable:
+    - gosec
+    - unconvert
+    - gocyclo
+    - goconst
+    - gocritic
+    - govet
+    - revive
+    - gofmt
+    - prealloc
+linters-settings:
+  errcheck:
+    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
+    # default is false: such cases aren't reported by default.
+    check-blank: true
+  govet:
+    # report about shadowed variables
+    check-shadowing: true
+  gocyclo:
+    # minimal code complexity to report, 30 by default
+    min-complexity: 15
+  maligned:
+    # print struct with more effective memory layout or not, false by default
+    suggest-new: true

@@ -64,7 +64,7 @@ tasks:
   lint:
     desc: Runs golangci
     cmds:
-      - golangci-lint run
+      - golangci-lint run -c .github/linters/.golangci.yml
     silent: true
 
   test:
