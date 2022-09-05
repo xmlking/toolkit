@@ -213,6 +213,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
     ```shell
     git switch main
     task mod:outdated
+    task mod:update
     # then upgrade recommended versions in each go.mod files
     ```
 
@@ -226,7 +227,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
     examples/subscribe/go.mod
     ```
 
-3. update deps
+3. Update deps
 
     ```shell
     go work sync
@@ -236,14 +237,14 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
     git commit -m "build(deps): update deps"
     ```
 
-5. Finish release
+4. Finish release
 
     ```shell
     cog bump --auto --dry-run
     cog bump --auto
     ```
 
-6. Push tags for all modules
+5. Push tags for all modules
 
     ```shell
     git switch main
