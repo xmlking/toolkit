@@ -12,6 +12,14 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.3.2](https://github.com/xmlking/toolkit/compare/v0.3.1..v0.3.2) - 2022-09-05
+#### Build system
+- **(actions)** fix github workflows - ([6900656](https://github.com/xmlking/toolkit/commit/6900656b4d52ccd14698730997479b24d7a22183)) - [@xmlking](https://github.com/xmlking)
+- **(root)** deps updated - ([589d377](https://github.com/xmlking/toolkit/commit/589d3772dc50d001302c895e82ce8979218c6226)) - [@xmlking](https://github.com/xmlking)
+- **(root)** bump version - ([1728d26](https://github.com/xmlking/toolkit/commit/1728d26004068b5babc65af9d421f9b1479eae4e)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.3.1](https://github.com/xmlking/toolkit/compare/v0.3.0..v0.3.1) - 2022-09-05
 #### Build system
 - **(deps)** update deps - ([a621584](https://github.com/xmlking/toolkit/commit/a621584efb4bba2f50fc7d509ac1b19d97747980)) - [@xmlking](https://github.com/xmlking)
