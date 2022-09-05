@@ -39,7 +39,22 @@ CONFY_LOG_GRPC=true
 CONFY_LOG_FILE=app1.log
 ```
 
+Aside from logging in JSON, you can also configure Zerolog to output binary logs encoded in [CBOR](https://cbor.io/) format. You can enable it by using the `binary_log` build tag while compiling your application:
+
+```shell
+go build -tags binary_log -o build ./service/engine/...
+```
+
+You can decode this binary log entry to JSON with any CBOR decoder, such as [csd](https://github.com/toravir/csd/)
+```shell
+CONFY_LOG_FORMAT=json ./build/engine  2> >(csd)
+```
+
 ## Test
 ```shell
 CONFY_LOG_LEVEL=info  CONFY_LOG_FORMAT=json go test github.com/xmlking/toolkit/logger  -count=1
 ```
+
+
+## Reference 
+- A Complete Guide to Logging in Go with [Zerolog](https://betterstack.com/community/guides/logging/zerolog/)
