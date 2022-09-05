@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/cloudevents/sdk-go/v2 v2.11.0
 	github.com/rs/zerolog v1.28.0
-	github.com/xmlking/toolkit v0.3.0
+	github.com/xmlking/toolkit v0.3.1
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 )
 
