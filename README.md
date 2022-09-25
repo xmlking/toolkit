@@ -241,7 +241,7 @@ Replace **vx.y.z** with version you try to tag. e.g., **v0.2.5**
 4. Finish release
 
     ```shell
-    cog bump --auto --dry-run
+    cog bump --auto --dry-run 
     cog bump --auto
     ```
 
