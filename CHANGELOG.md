@@ -12,6 +12,18 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.3.3](https://github.com/xmlking/toolkit/compare/v0.3.2..v0.3.3) - 2022-09-25
+#### Bug Fixes
+- **(deps)** updated deps [skip ci] - ([f95607b](https://github.com/xmlking/toolkit/commit/f95607b6aa1a2d16246566ecadf8fd5f6c5f464e)) - [@xmlking](https://github.com/xmlking)
+#### Build system
+- **(deps)** updated deps [skip ci] - ([34c3b38](https://github.com/xmlking/toolkit/commit/34c3b380c6045d4fdac7d28fd96d47b2ee9a7e7e)) - [@xmlking](https://github.com/xmlking)
+- **(deps)** updated deps [skip ci] - ([d9e6c4a](https://github.com/xmlking/toolkit/commit/d9e6c4afc7f41d9442bc44494cae0c7b14e723d4)) - [@xmlking](https://github.com/xmlking)
+#### Documentation
+- **(README)** updated release steps - ([cc04d9b](https://github.com/xmlking/toolkit/commit/cc04d9b9a6ae4d5c6019eb56593f2b72fce226ec)) - [@xmlking](https://github.com/xmlking)
+- **(logger)** updated zerolog README iwht CBOR binary logging - ([a8f359c](https://github.com/xmlking/toolkit/commit/a8f359ccab1d2804a43a23331fe0984d944b3dcc)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.3.2](https://github.com/xmlking/toolkit/compare/v0.3.1..v0.3.2) - 2022-09-05
 #### Build system
 - **(actions)** fix github workflows - ([6900656](https://github.com/xmlking/toolkit/commit/6900656b4d52ccd14698730997479b24d7a22183)) - [@xmlking](https://github.com/xmlking)
