@@ -9,19 +9,19 @@ import (
 // ServerTLS struct
 type ServerTLS struct {
 	Enabled    bool   `yaml:",omitempty" default:"false"`
-	CertFile   string `yaml:"cert_file,omitempty" valid:"type(string),required_if=Enabled true"` // validate:"file,required_if=Enabled true"
-	KeyFile    string `yaml:"key_file,omitempty" valid:"type(string),required_if=Enabled true"`  // validate:"file,required_if=Enabled true"
-	CaFile     string `yaml:"ca_file,omitempty" valid:"type(string),required_if=Enabled true"`   // validate:"file,required_if=Enabled true"
+	CertFile   string `yaml:"cert_file,omitempty" validate:"required_if=Enabled true"` // validate:"file,required_if=Enabled true"
+	KeyFile    string `yaml:"key_file,omitempty" validate:"required_if=Enabled true"`  // validate:"file,required_if=Enabled true"
+	CaFile     string `yaml:"ca_file,omitempty" validate:"required_if=Enabled true"`   // validate:"file,required_if=Enabled true"
 	VerifyPeer bool   `yaml:"verify_peer,omitempty" default:"false"`
 }
 
 // ClientTLS struct
 type ClientTLS struct {
 	Enabled    bool   `yaml:",omitempty" default:"false"`
-	CertFile   string `yaml:"cert_file,omitempty" valid:"type(string),required_if=Enabled true"` // validate:"file,required_if=Enabled true"
-	KeyFile    string `yaml:"key_file,omitempty" valid:"type(string),required_if=Enabled true"`  // validate:"file,required_if=Enabled true"
-	CaFile     string `yaml:"ca_file,omitempty" valid:"omitempty,type(string)"`                  // validate:"file,required_if=Enabled true"
-	ServerName string `yaml:"server_name,omitempty" default:"'*'"`                               // Server Name Indication (SNI) aka Authority
+	CertFile   string `yaml:"cert_file,omitempty" validate:"required_if=Enabled true"` // validate:"file,required_if=Enabled true"
+	KeyFile    string `yaml:"key_file,omitempty" validate:"required_if=Enabled true"`  // validate:"file,required_if=Enabled true"
+	CaFile     string `yaml:"ca_file,omitempty" validate:"omitempty"`                  // validate:"file,required_if=Enabled true"
+	ServerName string `yaml:"server_name,omitempty" default:"'*'"`                     // Server Name Indication (SNI) aka Authority
 }
 
 // Validator struct
