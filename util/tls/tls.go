@@ -3,17 +3,80 @@ package tls
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/pem"
-	"fmt"
 	"io/fs"
 
-	"github.com/rs/zerolog/log"
+	"github.com/cockroachdb/errors"
 )
 
-// NewTLSConfig returns a TLS config that includes a certificate
-// Use for Server TLS config or when using a client certificate
-// If caPath is empty, system CAs will be used
-func NewTLSConfig(xfs fs.FS, certPath, keyPath, caPath, serverName, password string) (tlsConfig *tls.Config, err error) {
+// NewServerTLSConfig returns a TLS Config for a server connection.
+// when verifyPeer=true, strictly verify client certs only issued by the designated CA (caPath)
+func NewServerTLSConfig(xfs fs.FS, certPath, keyPath, caPath string, verifyPeer bool) (serverTLSConfig *tls.Config, err error) {
+	var cert tls.Certificate
+	if cert, err = loadCert(xfs, certPath, keyPath); err != nil {
+		return
+	}
+
+	var clientCAs = x509.NewCertPool()
+	var caPem []byte
+	if caPem, err = fs.ReadFile(xfs, caPath); err != nil {
+		return
+	}
+	if ok := clientCAs.AppendCertsFromPEM(caPem); !ok {
+		return nil, errors.Newf("error loading caPath: %s", caPath)
+	}
+
+	serverTLSConfig = &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		ClientCAs:    clientCAs,
+		NextProtos:   []string{"h2"},
+		MinVersion:   tls.VersionTLS12,
+		ClientAuth:   tls.VerifyClientCertIfGiven,
+	}
+
+	// TODO: Should we set InsecureSkipVerify=true and use VerifyPeerCertificate VerifyConnection?
+	if verifyPeer {
+		serverTLSConfig.ClientAuth = tls.RequireAndVerifyClientCert
+	}
+
+	return
+}
+
+// NewClientTLSConfig returns a TLS Config for a client connection.
+// `caPath` can be empty, in that case, RootCAs is nil, TLS uses the host's root CA set.
+func NewClientTLSConfig(xfs fs.FS, certPath, keyPath, caPath, serverName string) (clientTLSConfig *tls.Config, err error) {
+	var cert tls.Certificate
+	if cert, err = loadCert(xfs, certPath, keyPath); err != nil {
+		return
+	}
+
+	var rootCAs *x509.CertPool
+	if caPath != "" {
+		if rootCAs, err = x509.SystemCertPool(); err != nil {
+			return
+		}
+
+		var caPem []byte
+		if caPem, err = fs.ReadFile(xfs, caPath); err != nil {
+			return
+		}
+
+		if ok := rootCAs.AppendCertsFromPEM(caPem); !ok {
+			return nil, errors.Newf("error loading caPath: %s", caPath)
+		}
+	}
+
+	clientTLSConfig = &tls.Config{
+		ServerName:   serverName,
+		Certificates: []tls.Certificate{cert},
+		RootCAs:      rootCAs, // if RootCAs is nil, TLS uses the host's root CA set.
+		NextProtos:   []string{"h2"},
+		MinVersion:   tls.VersionTLS12,
+	}
+
+	return
+}
+
+func loadCert(xfs fs.FS, certPath, keyPath string) (cert tls.Certificate, err error) {
 	var certPEMBlock, keyPEMBlock []byte
 	certPEMBlock, err = fs.ReadFile(xfs, certPath)
 	if err != nil {
@@ -24,66 +87,5 @@ func NewTLSConfig(xfs fs.FS, certPath, keyPath, caPath, serverName, password str
 		return
 	}
 
-	// unwrap keyPEMBlock, if protected with password
-	keyDERBlock, _ := pem.Decode(keyPEMBlock)
-	log.Debug().Msgf("Is Encrypted Private Key: %v", x509.IsEncryptedPEMBlock(keyDERBlock))
-	if x509.IsEncryptedPEMBlock(keyDERBlock) {
-		var decryptedKeyBytes []byte
-		decryptedKeyBytes, err = x509.DecryptPEMBlock(keyDERBlock, []byte(password))
-		if err != nil {
-			return
-		}
-		keyDERBlock = &pem.Block{
-			Type:  keyDERBlock.Type,
-			Bytes: decryptedKeyBytes,
-		}
-		keyPEMBlock = pem.EncodeToMemory(keyDERBlock)
-	}
-
-	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-	if err != nil {
-		return nil, err
-	}
-
-	roots, err := loadRoots(xfs, caPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tls.Config{
-		ServerName:   serverName,
-		Certificates: []tls.Certificate{cert},
-		RootCAs:      roots,
-		// ClientCAs:    roots,
-		NextProtos: []string{"h2"},
-		MinVersion: tls.VersionTLS12,
-	}, nil
-}
-
-// NewTLSClientConfig returns a TLS config for a client connection
-// If caPath is empty, system CAs will be used
-func NewTLSClientConfig(xfs fs.FS, caPath string) (*tls.Config, error) {
-	roots, err := loadRoots(xfs, caPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return &tls.Config{RootCAs: roots}, nil
-}
-
-func loadRoots(xfs fs.FS, caPath string) (*x509.CertPool, error) {
-	if caPath == "" {
-		return nil, nil
-	}
-
-	roots := x509.NewCertPool()
-	pem, err := fs.ReadFile(xfs, caPath)
-	if err != nil {
-		return nil, fmt.Errorf("error reading %s: %s", caPath, err)
-	}
-	ok := roots.AppendCertsFromPEM(pem)
-	if !ok {
-		return nil, fmt.Errorf("could not read root certs: %s", err)
-	}
-	return roots, nil
+	return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 }

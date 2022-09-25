@@ -136,13 +136,13 @@ func newServer(ctx context.Context, opts ...ServerOption) Server {
 		o(&options)
 	}
 
-	//interceptors := []grpc.UnaryServerInterceptor{
+	// interceptors := []grpc.UnaryServerInterceptor{
 	//    // interceptor.NewAuthTokenPropagator(),
-	//}
+	// }
 	//
-	//opts := []grpc.ServerOption{
+	// opts := []grpc.ServerOption{
 	//    middleware.WithUnaryServerChain(interceptors...),
-	//}
+	// }
 
 	if options.Listener == nil {
 		var err error

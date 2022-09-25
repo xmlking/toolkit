@@ -2,7 +2,6 @@ package server
 
 import (
 	"go.opencensus.io/trace"
-	"go.opentelemetry.io/otel/exporters/prometheus"
 )
 
 type (
@@ -10,16 +9,15 @@ type (
 	ServerConfiguration struct {
 		Name          string
 		Log           string
-		Mode          string            `json:",default=pro,options=dev|test|rt|pre|pro"`
-		MetricsUrl    string            `json:",optional"`
-		Prometheus    prometheus.Config `json:",optional"`
-		Telemetry     trace.Config      `json:",optional"`
+		Mode          string       `json:",default=pro,options=dev|test|rt|pre|pro"`
+		MetricsURL    string       `json:",optional"`
+		Telemetry     trace.Config `json:",optional"`
 		ListenOn      string
 		Auth          bool `json:",optional"`
 		StrictControl bool `json:",optional"`
 		// setting 0 means no timeout
 		Timeout      int64 `json:",default=2000"`
-		CpuThreshold int64 `json:",default=900,range=[0:1000]"`
+		CPUThreshold int64 `json:",default=900,range=[0:1000]"`
 	}
 
 	// ClientConfiguration is for gRPC client config.

@@ -10,5 +10,6 @@ use (
 	./examples/subscribe
 	./logger
 	./telemetry
-	./xds
 )
+
+replace github.com/xmlking/toolkit v0.3.2 => ./

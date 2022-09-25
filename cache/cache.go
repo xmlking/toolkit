@@ -30,8 +30,8 @@ func NewCache(size int) *GetSetCache {
 }
 
 func (c *GetSetCache) GetOrSet(k interface{}, setFn SetFn) (v interface{}, err error) {
-	if v, ok := c.lru.Get(k); ok {
-		return v, nil
+	if val, ok := c.lru.Get(k); ok {
+		return val, nil
 	}
 	acquired := c.locker.Lock(k, func() {
 		v, err = setFn()

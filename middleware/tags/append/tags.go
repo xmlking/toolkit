@@ -24,7 +24,7 @@ func UnaryServerInterceptor(opts ...Option) grpc.UnaryServerInterceptor {
 			pairs = append(pairs, k, vv[0])
 		}
 
-		if options.traceIdEnabled {
+		if options.traceIDEnabled {
 			pairs = append(pairs, constants.TraceIDKey, uuid.New().String())
 		}
 
@@ -51,7 +51,7 @@ func UnaryClientInterceptor(opts ...Option) grpc.UnaryClientInterceptor {
 			pairs = append(pairs, k, vv[0])
 		}
 
-		if options.traceIdEnabled {
+		if options.traceIDEnabled {
 			pairs = append(pairs, constants.TraceIDKey, uuid.New().String())
 		}
 

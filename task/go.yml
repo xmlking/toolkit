@@ -13,7 +13,8 @@ vars:
   VERSION:
     sh: git rev-parse --short HEAD
   GO_PACKAGES:
-    sh: go mod tidy && go list ./...
+#    sh: go mod tidy && go list -m
+    sh: go list -f '{{.Dir}}/...' -m | xargs
   TIMEOUT: 60s
   CODECOV_FILE: build/coverage.txt
 
@@ -72,7 +73,7 @@ tasks:
     vars:
       ARGS: '{{default "-short" .ARGS}}'
     cmds:
-      - go test -timeout {{.TIMEOUT}} {{.ARGS}} {{catLines .GO_PACKAGES}}
+      - echo go test -v -timeout {{.TIMEOUT}} {{.ARGS}} $(go list -f '{{.Dir}}/...' -m | xargs)
     silent: true
   ## Run only unit tests
   test-unit:

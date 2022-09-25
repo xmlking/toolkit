@@ -201,7 +201,8 @@ task go:format
 ### Test
 
 ```bash
-task go:test
+#task go:test
+go test -v $(go list -f '{{.Dir}}/...' -m | xargs)
 ```
 
 ### Release

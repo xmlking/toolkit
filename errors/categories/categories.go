@@ -11,7 +11,7 @@ type Categorized interface {
 	error
 	CodeInt()
 	CodeString()
-	//Category() Category
+	//    Category() Category
 }
 
 const (
@@ -27,7 +27,7 @@ const (
 	// DataError
 	Data Category = 3
 
-	//_maxCode = 5
+	// _maxCode = 5
 )
 
 func (c Category) String() string {

@@ -10,7 +10,7 @@ type Options struct {
 	metadata       metadata.MD
 	metadataFunc   MetadataFunc
 	overwrite      bool
-	traceIdEnabled bool
+	traceIDEnabled bool
 }
 
 type MetadataFunc func() metadata.MD
@@ -19,7 +19,7 @@ type MetadataFunc func() metadata.MD
 func defaultOptions() Options {
 	return Options{
 		overwrite:      true,
-		traceIdEnabled: false,
+		traceIDEnabled: false,
 		metadataFunc:   func() metadata.MD { return metadata.MD{} },
 	}
 }
@@ -39,7 +39,7 @@ func WithMetadataFunc(f MetadataFunc) Option {
 
 func WithTraceID() Option {
 	return func(args *Options) {
-		args.traceIdEnabled = true
+		args.traceIDEnabled = true
 	}
 }
 

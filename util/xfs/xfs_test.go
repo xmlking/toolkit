@@ -91,6 +91,7 @@ func TestXFS_absolute_path(t *testing.T) {
 	f, err := os.CreateTemp("", "sample")
 	assert.NoError(t, err)
 	err = os.WriteFile(f.Name(), []byte("hello, world"), 0666)
+	assert.NoError(t, err)
 	t.Log(f.Name())
 
 	efx := xfs.FS(fixtures)
