@@ -5,16 +5,18 @@ go 1.19
 require (
 	github.com/cloudevents/sdk-go/v2 v2.12.0
 	github.com/rs/zerolog v1.28.0
-	github.com/xmlking/toolkit v0.3.3
+	github.com/xmlking/toolkit v0.3.4
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 )
 
 require (
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/cockroachdb/errors v1.9.0 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20211118104740-dabe8e521a4f // indirect
 	github.com/cockroachdb/redact v1.1.3 // indirect
 	github.com/getsentry/sentry-go v0.13.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect

@@ -6,8 +6,8 @@ require (
 	cloud.google.com/go/pubsub v1.25.1
 	github.com/cockroachdb/errors v1.9.0
 	github.com/rs/zerolog v1.28.0
-	github.com/xmlking/toolkit v0.3.3
-	github.com/xmlking/toolkit/broker/pubsub v0.3.3
+	github.com/xmlking/toolkit v0.3.4
+	github.com/xmlking/toolkit/broker/pubsub v0.3.4
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 )
 
