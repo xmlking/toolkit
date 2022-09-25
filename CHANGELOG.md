@@ -12,6 +12,13 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.3.4](https://github.com/xmlking/toolkit/compare/v0.3.3..v0.3.4) - 2022-09-25
+#### Bug Fixes
+- **(deps)** updated deps [skip ci] - ([aa5c71f](https://github.com/xmlking/toolkit/commit/aa5c71f8ffdc0967ad32cf695dd908c6d1566aa3)) - [@xmlking](https://github.com/xmlking)
+- **(root)** fix validation required_if [skip ci] - ([1a03664](https://github.com/xmlking/toolkit/commit/1a03664f8d7278801d9e743b6a7285811b5efc81)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.3.3](https://github.com/xmlking/toolkit/compare/v0.3.2..v0.3.3) - 2022-09-25
 #### Bug Fixes
 - **(deps)** updated deps [skip ci] - ([f95607b](https://github.com/xmlking/toolkit/commit/f95607b6aa1a2d16246566ecadf8fd5f6c5f464e)) - [@xmlking](https://github.com/xmlking)
