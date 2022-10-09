@@ -14,7 +14,7 @@ require (
 	go.opencensus.io v0.23.0
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7
 	golang.org/x/tools v0.1.12
-	google.golang.org/grpc v1.49.0
+	google.golang.org/grpc v1.50.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
