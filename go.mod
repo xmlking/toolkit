@@ -8,7 +8,6 @@ require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/hashicorp/golang-lru v0.5.4
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.0
 	go.opencensus.io v0.23.0
