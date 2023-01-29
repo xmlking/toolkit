@@ -6,7 +6,7 @@ require (
 	github.com/cockroachdb/errors v1.9.0
 	github.com/creasty/defaults v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/stoewer/go-strcase v1.2.0
 	github.com/stretchr/testify v1.8.0
 	gopkg.in/yaml.v2 v2.4.0
