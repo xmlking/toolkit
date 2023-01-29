@@ -3,7 +3,7 @@ module github.com/xmlking/toolkit/confy
 go 1.19
 
 require (
-	github.com/cockroachdb/errors v1.9.0
+	github.com/cockroachdb/errors v1.9.1
 	github.com/creasty/defaults v1.6.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/rs/zerolog v1.28.0
