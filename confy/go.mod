@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/rs/zerolog v1.28.0
 	github.com/stoewer/go-strcase v1.2.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.2
 	gopkg.in/yaml.v2 v2.4.0
 )
 
