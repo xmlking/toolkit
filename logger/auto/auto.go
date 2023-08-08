@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/xmlking/toolkit/logger"
-	"github.com/xmlking/toolkit/util/env"
+	"github.com/xmlking/toolkit/util/environs"
 )
 
 func init() {
@@ -35,9 +35,9 @@ func init() {
 
 	if logFileName := os.Getenv("CONFY_LOG_FILE"); len(logFileName) > 0 {
 		lw := logger.FileWriter(logFileName, logger.FileConfig{
-			MaxSize:    env.GetEnvAsInt("CONFY_LOG_FILE_MAX_SIZE", 5),
-			MaxBackups: env.GetEnvAsInt("CONFY_LOG_FILE_MAX_BACKUPS", 10),
-			MaxAge:     env.GetEnvAsInt("CONFY_LOG_FILE_MAX_AGE", 14),
+			MaxSize:    environs.GetEnvAsInt("CONFY_LOG_FILE_MAX_SIZE", 5),
+			MaxBackups: environs.GetEnvAsInt("CONFY_LOG_FILE_MAX_BACKUPS", 10),
+			MaxAge:     environs.GetEnvAsInt("CONFY_LOG_FILE_MAX_AGE", 14),
 		})
 		opts = append(opts, logger.WithOutput(lw))
 
