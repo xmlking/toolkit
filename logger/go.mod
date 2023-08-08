@@ -6,6 +6,7 @@ require (
 	github.com/cockroachdb/errors v1.10.0
 	github.com/rs/zerolog v1.30.0
 	google.golang.org/grpc v1.57.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (

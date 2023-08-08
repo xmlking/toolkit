@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/xmlking/toolkit/logger"
+	"github.com/xmlking/toolkit/util/env"
 )
 
 func init() {
@@ -33,14 +34,22 @@ func init() {
 	}
 
 	if logFileName := os.Getenv("CONFY_LOG_FILE"); len(logFileName) > 0 {
-		// TODO defer file.Close()
-		if file, err := os.OpenFile(logFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.FileMode(0o666)); err != nil {
-			log.Fatal().Err(err).Send()
-		} else {
-			// Merging log writers: Stderr output and file output
-			multi := zerolog.MultiLevelWriter(os.Stderr, file)
-			opts = append(opts, logger.WithOutput(multi))
-		}
+		lw := logger.FileWriter(logFileName, logger.FileConfig{
+			MaxSize:    env.GetEnvAsInt("CONFY_LOG_FILE_MAX_SIZE", 5),
+			MaxBackups: env.GetEnvAsInt("CONFY_LOG_FILE_MAX_BACKUPS", 10),
+			MaxAge:     env.GetEnvAsInt("CONFY_LOG_FILE_MAX_AGE", 14),
+		})
+		opts = append(opts, logger.WithOutput(lw))
+
+		/**
+		  // TODO defer file.Close()
+		  if file, err := os.OpenFile(logFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.FileMode(0o666)); err != nil {
+		    log.Fatal().Err(err).Send()
+		  } else {
+		    // Merging log writers: Stderr output and file output
+		    multi := zerolog.MultiLevelWriter(os.Stderr, file)
+		    opts = append(opts, logger.WithOutput(multi))
+		  **/
 	}
 
 	logger.DefaultLogger = logger.NewLogger(opts...)

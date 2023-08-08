@@ -18,6 +18,17 @@ Other option to initialize logger is to set DefaultLogger your self. this will g
 logger.DefaultLogger =logger.NewLogger()
 logger.DefaultLogger =logger.NewLogger(logger.WithLevel(zerolog.DebugLevel), logger.WithFormat(logger.PRETTY))
 logger.DefaultLogger =logger.NewLogger(logger.WithLevel(zerolog.DebugLevel), logger.WithFormat(logger.PRETTY), logger.EnableGrpcLog(true))
+// with rotating file writer
+lw := logger.FileWriter(
+	    "test-demo.log",
+        logger.FileConfig{
+            MaxSize:    5,
+            MaxBackups: 10,
+            MaxAge:     14,
+            Compress:   true,
+        }
+	)
+logger.NewLogger(logger.WithOutput(lw), logger.WithFormat(logger.JSON), logger.WithLevel(zerolog.WarnLevel))
 ```
 
 Once logger is initialized, then you can use standard `github.com/rs/zerolog/log` package's helper methods to log in your code.
