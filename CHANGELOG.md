@@ -12,6 +12,14 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.5.2](https://github.com/xmlking/toolkit/compare/v0.5.1..v0.5.2) - 2023-08-08
+#### Bug Fixes
+- rename env package to environs - ([78f7e0c](https://github.com/xmlking/toolkit/commit/78f7e0c8af59f1cb69346fcd0d7ad18598891687)) - [@xmlking](https://github.com/xmlking)
+- rename env package to environs - ([cb6ae89](https://github.com/xmlking/toolkit/commit/cb6ae8988abe303ccc85a59fbeb4443d8e1e0ba4)) - [@xmlking](https://github.com/xmlking)
+- rename env package to environs - ([5f40e47](https://github.com/xmlking/toolkit/commit/5f40e476bf275d1b2be9d721f52fd75ce45d92f5)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.5.1](https://github.com/xmlking/toolkit/compare/v0.5.0..v0.5.1) - 2023-08-08
 #### Bug Fixes
 - add log file rotation - ([5138c84](https://github.com/xmlking/toolkit/commit/5138c843c332c5188f4ffc5c5ad944a3a44d0419)) - [@xmlking](https://github.com/xmlking)
