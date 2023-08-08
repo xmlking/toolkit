@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	github.com/cockroachdb/errors v1.10.0
 	github.com/rs/zerolog v1.30.0
-	github.com/xmlking/toolkit v0.3.4
+	github.com/xmlking/toolkit v0.4.0
 	github.com/xmlking/toolkit/broker/pubsub v0.3.4
 	golang.org/x/sync v0.3.0
 )
@@ -34,7 +34,6 @@ require (
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

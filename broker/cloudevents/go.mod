@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/cloudevents/sdk-go/v2 v2.14.0
 	github.com/rs/zerolog v1.30.0
-	github.com/xmlking/toolkit v0.3.4
+	github.com/xmlking/toolkit v0.4.0
 	golang.org/x/sync v0.3.0
 )
 
@@ -25,7 +25,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
