@@ -12,6 +12,16 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.5.0](https://github.com/xmlking/toolkit/compare/v0.4.0..v0.5.0) - 2023-08-08
+#### Build system
+- **(deps)** update deps - ([429d967](https://github.com/xmlking/toolkit/commit/429d9676add0722d9da5d3376245b3ae2e62d6da)) - [@xmlking](https://github.com/xmlking)
+#### Features
+- add log file rotation - ([47334d2](https://github.com/xmlking/toolkit/commit/47334d25f167c064846e90e180708f80d00c479b)) - [@xmlking](https://github.com/xmlking)
+- add log file rotation - ([e396c0e](https://github.com/xmlking/toolkit/commit/e396c0ea6346e5bc8209e3420bcf1c5f2bd5d2d1)) - [@xmlking](https://github.com/xmlking)
+- add log file rotation - ([a471fab](https://github.com/xmlking/toolkit/commit/a471fab74aa621bf88544573042ae00d8e2363b6)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.4.0](https://github.com/xmlking/toolkit/compare/v0.3.4..v0.4.0) - 2023-08-08
 #### Bug Fixes
 - **(root)** fix validation required_if [skip ci] - ([d8e9c5f](https://github.com/xmlking/toolkit/commit/d8e9c5f1a157d5044d82d9ac66dce37f67b99bbd)) - [@xmlking](https://github.com/xmlking)
