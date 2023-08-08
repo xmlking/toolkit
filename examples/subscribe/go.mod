@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/pubsub v1.33.0
 	github.com/cockroachdb/errors v1.10.0
 	github.com/rs/zerolog v1.30.0
-	github.com/xmlking/toolkit v0.5.0
+	github.com/xmlking/toolkit v0.5.1
 	github.com/xmlking/toolkit/broker/pubsub v0.3.4
 	golang.org/x/sync v0.3.0
 )
