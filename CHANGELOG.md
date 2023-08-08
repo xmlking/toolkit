@@ -12,6 +12,12 @@
 - **(root)** adding service config for future use[skip ci] - ([b8a09b7](https://github.com/xmlking/toolkit/commit/b8a09b7bc8a1afdc51e5fe5aa4cd9cf405b21db3)) - [@xmlking](https://github.com/xmlking)
 
 - - -
+## [v0.5.1](https://github.com/xmlking/toolkit/compare/v0.5.0..v0.5.1) - 2023-08-08
+#### Bug Fixes
+- add log file rotation - ([5138c84](https://github.com/xmlking/toolkit/commit/5138c843c332c5188f4ffc5c5ad944a3a44d0419)) - [@xmlking](https://github.com/xmlking)
+
+- - -
+
 ## [v0.5.0](https://github.com/xmlking/toolkit/compare/v0.4.0..v0.5.0) - 2023-08-08
 #### Build system
 - **(deps)** update deps - ([429d967](https://github.com/xmlking/toolkit/commit/429d9676add0722d9da5d3376245b3ae2e62d6da)) - [@xmlking](https://github.com/xmlking)
