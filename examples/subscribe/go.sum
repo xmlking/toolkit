@@ -125,8 +125,7 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.3 h1:RP3t2pwF7cMEbC1dqtB6poj3niw/9gnV4Cjg5oW5gtY=
-github.com/xmlking/toolkit v0.4.0 h1:R4+uksKRkZDHjvP4y9hSZzpGDACyK0usTCQ65oposJk=
-github.com/xmlking/toolkit v0.4.0/go.mod h1:ip5v+nE06uz6okNLKw8qTx9gVCIhU4Mogg5n2wLVccM=
+github.com/xmlking/toolkit v0.5.0 h1:K49+YYsWGs0irlIIui5xrfFSTAK/myE6avUJ66rAHU0=
 github.com/xmlking/toolkit/broker/pubsub v0.3.4 h1:nzSgVR57XBx4UlRQ+8D8WurgDWmf8Juhg2W9iqRCXzw=
 github.com/xmlking/toolkit/broker/pubsub v0.3.4/go.mod h1:eB2zaQBOXE6gXn2HLB3m/SGqaEWSaIlNg88x+7XNMt8=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
